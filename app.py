@@ -32,6 +32,22 @@ def create_database():
                    )
                    """)
 
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Electronics')")
+    cursor.execute("INSERT OR IGNORE INTO category (name) VALUES ('Books')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Furniture')")
+
+    cursor.execute(
+        "INSERT INTO item (title,description,category_id,price,status) VALUES ('Computer', 'Brand new fr', 1 , 2000, 'Reserved')")
+
+    cursor.execute("SELECT * FROM category")
+    categories = cursor.fetchall()
+    print("category:", categories)
+
+    cursor.execute("SELECT * FROM item")
+    items = cursor.fetchall()
+    print("Items:", items)
     connect.commit()
     connect.close()
 
