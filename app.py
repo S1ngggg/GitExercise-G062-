@@ -4,6 +4,8 @@ import sqlite3
 app = Flask(__name__)
 
 
+# Creating the tables
+
 def create_database():
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
@@ -18,6 +20,14 @@ def create_database():
                    """)
 
     cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS status(
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   condition TEXT NOT NULL UNIQUE
+                   
+                   )
+                   """)
+
+    cursor.execute("""
 
 
                    CREATE TABLE IF NOT EXISTS item(
@@ -25,12 +35,14 @@ def create_database():
                    title TEXT NOT NULL,
                    description TEXT NOT NULL,
                    category_id INTEGER NOT NULL,
+                   status_id INTEGER NOT NULL,
                    price REAL NOT NULL,
-                   status TEXT NOT NULL,
                    FOREIGN KEY(category_id) REFERENCES category(id)
 
                    )
                    """)
+
+# Adding default categories
 
     cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Electronics')")
@@ -38,16 +50,14 @@ def create_database():
     cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Furniture')")
 
+# Adding default and possibly permanent status conditions
+
+    cursor.execute("INSERT OR IGNORE INTO status(condition) VALUES ('Sold')")
     cursor.execute(
-        "INSERT INTO item (title,description,category_id,price,status) VALUES ('Computer', 'Brand new fr', 1 , 2000, 'Reserved')")
+        "INSERT OR IGNORE INTO status(condition) VALUES ('Reserved')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO status(condition) VALUES ('Available')")
 
-    cursor.execute("SELECT * FROM category")
-    categories = cursor.fetchall()
-    print("category:", categories)
-
-    cursor.execute("SELECT * FROM item")
-    items = cursor.fetchall()
-    print("Items:", items)
     connect.commit()
     connect.close()
 
