@@ -9,20 +9,26 @@ def create_database():
     cursor = connect.cursor()
 
     cursor.execute("""
-                   
+
                    CREATE TABLE IF NOT EXISTS category(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   name TEXT NOT NULL UNIQUE)
+                   name TEXT NOT NULL UNIQUE
+                   
+                   )
+                   """)
+
+    cursor.execute("""
+
 
                    CREATE TABLE IF NOT EXISTS item(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    title TEXT NOT NULL,
                    description TEXT NOT NULL,
-                   category_id TEXT NOT NULL,  
-                   price REAL NOT NULL, 
-                   status TEXT NOT NULL, 
-                   FOREIGN KEY (category_id) REFERENCES category(id)
-                   
+                   category_id INTEGER NOT NULL,
+                   price REAL NOT NULL,
+                   status TEXT NOT NULL,
+                   FOREIGN KEY(category_id) REFERENCES category(id)
+
                    )
                    """)
 
