@@ -30,9 +30,9 @@ body {
 }
 
 .outside {
+    display: block; /* Set display to block to make the container take up the full width of the page */
     background-color: #eee6c6;
     height: 100vh;
-    display: flex; /* Use flexbox to arrange content horizontally ， is used to create a flexbox layout can arrange elemnts in arow or column and makes it easy to align and distribute space among items */
     justify-content: center; /* Center the content inside container horizontally */
     align-items: center; /* Center the content inside container vertically */
 }
@@ -42,8 +42,8 @@ body {
     color: white;
     padding: 20px; /* Added padding for better spacing , added space between elements and borders*/
     border-radius: 20px;    /* Added border-radius for rounded corners */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow for depth */
-    display: flex; /* Use flexbox to arrange content horizontally */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow */
+    display: flex; 
     flex-direction: column; /* Arrange content in a column */
     width: 80%;
     margin: 40px auto;
@@ -75,9 +75,9 @@ button:hover {
 
 .content {
     flex: 1; /* make the content to take up remaining space in the container */
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex; 
     justify-content: space-between; /* Space out content */
-    padding: 40px; /* Add padding to content for better spacing */
+    padding: 40px;
 }
 
 .leftside, .rightside {
@@ -100,7 +100,7 @@ button:hover {
 }
 
 .right-h1 {
-    text-align: right; /* Align text to the right */
+    text-align: right; 
     font-family: "Satisfy", cursive;
     font-size: 48px; /* Set font size for right side heading */
     font-style: normal;
@@ -113,7 +113,7 @@ button:hover {
 }
 
 .right-h2 {
-    text-align: right; /* Align text to the right */
+    text-align: right;
     font-family: "Playfair Display", serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -123,7 +123,7 @@ button:hover {
 }
 
 .right-p {
-    text-align: right; /* Align text to the right */
+    text-align: right; 
     color: #e07a2f;
 
 }
@@ -142,33 +142,33 @@ button:hover {
 }
 
 .right-button:hover {
-    background-color: #e07a2f; /* Change background color on hover for better interactivity */
-    cursor: pointer; /* Change cursor to pointer on hover when the pointer is over the button the button will change into orange color */
+    background-color: #e07a2f; 
+    cursor: pointer; 
 }
 
 .insidepart2 {
-    background: linear-gradient(#98cbea,#fffaee); /* Added a gradient background （smooth transition from one color to another color） */
-    padding: 20px; /* Added padding for better spacing , added space between elements and borders*/
-    border-radius: 20px;    /* Added border-radius for rounded corners */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow for depth */
+    background: linear-gradient(#98cbea,#fffaee); 
+    padding: 20px; 
+    border-radius: 20px;    
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); 
     width: 100%;
     margin-top: 40px;
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex;
     width:80%;
     margin: 40px auto;
     justify-content: flex-start; /* let the content start from top */
     flex-direction: column; /* Arrange content in a column */
     height: 85vh;
-    align-items: center; /* Center the content inside container vertically */
+    align-items: center; 
 }
 
 .headerpart2 {
     font-family: "DM Serif Text", serif;
     font-weight: 400;
     font-style: normal;
-    text-align: center; /* Center the text */
+    text-align: center; 
     color:#2f5d9f;
-    font-size : 48px; /* Set font size for right side heading */
+    font-size : 48px; 
 
 }
 
@@ -179,7 +179,7 @@ html {
 .ppart2 {
     margin-top: 0px;
     padding: 40px;
-    text-align: center; /* Center the text */
+    text-align: center; 
     font-style: normal;
     color: black;
     line-height: 1.4;
@@ -192,27 +192,27 @@ html {
 }
 
 .insidepart3 {
-    background: linear-gradient(#8fb6e8, #f5f7fa); /* Added a gradient background （smooth transition from one color to another color） */
-    padding: 20px; /* Added padding for better spacing , added space between elements and borders*/
-    border-radius: 20px;    /* Added border-radius for rounded corners */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow for depth */
+    background: linear-gradient(#8fb6e8, #f5f7fa); 
+    padding: 20px; 
+    border-radius: 20px;   
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); 
     width: 100%;
     margin-top: 20px;
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex; 
     width:80%;
     margin: 40px auto;
     justify-content: flex-start; /* let the content start from top */
-    flex-direction: column; /* Arrange content in a column */
+    flex-direction: column; 
     height: auto;
-    align-items: center; /* Center the content inside container vertically */
+    align-items: center; 
     padding-top: 0px;
     padding-bottom: 0px;
 }
 
 .contentpart3 {
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex; 
     gap: 60px; /* Add space between left and right side */
-    padding: 40px; /* Add padding to content for better spacing */
+    padding: 40px; 
     width: 100%;
     padding: 20px;
     justify-content: center;
@@ -223,7 +223,7 @@ html {
     font-family: "DM Serif Text", serif;
     font-weight: 400;
     font-style: normal;
-    text-align: center; /* Center the text */
+    text-align: center; 
     color:#2f5d9f;
     font-size : 48px; 
     margin-bottom: 0px;
@@ -232,17 +232,17 @@ html {
 
 
 .part3left, .part3right {
-    flex: 1; /* Allow left and right side to take equal space */
+    flex: 1; 
 }
 
 .part3left {
-    display:flex; /* Use flexbox to arrange left side content vertically */
+    display:flex; 
     flex-direction: column;
     gap: 30px; /*gap between each other*/
 }
 
 .part3left1, .part3left2{
-    display :flex; /* Use flexbox to arrange left side content vertically */
+    display :flex; 
     align-items: flex-start; /* Align left side content to the top */
     gap: 15px;
     margin: 5px auto;
@@ -257,13 +257,13 @@ html {
     width:350px; /* Set a fixed width for all cards to be consistent */
     background-color: #ffffff;
     border: 2px; /* Add a border to the cards */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); 
 }
 
 .text {
-    display: flex; /* Use flexbox to arrange text content vertically */
+    display: flex; 
     flex-direction: column;
-    max-width: 300px; /* Set a maximum width for the text content */
+    max-width: 300px; 
 }
 
 .text h3{
