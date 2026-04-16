@@ -30,9 +30,9 @@ body {
 }
 
 .outside {
+    display: block; /* Set display to block to make the container take up the full width of the page */
     background-color: #eee6c6;
     height: 100vh;
-    display: flex; /* Use flexbox to arrange content horizontally ， is used to create a flexbox layout can arrange elemnts in arow or column and makes it easy to align and distribute space among items */
     justify-content: center; /* Center the content inside container horizontally */
     align-items: center; /* Center the content inside container vertically */
 }
@@ -153,7 +153,7 @@ button:hover {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow for depth */
     width: 100%;
     margin-top: 40px;
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex;
     width:80%;
     margin: 40px auto;
     justify-content: flex-start; /* let the content start from top */
@@ -198,7 +198,7 @@ html {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Added box-shadow for depth */
     width: 100%;
     margin-top: 20px;
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex; 
     width:80%;
     margin: 40px auto;
     justify-content: flex-start; /* let the content start from top */
@@ -210,7 +210,7 @@ html {
 }
 
 .contentpart3 {
-    display: flex; /* Use flexbox to arrange content horizontally */
+    display: flex; 
     gap: 60px; /* Add space between left and right side */
     padding: 40px; /* Add padding to content for better spacing */
     width: 100%;
