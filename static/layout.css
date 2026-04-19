@@ -311,3 +311,14 @@ html {
     gap: 15px;
 }
 
+footer {
+    background-color: #2f5d9f;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.footer-name {
+    line-height: 0.7;
+    color:#ffcc70;
+}
