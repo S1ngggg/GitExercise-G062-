@@ -31,8 +31,21 @@ def create_database():
 
                    )
                    """)
+    #create user table if does not exist yet
+    cursor.execute("""
+                   
+                CREATE TABLE IF NOT EXISTS user(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                gender TEXT NOT NULL,
+                role TEXT NOT NULL
+                )
 
-    connect.commit()
+                """)
+
+    connect.commit()#save change to the database
     connect.close()
 
 
@@ -40,8 +53,35 @@ def create_database():
 def home():
     return render_template("index.html")
 
-@app.route("/register")
+from flask import request, redirect, url_for #import tools for handling form data and page navigation
+
+@app.route("/register", methods=['GET','POST'])#accept displaying form and processing form
 def register():
+    if request.method == 'POST':#if user submit form
+        email = request.form['email']#data from frontend
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        gender = request.form['gender']
+        role = request.form['role']
+
+        if password != confirm_password:
+            return "Password not match"
+
+
+        conn = sqlite3.connect('database.db')#connect to sqlite database
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO user (email, username, password, gender, role)
+            VALUES(?, ?, ?, ?, ?)
+            """,(email, username, password, gender, role)) #insert user data using ? 
+        
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('login'))#after form submitted jump to login page
+    
     return render_template("register.html")
 
 @app.route("/login")

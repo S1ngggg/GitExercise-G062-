@@ -29,42 +29,42 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" name="email" placeholder="Please Enter Your Email."> <!--name is the key used to send data to backend-->
+                        <input type="email" name="email" placeholder="Please Enter Your Email." required> <!--name is the key used to send data to backend-->
                     </div>
 
                     <div class="input-group">
-                        <label>User Name</label>
-                        <input type="text" name="user name" placeholder="Please Enter Your User Name.">
+                        <label>UserName</label>
+                        <input type="text" name="username" placeholder="Please Enter Your User Name." required>
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" name="password" placeholder="Please Enter Your Password.">
+                        <input type="password" name="password" placeholder="Please Enter Your Password." required>
                     </div>
                     <div class="input-group">
-                        <label>Comfirm Password</label>
-                        <input type="password" name="password" placeholder="Please Comfirm Your Password Again.">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirm_password" placeholder="Please Confirm Your Password Again." required>
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-group">
                         <label>Gender</label>
-                        <select name="gender">
-                            <option>Select</option>
-                            <option>Male</option>
-                            <option>Female</option>
+                        <select name="gender" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label>Roles</label>
-                        <select name="role">
-                            <option>Select</option>
-                            <option>Seller</option>
-                            <option>Buyer</option>
-                            <option>Both</option>
+                        <select name="role" required>
+                            <option value="">Select</option>
+                            <option value="Seller">Seller</option>
+                            <option value="Buyer">Buyer</option>
+                            <option value="Both">Both</option>
                         </select>
                     </div>
                 </div>
