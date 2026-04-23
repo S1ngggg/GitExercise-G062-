@@ -126,10 +126,25 @@ def home_page():
     return render_template("home.html")
 
 
-@app.route("/item_form")
+@app.route("/item_form", methods=['GET', 'POST'])
 def item_form():
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
+
+    if request.method == 'POST':
+
+        title = request.form["title"]
+        description = request.form["description"]
+        price = request.form['price']
+        category = request.form['category']
+        status = request.form['status']
+
+        cursor.execute("""
+                       INSERT INTO item(title, description, category_id, status_id, price)
+                       VALUES(?,?,?,?,?)
+                       """, (title, description, category, status, price))
+        connect.commit()
+        return "Item saved"
 
     # getting all the categories
     cursor.execute("SELECT * FROM category")
