@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="/css/layout.css">
+</head>
+
+<body class="body-register"> 
+    <div class="background-color"></div>
+    <div class="background-img"></div>
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <div class="navigation">
+            <a href="{{url_for('home')}}">
+                <button>Back</button>
+            </a>
+            <a href="{{url_for('login')}}">
+                <button>Login</button>
+            </a>
+        </div>
+    </header>
+    <div class="register-container">
+        <div class="register-form">
+            <h2>MMU Marketplace</h2>
+            <h3>Register</h3>
+            <form method="post" action="{{url_for('register')}}"> <!--connect form with flask route, gather all data send to backend, for action is define where to send data-->
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="Please Enter Your Email."> <!--name is the key used to send data to backend-->
+                    </div>
+
+                    <div class="input-group">
+                        <label>User Name</label>
+                        <input type="text" name="user name" placeholder="Please Enter Your User Name.">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Please Enter Your Password.">
+                    </div>
+                    <div class="input-group">
+                        <label>Comfirm Password</label>
+                        <input type="password" name="password" placeholder="Please Comfirm Your Password Again.">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Gender</label>
+                        <select name="gender">
+                            <option>Select</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Roles</label>
+                        <select name="role">
+                            <option>Select</option>
+                            <option>Seller</option>
+                            <option>Buyer</option>
+                            <option>Both</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="register-button">Register</button> <!--press button to submit the register form to backend-->
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
 
