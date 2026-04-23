@@ -126,6 +126,11 @@ def home_page():
     return render_template("home.html")
 
 
+@app.route("/marketplace")
+def marketplace():
+    return render_template("marketplace.html")
+
+
 @app.route("/item_form", methods=['GET', 'POST'])
 def item_form():
     connect = sqlite3.connect("database.db")
