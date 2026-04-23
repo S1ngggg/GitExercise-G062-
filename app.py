@@ -38,7 +38,7 @@ def create_database():
                    status_id INTEGER NOT NULL,
                    price REAL NOT NULL,
                    FOREIGN KEY(category_id) REFERENCES category(id)
-
+                   FOREIGN KEY(status_id) REFERENCES status(id)
                    )
                    """)
 
