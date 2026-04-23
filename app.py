@@ -144,6 +144,7 @@ def item_form():
                        VALUES(?,?,?,?,?)
                        """, (title, description, category, status, price))
         connect.commit()
+        connect.close()
         return "Item saved"
 
     # getting all the categories
@@ -153,7 +154,6 @@ def item_form():
     # getting all statuses
     cursor.execute("SELECT * FROM status")
     status_list = cursor.fetchall()
-
     connect.close()
 
     return render_template("item_form.html", categories=categories_list, status=status_list)
