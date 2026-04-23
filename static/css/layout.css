@@ -479,3 +479,36 @@ input,select{
     font-size: 17px;
 
 }
+
+/* marketplace.html css */
+
+.marketplace-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f5f7fa;
+}
+
+.marketplace-card {
+    width: 100%;
+    max-width: 700px;
+    padding: 40px 30px;
+    text-align: center;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.marketplace-card h1 {
+    margin-top: 0;
+    color: #2f5d9f;
+    font-family: "DM Serif Text", serif;
+}
+
+.marketplace-card p {
+    margin-bottom: 0;
+    color: #4b5563;
+    font-family: "Fredoka", sans-serif;
+}

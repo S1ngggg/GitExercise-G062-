@@ -21,6 +21,9 @@
                 <a href="#features">
                 <button>Features</button>
                 </a>
+                <a href="{{url_for('marketplace')}}">
+                <button>Marketplace</button>
+                </a>
             </div>
 
             </header>
@@ -37,6 +40,7 @@
                 <p class="right-p">Welcome to the MMU Marketplace website!</p>
                 <p class="right-p">Here you can find all the latest products and deals available.</p>
                 <div class="nav">
+                    <a href="{{url_for('marketplace')}}"><button class="right-button">Marketplace</button></a>
                     <a href="{{url_for('register')}}"><button class="right-button">Register</button></a><a href="{{url_for('login')}}"><button class="right-button">Login</button></a>
                 </div>
             </div>
