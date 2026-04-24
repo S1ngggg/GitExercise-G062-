@@ -4,9 +4,53 @@
 
 {% block content %}
 <main class="marketplace-page">
-    <div class="marketplace-card">
-        <h1>MMU Marketplace</h1>
-        <p>Marketplace page is under construction.</p>
-    </div>
+    <section class="marketplace-box">
+        <header class="marketplace-top">
+            <div>
+                <h1>MMU Marketplace</h1>
+                <p>Find simple student deals around campus.</p>
+            </div>
+            <a href="{{ url_for('home') }}">Back Home</a>
+        </header>
+
+        <form class="marketplace-filter">
+            <input type="text" name="search" placeholder="Search item...">
+
+            <select name="category">
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Books">Books</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Second-hand">Second-hand</option>
+            </select>
+
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="Available">Available</option>
+                <option value="Reserved">Reserved</option>
+                <option value="Sold">Sold</option>
+            </select>
+
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="simple-listing-grid">
+            <article class="simple-listing-card">
+                <h2>Sample Laptop</h2>
+                <p>Used laptop in good condition for study and assignment work.</p>
+                <p><b>Price:</b> RM 900</p>
+                <p><b>Category:</b> Electronics</p>
+                <p><b>Status:</b> Available</p>
+            </article>
+
+            <article class="simple-listing-card">
+                <h2>Textbook Set</h2>
+                <p>Basic second-hand books for university courses.</p>
+                <p><b>Price:</b> RM 45</p>
+                <p><b>Category:</b> Books</p>
+                <p><b>Status:</b> Reserved</p>
+            </article>
+        </div>
+    </section>
 </main>
 {% endblock %}
