@@ -126,9 +126,54 @@ def home_page():
     return render_template("home.html")
 
 
-@app.route("/marketplace")
+@app.route("/marketplace", methods=['GET'])
 def marketplace():
-    return render_template("marketplace.html")
+    search = request.args.get("search", "")
+    category = request.args.get("category", "")
+    status = request.args.get("status", "")
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT * FROM category")
+    categories_list = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM status")
+    status_list = cursor.fetchall()
+
+    query = """
+            SELECT item.title, item.description, item.price, category.name, status.condition
+            FROM item
+            JOIN category ON item.category_id = category.id
+            JOIN status ON item.status_id = status.id
+            WHERE 1 = 1
+            """
+    values = []
+
+    if search:
+        query += " AND (item.title LIKE ? OR item.description LIKE ?)"
+        values.append("%" + search + "%")
+        values.append("%" + search + "%")
+
+    if category:
+        query += " AND item.category_id = ?"
+        values.append(category)
+
+    if status:
+        query += " AND item.status_id = ?"
+        values.append(status)
+
+    cursor.execute(query, values)
+    items = cursor.fetchall()
+    connect.close()
+
+    return render_template("marketplace.html",
+                           items=items,
+                           categories=categories_list,
+                           status=status_list,
+                           search=search,
+                           selected_category=category,
+                           selected_status=status)
 
 
 @app.route("/item_form", methods=['GET', 'POST'])
