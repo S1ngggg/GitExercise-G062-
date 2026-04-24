@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Item Form </title>
+</head>
+
+<body>
+    <h1> Create Item </h1>
+    <form method="POST">
+        <label>Title:</label>
+        <input type="text" name="title">
+
+        <br><br>
+
+        <label>Description:</label>
+        <input type="text" name="description">
+
+        <br><br>
+
+        <label>Price:</label>
+        <input type="number" name="price">
+
+        <br><br>
+
+        <label>Category:</label>
+        <select name="category">
+
+            {% for id, name in categories %}
+            <option value="{{id}}">{{name}}</option>
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <label>Status:</label>
+        <select name="status">
+
+            {% for id, condition in status %}
+            <option value="{{id}}">{{condition}}</option>
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+
+</html>
