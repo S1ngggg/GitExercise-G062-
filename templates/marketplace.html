@@ -13,43 +13,41 @@
             <a href="{{ url_for('home') }}">Back Home</a>
         </header>
 
-        <form class="marketplace-filter">
-            <input type="text" name="search" placeholder="Search item...">
+        <form class="marketplace-filter" method="GET" action="{{ url_for('marketplace') }}">
+            <input type="text" name="search" placeholder="Search item..." value="{{ search }}">
 
             <select name="category">
                 <option value="">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Books">Books</option>
-                <option value="Furniture">Furniture</option>
-                <option value="Second-hand">Second-hand</option>
+                {% for id, name in categories %}
+                <option value="{{ id }}" {% if selected_category == id|string %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
             </select>
 
             <select name="status">
                 <option value="">All Status</option>
-                <option value="Available">Available</option>
-                <option value="Reserved">Reserved</option>
-                <option value="Sold">Sold</option>
+                {% for id, condition in status %}
+                <option value="{{ id }}" {% if selected_status == id|string %}selected{% endif %}>{{ condition }}</option>
+                {% endfor %}
             </select>
 
             <button type="submit">Search</button>
+            <a href="{{ url_for('marketplace') }}">Reset</a>
         </form>
 
-        <div class="simple-listing-grid">
-            <article class="simple-listing-card">
-                <h2>Sample Laptop</h2>
-                <p>Used laptop in good condition for study and assignment work.</p>
-                <p><b>Price:</b> RM 900</p>
-                <p><b>Category:</b> Electronics</p>
-                <p><b>Status:</b> Available</p>
-            </article>
+        <p>Total items found: {{ items|length }}</p>
 
+        <div class="simple-listing-grid">
+            {% for title, description, price, category_name, status_name in items %}
             <article class="simple-listing-card">
-                <h2>Textbook Set</h2>
-                <p>Basic second-hand books for university courses.</p>
-                <p><b>Price:</b> RM 45</p>
-                <p><b>Category:</b> Books</p>
-                <p><b>Status:</b> Reserved</p>
+                <h2>{{ title }}</h2>
+                <p>{{ description }}</p>
+                <p><b>Price:</b> RM {{ price }}</p>
+                <p><b>Category:</b> {{ category_name }}</p>
+                <p><b>Status:</b> {{ status_name }}</p>
             </article>
+            {% else %}
+            <p>No item found.</p>
+            {% endfor %}
         </div>
     </section>
 </main>
