@@ -41,7 +41,7 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" name="password" placeholder="Please Enter Your Password." required>
+                        <input type="password" name="password" placeholder="Please Enter Your Password." minlength="8" maxlength="20" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,20}$" title="Password must include uppercase, lowercase and number (8-20 characters)" required>
                     </div>
                     <div class="input-group">
                         <label>Confirm Password</label>
