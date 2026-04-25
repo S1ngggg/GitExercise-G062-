@@ -1,7 +1,8 @@
 # import tools for handling form data and page navigation
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, flash, session
 from flask import Flask, render_template
 import sqlite3
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -76,7 +77,7 @@ def create_database():
 
                 """)
 
-    connect.commit()  # save change to the database
+    connect.commit()  
     connect.close()
 
 
@@ -84,7 +85,8 @@ def create_database():
 def home():
     return render_template("index.html")
 
-
+app.secret_key = "your_secret_key_here"
+#required for session + flash
 # accept displaying form and processing form
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -97,27 +99,75 @@ def register():
         role = request.form['role']
 
         if password != confirm_password:
-            return "Password not match"
+            flash("Password not match")
+            return render_template("register.html")
 
         conn = sqlite3.connect('database.db')  # connect to sqlite database
         cursor = conn.cursor()
 
+        #get all column from user table and then check if the email and username already exist
+        cursor.execute("""SELECT * FROM user WHERE email = ? OR username = ?""", (email,username))
+        user= cursor.fetchone()#get result from database
+
+        #if user exist redirect to login page
+        if user:
+            flash("Email or username already exists")
+            return redirect(url_for('login'))
+        
+        #hash password befor storing into databse
+        hashed_password= generate_password_hash(password)
+        
+        #inseert new user using hashed_password
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
-            """, (email, username, password, gender, role))  # insert user data using ?
+            """, (email, username, hashed_password, gender, role))  # insert user data using ?
 
-        conn.commit()
+        conn.commit() # save change to the database
         conn.close()
 
-        # after form submitted jump to login page
+        # after successful jump to login page
+        flash("Register successful! Please login.")
         return redirect(url_for('login'))
 
     return render_template("register.html")
 
 
-@app.route("/login")
+@app.route("/login", methods=['GET', 'POST'])
 def login():
+    #IF ALREADY LOGGED IN REDIRECT TO HOME
+    if 'user_id' in session :
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        #serching user by email
+        cursor.execute("""SELECT id, email, password FROM user WHERE email =?""", (email,))
+        user=cursor.fetchone()
+        conn.close()
+
+        #if user not found
+        if not user:
+            flash("Invalid email or password")
+            return redirect(url_for('login'))
+        
+        user_id, user_email, stored_password = user #split database result into separate variable
+        
+        #compare hashed password from database with user input
+        if check_password_hash(stored_password, password):
+            session['user_id'] = user_id#create session, store user identity in session
+            session['email'] = user_email
+
+            flash("Login successsful!")
+            return redirect(url_for('home'))
+        else:
+            flash("Invalid email or password")
+            return redirect(url_for('login'))
     return render_template("login.html")
 
 
