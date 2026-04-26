@@ -580,6 +580,9 @@ input,select{
     background: transparent;
     display: flex;
     min-height: 100vh;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
     align-items: flex-start;
 }
 
@@ -595,6 +598,7 @@ input,select{
     width: 100%;
     max-width: 600px;
     max-height: 85vh;
+    transform: translateY(-20px);
 }
 
 .login-form h2 {

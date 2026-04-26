@@ -9,15 +9,6 @@
 </head>
 
 <body class="outside">
-    {% with messages = get_flashed_messages()%}
-        {% if messages%}
-            <div class="flash">
-                {%for msg in messages%}
-                    <p>{{msg}}</p>
-                {%endfor%}
-            </div>
-        {%endif%}
-    {%endwith%}
     
     <div class="insidepart1">
         <div>
@@ -109,13 +100,14 @@
 
 </body>
 
-    <footer>
-        <p>© 2026 MMU Marketplace.</p>
-        <p>Developed by:</p>
-            <p class="footer-name">Joshua Wong Hock Sing</p>
-            <p class="footer-name">Cheng Chin Kiet</p>
-            <p class="footer-name">Kwong Jia Qi</p>
-    </footer>
+<footer>
+    <p>© 2026 MMU Marketplace.</p>
+    <p>Developed by:</p>
+    <p class="footer-name">Joshua Wong Hock Sing</p>
+    <p class="footer-name">Cheng Chin Kiet</p>
+    <p class="footer-name">Kwong Jia Qi</p>
+</footer>
+
 
 
 </html>
