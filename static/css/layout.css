@@ -580,9 +580,6 @@ input,select{
     background: transparent;
     display: flex;
     min-height: 100vh;
-    padding-top: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
     align-items: flex-start;
 }
 
@@ -598,7 +595,6 @@ input,select{
     width: 100%;
     max-width: 600px;
     max-height: 85vh;
-    transform: translateY(-20px);
 }
 
 .login-form h2 {
@@ -658,4 +654,11 @@ input,select{
     background-color: #ffdddd;
     color: #a94442;
     border-radius: 5px;
+    position: fixed;
+    margin-top: 20px;
+    left: 50%;/*move the elemnts to middle*/
+    padding: 16px 20px;
+    box-shadow: 0 4px 10px (rgba(0, 0, 0, 0.2));
+    z-index: 9999; /*to make sure flash message appear above all elements*/
+    transform: translateX(-50%);/*shift left of its own width*/
 }

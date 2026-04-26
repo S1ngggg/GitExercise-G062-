@@ -85,7 +85,7 @@ def create_database():
 def home():
     return render_template("index.html")
 
-app.secret_key = "your_secret_key_here"
+app.secret_key = "my_secret_key......"
 #required for session + flash
 # accept displaying form and processing form
 @app.route("/register", methods=['GET', 'POST'])
@@ -111,7 +111,7 @@ def register():
 
         #if user exist redirect to login page
         if user:
-            flash("Email or username already exists")
+            flash("Email or username already exists. Please Login!")
             return redirect(url_for('login'))
         
         #hash password befor storing into databse
@@ -163,8 +163,7 @@ def login():
             session['user_id'] = user_id#create session, store user identity in session
             session['email'] = user_email
 
-            flash("Login successsful!")
-            return redirect(url_for('home'))
+            return redirect(url_for('home_page'))
         else:
             flash("Invalid email or password")
             return redirect(url_for('login'))
