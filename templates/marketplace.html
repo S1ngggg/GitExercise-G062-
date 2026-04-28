@@ -4,9 +4,51 @@
 
 {% block content %}
 <main class="marketplace-page">
-    <div class="marketplace-card">
-        <h1>MMU Marketplace</h1>
-        <p>Marketplace page is under construction.</p>
-    </div>
+    <section class="marketplace-box">
+        <header class="marketplace-top">
+            <div>
+                <h1>MMU Marketplace</h1>
+                <p>Find simple student deals around campus.</p>
+            </div>
+            <a href="{{ url_for('home') }}">Back Home</a>
+        </header>
+
+        <form class="marketplace-filter" method="GET" action="{{ url_for('marketplace') }}">
+            <input type="text" name="search" placeholder="Search item..." value="{{ search }}">
+
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for id, name in categories %}
+                <option value="{{ id }}" {% if selected_category == id|string %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="status">
+                <option value="">All Status</option>
+                {% for id, condition in status %}
+                <option value="{{ id }}" {% if selected_status == id|string %}selected{% endif %}>{{ condition }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Search</button>
+            <a href="{{ url_for('marketplace') }}">Reset</a>
+        </form>
+
+        <p>Total items found: {{ items|length }}</p>
+
+        <div class="simple-listing-grid">
+            {% for title, description, price, category_name, status_name in items %}
+            <article class="simple-listing-card">
+                <h2>{{ title }}</h2>
+                <p>{{ description }}</p>
+                <p><b>Price:</b> RM {{ price }}</p>
+                <p><b>Category:</b> {{ category_name }}</p>
+                <p><b>Status:</b> {{ status_name }}</p>
+            </article>
+            {% else %}
+            <p>No item found.</p>
+            {% endfor %}
+        </div>
+    </section>
 </main>
 {% endblock %}
