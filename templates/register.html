@@ -7,7 +7,17 @@
     <link rel="stylesheet" href="/css/layout.css">
 </head>
 
-<body class="body-register"> 
+<body class="body-register">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%} 
+    
     <div class="background-color"></div>
     <div class="background-img"></div>
     <header>
@@ -41,7 +51,7 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" name="password" placeholder="Please Enter Your Password." required>
+                        <input type="password" name="password" placeholder="Please Enter Your Password." minlength="8" maxlength="20" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,20}$" title="Password must include uppercase, lowercase and number (8-20 characters)" required>
                     </div>
                     <div class="input-group">
                         <label>Confirm Password</label>

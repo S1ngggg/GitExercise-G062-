@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/layout.css">
+</head>
 
+<body class="body-login">
+    <!--to display flash message-->
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%}
+
+    <div class="background-color"></div>
+    <div class="background-img"></div>
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <div class="navigation">
+            <a href="{{url_for('home')}}">
+                <button>Back</button>
+            </a>
+            <a href="{{url_for('register')}}">
+                <button>Register</button>
+            </a>
+        </div>
+    </header>
+
+    <div class="login-container">
+        <div class="login-form">
+            <h2>MMU Marketplace</h2>
+            <h3>Login</h3>
+            <form method="post" action="{{url_for('login')}}">
+                <div class="input-column">
+                    <div class="input-grp">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="Please Enter Your Email" required>
+                    </div>
+
+                    <div class="input-grp">
+                        <label >Password</label>
+                        <input type="password" name="password" placeholder="Please Enter Your Password" required>
+                    </div>
+
+                    <button type="submit" class="login-button">Login</button>
+
+                    <div class="register-link">
+                        <p>Don't have an account?<a href="{{url_for('register')}}"> Register</a></p>
+                    </div>
+
+                    <div class="remember">
+                        <a href="#">Forgot Password? </a>
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</body>
+</html>
