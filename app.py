@@ -123,7 +123,21 @@ def login():
 
 @app.route("/home")
 def home_page():
-    return render_template("home.html")
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.title, item.description, item.price, 
+               category.name, status.condition 
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+    """)
+
+    items_list = cursor.fetchall()
+    connect.close()
+
+    return render_template("home.html", items=items_list)
 
 
 @app.route("/item_form", methods=['GET', 'POST'])
