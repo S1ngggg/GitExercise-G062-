@@ -5,12 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-<<<<<<< HEAD
-    <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
-    <!--flask require url_for to generate the correct URL-->
-=======
     <link rel="stylesheet" href="/css/layout.css">
->>>>>>> a7b353f01de87afcdc9859a39d7844bd5af4b033
 </head>
 
 <body class="outside">
@@ -19,7 +14,6 @@
             <header>
                 <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
 
-<<<<<<< HEAD
                 <div class="navigation-links">
                     <a href="#aboutus">
                         <button>About Us</button>
@@ -27,30 +21,14 @@
                     <a href="#features">
                         <button>Features</button>
                     </a>
-                    <button>Login</button>
                 </div>
-=======
-            <div class="navigation-links">
-                <a href="#aboutus">
-                <button>About Us</button>
-                </a>
-                <a href="#features">
-                <button>Features</button>
-                </a>
-            </div>
->>>>>>> a7b353f01de87afcdc9859a39d7844bd5af4b033
 
             </header>
         </div>
 
         <div class="content">
             <div class="leftside">
-<<<<<<< HEAD
-                <img src="{{ url_for('static', filename='BASKET.png') }}" alt="MMU Marketplace">
-                <!--flask require url_for to generate the correct URL-->
-=======
                 <img src="/image/BASKET.png" alt="MMU Marketplace">
->>>>>>> a7b353f01de87afcdc9859a39d7844bd5af4b033
             </div>
             <div class="rightside">
                 <h1 class="right-h1">MMU</h1>
@@ -59,7 +37,8 @@
                 <p class="right-p">Welcome to the MMU Marketplace website!</p>
                 <p class="right-p">Here you can find all the latest products and deals available.</p>
                 <div class="nav">
-                    <a href="{{url_for('register')}}"><button class="right-button">Register</button></a><a href="{{url_for('login')}}"><button class="right-button">Login</button></a>
+                    <a href="{{url_for('register')}}"><button class="right-button">Register</button></a><a
+                        href="{{url_for('login')}}"><button class="right-button">Login</button></a>
                 </div>
             </div>
         </div>
@@ -74,7 +53,8 @@
             to buy and sell products within the MMU campus community. Our mission is to create a <b>safe</b>,
             <b>convenient</b>, and <b>student-friendly marketplace</b> where students can connect, trade, and support
             each other. Our website also provides a user-friendly interface, a secure login system, a campus-focused
-            community, and affordable deals for students.</p>
+            community, and affordable deals for students.
+        </p>
     </div>
 
     <div class="insidepart3" id="features">
@@ -117,13 +97,13 @@
 
 </body>
 
-    <footer>
-        <p>© 2026 MMU Marketplace.</p>
-        <p>Developed by:</p>
-            <p class="footer-name">Joshua Wong Hock Sing</p>
-            <p class="footer-name">Cheng Chin Kiet</p>
-            <p class="footer-name">Kwong Jia Qi</p>
-    </footer>
+<footer>
+    <p>© 2026 MMU Marketplace.</p>
+    <p>Developed by:</p>
+    <p class="footer-name">Joshua Wong Hock Sing</p>
+    <p class="footer-name">Cheng Chin Kiet</p>
+    <p class="footer-name">Kwong Jia Qi</p>
+</footer>
 
 
 </html>
