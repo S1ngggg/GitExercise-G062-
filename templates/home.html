@@ -1,14 +1,36 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>MMU Marketplace</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+{% block title %} MMU Marketplace Homepage {% endblock %}
 
-<body>
-    <h1>Welcome to MMU Marketplace</h1>
-    <p>WORK IN PROGRESS</p>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<body class="outside">
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <div class="navigation">
+            <a href="{{ url_for('item_form') }}"><button>Sell Item</button></a>
+        </div>
+    </header>
+
+    <div class="insidepart1">
+        <h2 class="headerpart2">Items for Sale</h2>
+
+        <div class="marketplace_grid">
+
+            {% for title, description, price, category, status in items %}
+            <div class="item_card">
+                <h3 class="item_title">{{ title }}</h3>
+                <p class="description_text">{{ description }}</p>
+                <span class="category_label">{{ category }}</span>
+                <p class="status_info"><b>Condition:</b> {{ status }}</p>
+                <p class="price">RM {{ price }}</p>
+                <button class="buynow_button">Buy Now</button>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
 </body>
-
-</html>
+{% endblock %}
