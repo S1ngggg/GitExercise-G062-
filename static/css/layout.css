@@ -479,3 +479,190 @@ input,select{
     font-size: 17px;
 
 }
+
+/*  marketplace page using below css */
+
+.marketplace-page {
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(#8fb6e8, #f5f7fa);
+}
+
+.marketplace-box {
+    width: 100%;
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.marketplace-top {
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+.marketplace-top h1 {
+    margin: 0;
+    color: #2f5d9f;
+    font-family: "DM Serif Text", serif;
+    font-size: 42px;
+}
+
+.marketplace-top p {
+    margin: 5px 0 0;
+    color: #4b5563;
+    font-family: "Fredoka", sans-serif;
+}
+
+.marketplace-top a {
+    color: white;
+    background-color: #2f5d9f;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+}
+
+.marketplace-top a:hover {
+    background-color: #e07a2f;
+}
+
+.marketplace-filter {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.marketplace-filter input,
+.marketplace-filter select {
+    width: auto;
+    min-width: 160px;
+}
+
+.simple-listing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.simple-listing-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.simple-listing-card h2 {
+    margin-top: 0;
+    color: #2f5d9f;
+    font-family: "DM Serif Text", serif;
+}
+
+.simple-listing-card p {
+    color: #4b5563;
+    font-family: "Fredoka", sans-serif;
+}
+
+/*login page*/
+
+.body-login{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-container{
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    display: flex;
+    min-height: 100vh;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: flex-start;
+}
+
+.login-form{
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.6);
+    color: black;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    transform: translateY(-20px);
+}
+
+.login-form h2 {
+    font-family: "Satisfy", cursive;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 5px;
+    margin-top: 0;
+    color: #1e3a8a;
+    letter-spacing: 1px;
+}
+
+.login-form h3{
+    font-family: "DM Serif Text", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #3b82f6;
+    font-size: 20px;
+}
+
+.input-grp{
+    display: block;
+    margin-top: 20px;
+}
+
+.login-button{
+    margin-top: 10px;
+    border-radius: 20px;
+    border: none;
+    display: block;
+    margin:20px auto;
+    font-size: 17px;
+}
+
+.register-link a{
+    text-decoration: none;
+}
+
+.register-link a:hover{
+    text-decoration: underline;
+}
+
+.remember a{
+    text-decoration: none;
+}
+
+.remember a:hover{
+    text-decoration: underline;
+}
+
+.flash{
+    background-color: #ffdddd;
+    color: #a94442;
+    border-radius: 5px;
+    position: fixed;
+    margin-top: 20px;
+    left: 50%;/*move the elemnts to middle*/
+    padding: 16px 20px;
+    box-shadow: 0 4px 10px (rgba(0, 0, 0, 0.2));
+    z-index: 9999; /*to make sure flash message appear above all elements*/
+    transform: translateX(-50%);/*shift left of its own width*/
+}
