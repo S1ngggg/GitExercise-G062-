@@ -213,6 +213,28 @@ def marketplace():
     condition = request.args.get("condition", "").strip()
     min_price = request.args.get("min_price", "").strip()
     max_price = request.args.get("max_price", "").strip()
+    sort = request.args.get("sort", "newest").strip()
+
+    sort_options = {
+        "newest": {
+            "label": "Newest first",
+            "order_by": "item.id DESC"
+        },
+        "price_low": {
+            "label": "Price: Low to High",
+            "order_by": "item.price ASC"
+        },
+        "price_high": {
+            "label": "Price: High to Low",
+            "order_by": "item.price DESC"
+        },
+        "title_az": {
+            "label": "Title: A to Z",
+            "order_by": "item.title ASC"
+        }
+    }
+    if sort not in sort_options:
+        sort = "newest"
 
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
@@ -225,6 +247,17 @@ def marketplace():
 
     cursor.execute("SELECT * FROM item_condition")
     conditions_list = cursor.fetchall()
+
+    category_names = {str(row[0]): row[1] for row in categories_list}
+    status_names = {str(row[0]): row[1] for row in status_list}
+    condition_names = {str(row[0]): row[1] for row in conditions_list}
+
+    if category and category not in category_names:
+        category = ""
+    if status and status not in status_names:
+        status = ""
+    if condition and condition not in condition_names:
+        condition = ""
 
     query = """
             SELECT item.id, item.title, item.description, item.price,
@@ -239,9 +272,18 @@ def marketplace():
     values = []
 
     if search:
-        query += " AND (item.title LIKE ? OR item.description LIKE ?)"
-        values.append("%" + search + "%")
-        values.append("%" + search + "%")
+        query += """
+                 AND (
+                     item.title LIKE ?
+                     OR item.description LIKE ?
+                     OR category.name LIKE ?
+                     OR status.condition LIKE ?
+                     OR item_condition.name LIKE ?
+                 )
+                 """
+        search_value = "%" + search + "%"
+        values.extend([search_value, search_value, search_value,
+                       search_value, search_value])
 
     if category:
         query += " AND item.category_id = ?"
@@ -261,12 +303,18 @@ def marketplace():
     if min_price:
         try:
             min_price_value = float(min_price)
+            if min_price_value < 0:
+                min_price_value = None
+                min_price = ""
         except ValueError:
             min_price = ""
 
     if max_price:
         try:
             max_price_value = float(max_price)
+            if max_price_value < 0:
+                max_price_value = None
+                max_price = ""
         except ValueError:
             max_price = ""
 
@@ -282,23 +330,68 @@ def marketplace():
         query += " AND item.price <= ?"
         values.append(max_price_value)
 
-    query += " ORDER BY item.id DESC"
+    query += " ORDER BY " + sort_options[sort]["order_by"]
 
     cursor.execute(query, values)
     items = cursor.fetchall()
     connect.close()
+
+    active_params = {}
+    if search:
+        active_params["search"] = search
+    if category:
+        active_params["category"] = category
+    if status:
+        active_params["status"] = status
+    if condition:
+        active_params["condition"] = condition
+    if min_price:
+        active_params["min_price"] = min_price
+    if max_price:
+        active_params["max_price"] = max_price
+    if sort != "newest":
+        active_params["sort"] = sort
+
+    active_filters = []
+
+    def add_active_filter(key, label, value):
+        remove_params = active_params.copy()
+        remove_params.pop(key, None)
+        active_filters.append({
+            "label": label,
+            "value": value,
+            "remove_url": url_for("marketplace", **remove_params)
+        })
+
+    if search:
+        add_active_filter("search", "Keyword", search)
+    if category:
+        add_active_filter("category", "Category", category_names[category])
+    if status:
+        add_active_filter("status", "Status", status_names[status])
+    if condition:
+        add_active_filter("condition", "Condition", condition_names[condition])
+    if min_price:
+        add_active_filter("min_price", "Min price", "RM " + min_price)
+    if max_price:
+        add_active_filter("max_price", "Max price", "RM " + max_price)
+    if sort != "newest":
+        add_active_filter("sort", "Sort", sort_options[sort]["label"])
 
     return render_template("marketplace.html",
                            items=items,
                            categories=categories_list,
                            status=status_list,
                            conditions=conditions_list,
+                           sort_options=sort_options,
+                           active_filters=active_filters,
                            search=search,
                            selected_category=category,
                            selected_status=status,
                            selected_condition=condition,
                            min_price=min_price,
-                           max_price=max_price)
+                           max_price=max_price,
+                           selected_sort=sort)
 
 
 @app.route("/item_form", methods=['GET', 'POST'])

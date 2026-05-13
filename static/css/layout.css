@@ -542,6 +542,59 @@ input,select{
     min-width: 160px;
 }
 
+.marketplace-filter a {
+    color: white;
+    background-color: #6b7280;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+}
+
+.marketplace-filter a:hover {
+    background-color: #e07a2f;
+}
+
+.marketplace-summary {
+    margin-bottom: 20px;
+}
+
+.marketplace-summary p {
+    color: #374151;
+    font-family: "Fredoka", sans-serif;
+    font-weight: 500;
+    margin: 0 0 12px;
+}
+
+.active-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 20px;
+    padding: 7px 12px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+}
+
+.filter-chip span {
+    color: #2f5d9f;
+    font-weight: 600;
+}
+
+.filter-chip:hover {
+    background-color: #dbeafe;
+}
+
 .simple-listing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -564,6 +617,41 @@ input,select{
 .simple-listing-card p {
     color: #4b5563;
     font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace {
+    grid-column: 1 / -1;
+    background-color: white;
+    border: 1px dashed #9ca3af;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+}
+
+.empty-marketplace h2 {
+    margin-top: 0;
+    color: #2f5d9f;
+    font-family: "DM Serif Text", serif;
+}
+
+.empty-marketplace p {
+    color: #4b5563;
+    font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace a {
+    display: inline-block;
+    margin-top: 10px;
+    color: white;
+    background-color: #2f5d9f;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace a:hover {
+    background-color: #e07a2f;
 }
 
 /*login page*/
