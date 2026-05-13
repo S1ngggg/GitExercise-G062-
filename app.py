@@ -32,6 +32,14 @@ def create_database():
                    """)
 
     cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS item_condition(
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   name TEXT NOT NULL UNIQUE
+
+                   )
+                   """)
+
+    cursor.execute("""
 
 
                    CREATE TABLE IF NOT EXISTS item(
@@ -40,9 +48,11 @@ def create_database():
                    description TEXT NOT NULL,
                    category_id INTEGER NOT NULL,
                    status_id INTEGER NOT NULL,
+                   condition_id INTEGER,
                    price REAL NOT NULL,
                    FOREIGN KEY(category_id) REFERENCES category(id),
-                   FOREIGN KEY(status_id) REFERENCES status(id)
+                   FOREIGN KEY(status_id) REFERENCES status(id),
+                   FOREIGN KEY(condition_id) REFERENCES item_condition(id)
                    )
                    """)
 
@@ -62,6 +72,26 @@ def create_database():
         "INSERT OR IGNORE INTO status(condition) VALUES ('Reserved')")
     cursor.execute(
         "INSERT OR IGNORE INTO status(condition) VALUES ('Available')")
+
+    cursor.execute(
+        "INSERT OR IGNORE INTO item_condition(name) VALUES ('New')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO item_condition(name) VALUES ('Like New')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO item_condition(name) VALUES ('Used')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO item_condition(name) VALUES ('Heavily Used')")
+
+    cursor.execute("PRAGMA table_info(item)")
+    item_columns = [column[1] for column in cursor.fetchall()]
+    if "condition_id" not in item_columns:
+        cursor.execute("ALTER TABLE item ADD COLUMN condition_id INTEGER")
+        cursor.execute("SELECT id FROM item_condition WHERE name = 'Used'")
+        default_condition = cursor.fetchone()
+        if default_condition:
+            cursor.execute(
+                "UPDATE item SET condition_id = ? WHERE condition_id IS NULL",
+                (default_condition[0],))
 
     # create user table if does not exist yet
     cursor.execute("""
@@ -177,9 +207,12 @@ def home_page():
 
 @app.route("/marketplace", methods=['GET'])
 def marketplace():
-    search = request.args.get("search", "")
-    category = request.args.get("category", "")
-    status = request.args.get("status", "")
+    search = request.args.get("search", "").strip()
+    category = request.args.get("category", "").strip()
+    status = request.args.get("status", "").strip()
+    condition = request.args.get("condition", "").strip()
+    min_price = request.args.get("min_price", "").strip()
+    max_price = request.args.get("max_price", "").strip()
 
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
@@ -190,11 +223,17 @@ def marketplace():
     cursor.execute("SELECT * FROM status")
     status_list = cursor.fetchall()
 
+    cursor.execute("SELECT * FROM item_condition")
+    conditions_list = cursor.fetchall()
+
     query = """
-            SELECT item.title, item.description, item.price, category.name, status.condition
+            SELECT item.id, item.title, item.description, item.price,
+                   category.name, status.condition,
+                   COALESCE(item_condition.name, 'Not specified')
             FROM item
             JOIN category ON item.category_id = category.id
             JOIN status ON item.status_id = status.id
+            LEFT JOIN item_condition ON item.condition_id = item_condition.id
             WHERE 1 = 1
             """
     values = []
@@ -212,6 +251,39 @@ def marketplace():
         query += " AND item.status_id = ?"
         values.append(status)
 
+    if condition:
+        query += " AND item.condition_id = ?"
+        values.append(condition)
+
+    min_price_value = None
+    max_price_value = None
+
+    if min_price:
+        try:
+            min_price_value = float(min_price)
+        except ValueError:
+            min_price = ""
+
+    if max_price:
+        try:
+            max_price_value = float(max_price)
+        except ValueError:
+            max_price = ""
+
+    if min_price_value is not None and max_price_value is not None and min_price_value > max_price_value:
+        min_price_value, max_price_value = max_price_value, min_price_value
+        min_price, max_price = max_price, min_price
+
+    if min_price_value is not None:
+        query += " AND item.price >= ?"
+        values.append(min_price_value)
+
+    if max_price_value is not None:
+        query += " AND item.price <= ?"
+        values.append(max_price_value)
+
+    query += " ORDER BY item.id DESC"
+
     cursor.execute(query, values)
     items = cursor.fetchall()
     connect.close()
@@ -220,9 +292,13 @@ def marketplace():
                            items=items,
                            categories=categories_list,
                            status=status_list,
+                           conditions=conditions_list,
                            search=search,
                            selected_category=category,
-                           selected_status=status)
+                           selected_status=status,
+                           selected_condition=condition,
+                           min_price=min_price,
+                           max_price=max_price)
 
 
 @app.route("/item_form", methods=['GET', 'POST'])
@@ -237,11 +313,12 @@ def item_form():
         price = request.form['price']
         category = request.form['category']
         status = request.form['status']
+        condition = request.form['condition']
 
         cursor.execute("""
-                       INSERT INTO item(title, description, category_id, status_id, price)
-                       VALUES(?,?,?,?,?)
-                       """, (title, description, category, status, price))
+                       INSERT INTO item(title, description, category_id, status_id, condition_id, price)
+                       VALUES(?,?,?,?,?,?)
+                       """, (title, description, category, status, condition, price))
         connect.commit()
         connect.close()
         return "Item saved"
@@ -253,11 +330,14 @@ def item_form():
     # getting all statuses
     cursor.execute("SELECT * FROM status")
     status_list = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM item_condition")
+    conditions_list = cursor.fetchall()
     connect.close()
 
-    return render_template("item_form.html", categories=categories_list, status=status_list)
+    return render_template("item_form.html", categories=categories_list, status=status_list, conditions=conditions_list)
 
 
 if __name__ == "__main__":
     create_database()
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0')

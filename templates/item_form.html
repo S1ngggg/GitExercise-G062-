@@ -34,6 +34,17 @@
 
         <br><br>
 
+        <label>Condition:</label>
+        <select name="condition">
+
+            {% for id, name in conditions %}
+            <option value="{{id}}">{{name}}</option>
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
         <label>Status:</label>
         <select name="status">
 
