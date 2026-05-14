@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password</title>
+    <title>Check OTP</title>
     <link rel="stylesheet" href="/css/layout.css">
 </head>
-<body class="forgot-password">
+<body class="check-otp">
     {% with messages = get_flashed_messages()%}
         {% if messages%}
             <div class="flash">
@@ -19,6 +19,7 @@
 
     <div class="background-color"></div>
     <div class="background-img"></div>
+    
     <header>
         <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
         <div class="navigation">
@@ -28,19 +29,18 @@
         </div>
     </header>
 
-    <div class="forgot-form-container">
-        <div class="forgot-form">
+    <div class="check-otp-container">
+        <div class="check-otp-form">
             <h2>MMU Marketplace</h2>
-            <h3>Forgot Password</h3>
-            <form method="post" action="{{url_for('forgot_password')}}">
+            <h3>Check OTP</h3>
+            <form method="POST" action="{{url_for('check_otp',email=email)}}"> <!--action tells the form where to submit the data, send email to check_otp route so it know which acc need to check-->
                 <div class="input-column">
-                    
                     <div class="input-grp">
-                        <label>Email</label>
-                        <input type="email" name="email" placeholder="Please Enter Your Registered Email." required>
+                        <label>OTP</label>
+                        <input type="text" name="otp" placeholder="Please Enter Your OTP." minlength="6" maxlength="6" required>
                     </div>
 
-                    <button type="submit" class="forgot-button">Submit</button>
+                    <button type="submit" class="check-otp-button">Verify OTP</button>
 
                     <div class="login-link">
                         <p>Remember your password? <a href="{{url_for('login')}}"> Login</a></p>
@@ -48,6 +48,5 @@
                 </div>
             </form>
         </div>
-    </div>
-</body>
-</html>
+
+
