@@ -1,13 +1,11 @@
 .marketplace_grid {
     display: flex;
-    /* fixed it so that if items don't fit they go to the next line */
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
     padding: 20px;
 }
 
-/* an item card type grid for each item */
 .item_card {
     background: white;
     border-radius: 15px;
@@ -22,10 +20,12 @@
     color: #555;
 }
 
-.status_info {
-    color: blue;
-    font-size: 13px;
-    margin-top: 5px;
+/* Top row: category label + status badge side by side */
+.item_top_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .category_label {
@@ -33,6 +33,30 @@
     font-weight: bold;
     color: #2f5d9f;
     text-transform: uppercase;
+}
+
+/* Status badge — colour changes based on condition */
+.status_badge {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+.status_available {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status_reserved {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status_sold {
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 .price {
@@ -62,4 +86,62 @@
 
 .item_title {
     color: black;
+    margin: 0 0 6px 0;
+}
+
+/* Empty state when no items are listed */
+.empty_state {
+    text-align: center;
+    padding: 40px 20px;
+    font-family: "Fredoka", sans-serif;
+    color: #4b5563;
+    font-size: 18px;
+}
+
+.empty_state p {
+    margin-bottom: 16px;
+}
+
+.sell_container {
+    max-width: 620px;
+}
+
+.sell_description {
+    text-align: center;
+    color: black;
+    font-family: 'Fredoka', sans-serif;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.neat_edges {
+    width: 100%;
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+
+}
+
+.description_textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px;
+    font-size: 14px;
+    font-family: 'Fredoka', sans-serif;
+    resize: vertical;
+
+
+}
+
+.upload_buttom {
+    margin-top: 10px;
+    border-radius: 20px;
+    border: none;
+    display: block;
+    margin: 20px auto;
+    font-size: 17px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 16px;
 }
