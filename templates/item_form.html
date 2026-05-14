@@ -1,52 +1,73 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title> Item Form </title>
-</head>
+{% block title %} Sell an Item {% endblock %}
 
-<body>
-    <h1> Create Item </h1>
-    <form method="POST">
-        <label>Title:</label>
-        <input type="text" name="title">
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-        <br><br>
+<body class="outside">
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <div class="navigation">
+            <a href="{{ url_for('home_page') }}"><button>← Back to Homepage</button></a>
+        </div>
+    </header>
 
-        <label>Description:</label>
-        <input type="text" name="description">
+    <div class="insidepart1 sell_container">
 
-        <br><br>
+        <h2 class="headerpart2">List an Item</h2>
+        <p class="sell_description">
+            Fill in the details below to post your item for sale.
+        </p>
 
-        <label>Price:</label>
-        <input type="number" name="price">
+        <form method="POST" class="neat_edges">
 
-        <br><br>
+            <div class="input-group">
+                <label for="title">📝 Item Title</label>
+                <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
+            </div>
 
-        <label>Category:</label>
-        <select name="category">
+            <div class="input-group" style="margin-top:12px;">
+                <label for="description">📄 Description</label>
+                <textarea id="description" name="description" placeholder="Describe your item."
+                    class="description_textarea"></textarea>
+            </div>
 
-            {% for id, name in categories %}
-            <option value="{{id}}">{{name}}</option>
-            {% endfor %}
+            <div class="input-row" style="margin-top:12px;">
+                <div class="input-group">
+                    <label for="price">💰 Price (RM)</label>
+                    <input type="number" id="price" name="price" placeholder="eg 10" min="0" required>
+                </div>
 
-        </select>
+                <div class="input-group">
+                    <label for="category">🏷️ Category</label>
+                    <select id="category" name="category" required>
+                        <option value="" disabled selected>Select a category</option>
+                        {% for id, name in categories %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-        <br><br>
+            <div class="input-group" style="margin-top:12px;">
+                <label for="status">📦 Availability Status</label>
+                <select id="status" name="status" required>
+                    <option value="" disabled selected>Select a status</option>
+                    {% for id, condition in status %}
+                    <option value="{{ id }}">{{ condition }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <label>Status:</label>
-        <select name="status">
+            <button type="submit" class="register-button"
+                style="width:100%; margin-top:20px; padding:12px; font-size:16px;">
+                Upload Item
+            </button>
 
-            {% for id, condition in status %}
-            <option value="{{id}}">{{condition}}</option>
-            {% endfor %}
+        </form>
 
-        </select>
-
-        <br><br>
-
-        <button type="submit">Submit</button>
-    </form>
+    </div>
 </body>
-
-</html>
+{% endblock %}
