@@ -666,3 +666,229 @@ input,select{
     z-index: 9999; /*to make sure flash message appear above all elements*/
     transform: translateX(-50%);/*shift left of its own width*/
 }
+
+/*forgot password*/
+.forgot-password{
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.forgot-form-container {
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    display: flex;
+    min-height: 100vh;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: flex-start;
+}
+
+.forgot-form {
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.6);
+    color: black;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    transform: translateY(-20px);
+    margin-top: 25px;
+}
+
+.forgot-button {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.forgot-form h2 {
+    font-family: "Satisfy", cursive;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 5px;
+    margin-top: 0;
+    color: #1e3a8a;
+    letter-spacing: 1px;
+}
+
+.forgot-form h3{
+    font-family: "DM Serif Text", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #3b82f6;
+    font-size: 20px;
+}
+
+
+.forgot-button:hover {
+    background-color: #e07a2f;
+}
+
+.login-link a{
+    text-decoration: none;
+}
+
+.login-link a:hover{
+    text-decoration: underline;
+}
+/*reset password form*/
+
+.reset-password{
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.reset-form-container {
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    display: flex;
+    min-height: 100vh;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: flex-start;
+}
+
+.reset-form {
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.6);
+    color: black;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    transform: translateY(30px);
+    margin-top: 0px;
+}
+
+.reset-form h2 {
+    font-family: "Satisfy", cursive;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 5px;
+    margin-top: 0;
+    color: #1e3a8a;
+    letter-spacing: 1px;
+}
+
+.reset-form h3{
+    font-family: "DM Serif Text", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #3b82f6;
+    font-size: 20px;
+}
+
+.reset-button {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.reset-button:hover {
+    background-color: #e07a2f;
+}
+
+/*check-otp form*/
+.check-otp{
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.check-otp-container {
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    display: flex;
+    min-height: 100vh;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: flex-start;
+}
+
+.check-otp-form {
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.6);
+    color: black;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    transform: translateY(30px);
+    margin-top: 0px;
+}
+
+.check-otp-form h2 {
+    font-family: "Satisfy", cursive;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 5px;
+    margin-top: 0;
+    color: #1e3a8a;
+    letter-spacing: 1px;
+}
+
+.check-otp-form h3{
+    font-family: "DM Serif Text", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #3b82f6;
+    font-size: 20px;
+}
+
+.check-otp-button {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.check-otp-button:hover {
+    background-color: #e07a2f;
+}
+

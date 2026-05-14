@@ -115,13 +115,13 @@ def register():
             return redirect(url_for('login'))
         
         #hash password befor storing into databse
-        hashed_password= generate_password_hash(password)
+        password= generate_password_hash(password)
         
         #inseert new user using hashed_password
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
-            """, (email, username, hashed_password, gender, role))  # insert user data using ?
+            """, (email, username, password, gender, role))  # insert user data using ?
 
         conn.commit() # save change to the database
         conn.close()
@@ -160,14 +160,71 @@ def login():
         
         #compare hashed password from database with user input
         if check_password_hash(stored_password, password):
-            session['user_id'] = user_id#create session, store user identity in session
+            session['user_id'] = user_id #create session, store user identity in session
             session['email'] = user_email
 
             return redirect(url_for('home_page'))
         else:
             flash("Invalid email or password")
             return redirect(url_for('login'))
+        
     return render_template("login.html")
+
+@app.route("/forgot_password", methods=['GET','POST'])
+def forgot_password():
+
+    #check whether user submit the form
+    if request.method == 'POST':    
+        email = request.form['email']
+
+        conn= sqlite3.connect('database.db')
+        #create cursor to execute sql commands
+        cursor = conn.cursor()
+        
+        cursor.execute( #check user email in database
+            "SELECT * FROM user WHERE email =?",
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        conn.close()
+
+        if user:
+            return redirect(url_for('reset_password', email=email))
+        
+        else:
+            flash("Email not found. Please enter a valid email.")
+            return redirect(url_for('forgot_password'))
+    return render_template("forgot_password.html")
+
+
+
+@app.route("/reset_password/<email>", methods=['GET','POST'])
+def reset_password(email):
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_new_password']
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.")
+            return redirect(url_for('reset_password', email=email))#keep the email in the url again after redirect
+
+        #update new password in db
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        password = generate_password_hash(new_password) #witout hashing password password store in plain text
+        cursor.execute(
+            "UPDATE user SET password = ? WHERE email = ?", (password, email))
+        conn.commit()
+        conn.close()
+
+        flash("Password reset successful. Please login.")
+
+        return redirect(url_for('login'))
+
+    return render_template("reset_password.html",email=email) #pass email to reset password page to identify which user is resetting password
 
 
 @app.route("/home")
