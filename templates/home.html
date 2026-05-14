@@ -10,27 +10,41 @@
     <header>
         <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
         <div class="navigation">
+            <a href="{{ url_for('home') }}"><button>Back to Main Page</button></a>
             <a href="{{ url_for('item_form') }}"><button>Sell Item</button></a>
+
         </div>
     </header>
 
     <div class="insidepart1">
         <h2 class="headerpart2">Items for Sale</h2>
 
+        {% if items %}
         <div class="marketplace_grid">
-
             {% for title, description, price, category, status in items %}
             <div class="item_card">
+
+                <div class="item_top_row">
+                    <span class="category_label">{{ category }}</span>
+                    <span class="status_badge status_{{ status | lower }}">{{ status }}</span>
+                </div>
+
                 <h3 class="item_title">{{ title }}</h3>
                 <p class="description_text">{{ description }}</p>
-                <span class="category_label">{{ category }}</span>
-                <p class="status_info"><b>Condition:</b> {{ status }}</p>
-                <p class="price">RM {{ price }}</p>
+                <p class="price">RM {{ "%.2f" | format(price) }}</p>
                 <button class="buynow_button">Buy Now</button>
+
             </div>
             {% endfor %}
-
         </div>
+
+        {% else %}
+        <div class="empty_state">
+            <p>No items listed yet.</p>
+            <a href="{{ url_for('item_form') }}"><button>List an Item Now!</button></a>
+        </div>
+        {% endif %}
+
     </div>
 </body>
 {% endblock %}

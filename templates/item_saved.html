@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %} Item Successfully Saved! {% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css' ) }}">
+
+<body class="outside">
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        </div>
+    </header>
+
+    <div class="insidepart1">
+        <h2 class="headerpart2">Your item has been successfully saved and uploaded! 😁✅</h2>
+        <div class="navigation2">
+            <a href="{{ url_for('home_page') }}"><button>Go back to the Homepage</button></a>
+        </div>
+        </p>
+    </div>
+</body>
+
+{% endblock %}
