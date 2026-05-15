@@ -542,6 +542,59 @@ input,select{
     min-width: 160px;
 }
 
+.marketplace-filter a {
+    color: white;
+    background-color: #6b7280;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+}
+
+.marketplace-filter a:hover {
+    background-color: #e07a2f;
+}
+
+.marketplace-summary {
+    margin-bottom: 20px;
+}
+
+.marketplace-summary p {
+    color: #374151;
+    font-family: "Fredoka", sans-serif;
+    font-weight: 500;
+    margin: 0 0 12px;
+}
+
+.active-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 20px;
+    padding: 7px 12px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+}
+
+.filter-chip span {
+    color: #2f5d9f;
+    font-weight: 600;
+}
+
+.filter-chip:hover {
+    background-color: #dbeafe;
+}
+
 .simple-listing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -564,6 +617,41 @@ input,select{
 .simple-listing-card p {
     color: #4b5563;
     font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace {
+    grid-column: 1 / -1;
+    background-color: white;
+    border: 1px dashed #9ca3af;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+}
+
+.empty-marketplace h2 {
+    margin-top: 0;
+    color: #2f5d9f;
+    font-family: "DM Serif Text", serif;
+}
+
+.empty-marketplace p {
+    color: #4b5563;
+    font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace a {
+    display: inline-block;
+    margin-top: 10px;
+    color: white;
+    background-color: #2f5d9f;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif;
+}
+
+.empty-marketplace a:hover {
+    background-color: #e07a2f;
 }
 
 /*login page*/
@@ -666,229 +754,3 @@ input,select{
     z-index: 9999; /*to make sure flash message appear above all elements*/
     transform: translateX(-50%);/*shift left of its own width*/
 }
-
-/*forgot password*/
-.forgot-password{
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
-}
-
-.forgot-form-container {
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    display: flex;
-    min-height: 100vh;
-    padding-top: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
-    align-items: flex-start;
-}
-
-.forgot-form {
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow:0 20px 40px rgba(0,0,0,0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.6);
-    color: black;
-    width: 100%;
-    max-width: 600px;
-    max-height: 85vh;
-    transform: translateY(-20px);
-    margin-top: 25px;
-}
-
-.forgot-button {
-    background-color: #2f5d9f;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.forgot-form h2 {
-    font-family: "Satisfy", cursive;
-    font-weight: 500;
-    font-style: normal;
-    text-align: center;
-    font-size: 32px;
-    margin-bottom: 5px;
-    margin-top: 0;
-    color: #1e3a8a;
-    letter-spacing: 1px;
-}
-
-.forgot-form h3{
-    font-family: "DM Serif Text", serif;
-    font-weight: 400;
-    font-style: normal;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #3b82f6;
-    font-size: 20px;
-}
-
-
-.forgot-button:hover {
-    background-color: #e07a2f;
-}
-
-.login-link a{
-    text-decoration: none;
-}
-
-.login-link a:hover{
-    text-decoration: underline;
-}
-/*reset password form*/
-
-.reset-password{
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
-}
-
-.reset-form-container {
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    display: flex;
-    min-height: 100vh;
-    padding-top: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
-    align-items: flex-start;
-}
-
-.reset-form {
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow:0 20px 40px rgba(0,0,0,0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.6);
-    color: black;
-    width: 100%;
-    max-width: 600px;
-    max-height: 85vh;
-    transform: translateY(30px);
-    margin-top: 0px;
-}
-
-.reset-form h2 {
-    font-family: "Satisfy", cursive;
-    font-weight: 500;
-    font-style: normal;
-    text-align: center;
-    font-size: 32px;
-    margin-bottom: 5px;
-    margin-top: 0;
-    color: #1e3a8a;
-    letter-spacing: 1px;
-}
-
-.reset-form h3{
-    font-family: "DM Serif Text", serif;
-    font-weight: 400;
-    font-style: normal;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #3b82f6;
-    font-size: 20px;
-}
-
-.reset-button {
-    background-color: #2f5d9f;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.reset-button:hover {
-    background-color: #e07a2f;
-}
-
-/*check-otp form*/
-.check-otp{
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
-}
-
-.check-otp-container {
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    display: flex;
-    min-height: 100vh;
-    padding-top: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
-    align-items: flex-start;
-}
-
-.check-otp-form {
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow:0 20px 40px rgba(0,0,0,0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.6);
-    color: black;
-    width: 100%;
-    max-width: 600px;
-    max-height: 85vh;
-    transform: translateY(30px);
-    margin-top: 0px;
-}
-
-.check-otp-form h2 {
-    font-family: "Satisfy", cursive;
-    font-weight: 500;
-    font-style: normal;
-    text-align: center;
-    font-size: 32px;
-    margin-bottom: 5px;
-    margin-top: 0;
-    color: #1e3a8a;
-    letter-spacing: 1px;
-}
-
-.check-otp-form h3{
-    font-family: "DM Serif Text", serif;
-    font-weight: 400;
-    font-style: normal;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #3b82f6;
-    font-size: 20px;
-}
-
-.check-otp-button {
-    background-color: #2f5d9f;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.check-otp-button:hover {
-    background-color: #e07a2f;
-}
-
