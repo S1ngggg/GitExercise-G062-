@@ -107,7 +107,7 @@ def create_database():
 
                 """)
 
-    connect.commit()  
+    connect.commit()
     connect.close()
 
 
@@ -115,9 +115,12 @@ def create_database():
 def home():
     return render_template("index.html")
 
+
 app.secret_key = "my_secret_key......"
-#required for session + flash
+# required for session + flash
 # accept displaying form and processing form
+
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':  # if user submit form
@@ -135,25 +138,26 @@ def register():
         conn = sqlite3.connect('database.db')  # connect to sqlite database
         cursor = conn.cursor()
 
-        #get all column from user table and then check if the email and username already exist
-        cursor.execute("""SELECT * FROM user WHERE email = ? OR username = ?""", (email,username))
-        user= cursor.fetchone()#get result from database
+        # get all column from user table and then check if the email and username already exist
+        cursor.execute(
+            """SELECT * FROM user WHERE email = ? OR username = ?""", (email, username))
+        user = cursor.fetchone()  # get result from database
 
-        #if user exist redirect to login page
+        # if user exist redirect to login page
         if user:
             flash("Email or username already exists. Please Login!")
             return redirect(url_for('login'))
-        
-        #hash password befor storing into databse
-        hashed_password= generate_password_hash(password)
-        
-        #inseert new user using hashed_password
+
+        # hash password befor storing into databse
+        hashed_password = generate_password_hash(password)
+
+        # inseert new user using hashed_password
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
-            """, (email, username, hashed_password, gender, role))  # insert user data using ?
+            """, (email, username, password, gender, role))  # insert user data using ?
 
-        conn.commit() # save change to the database
+        conn.commit()  # save change to the database
         conn.close()
 
         # after successful jump to login page
@@ -165,10 +169,10 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    #IF ALREADY LOGGED IN REDIRECT TO HOME
-    if 'user_id' in session :
+    # IF ALREADY LOGGED IN REDIRECT TO HOME
+    if 'user_id' in session:
         return redirect(url_for('home'))
-    
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -176,33 +180,110 @@ def login():
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        #serching user by email
-        cursor.execute("""SELECT id, email, password FROM user WHERE email =?""", (email,))
-        user=cursor.fetchone()
+        # serching user by email
+        cursor.execute(
+            """SELECT id, email, password FROM user WHERE email =?""", (email,))
+        user = cursor.fetchone()
         conn.close()
 
-        #if user not found
+        # if user not found
         if not user:
             flash("Invalid email or password")
             return redirect(url_for('login'))
-        
-        user_id, user_email, stored_password = user #split database result into separate variable
-        
-        #compare hashed password from database with user input
+
+        # split database result into separate variable
+        user_id, user_email, stored_password = user
+
+        # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
-            session['user_id'] = user_id#create session, store user identity in session
+            # create session, store user identity in session
+            session['user_id'] = user_id
             session['email'] = user_email
 
             return redirect(url_for('home_page'))
         else:
             flash("Invalid email or password")
             return redirect(url_for('login'))
+
     return render_template("login.html")
+
+
+@app.route("/forgot_password", methods=['GET', 'POST'])
+def forgot_password():
+
+    # check whether user submit the form
+    if request.method == 'POST':
+        email = request.form['email']
+
+        conn = sqlite3.connect('database.db')
+        # create cursor to execute sql commands
+        cursor = conn.cursor()
+
+        cursor.execute(  # check user email in database
+            "SELECT * FROM user WHERE email =?",
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        conn.close()
+
+        if user:
+            return redirect(url_for('reset_password', email=email))
+
+        else:
+            flash("Email not found. Please enter a valid email.")
+            return redirect(url_for('forgot_password'))
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset_password/<email>", methods=['GET', 'POST'])
+def reset_password(email):
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_new_password']
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.")
+            # keep the email in the url again after redirect
+            return redirect(url_for('reset_password', email=email))
+
+        # update new password in db
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # witout hashing password password store in plain text
+        password = generate_password_hash(new_password)
+        cursor.execute(
+            "UPDATE user SET password = ? WHERE email = ?", (password, email))
+        conn.commit()
+        conn.close()
+
+        flash("Password reset successful. Please login.")
+
+        return redirect(url_for('login'))
+
+    # pass email to reset password page to identify which user is resetting password
+    return render_template("reset_password.html", email=email)
 
 
 @app.route("/home")
 def home_page():
-    return render_template("home.html")
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.title, item.description, item.price, 
+               category.name, status.condition 
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+    """)
+
+    items_list = cursor.fetchall()
+    connect.close()
+
+    return render_template("home.html", items=items_list)
 
 
 @app.route("/marketplace", methods=['GET'])
@@ -414,7 +495,7 @@ def item_form():
                        """, (title, description, category, status, condition, price))
         connect.commit()
         connect.close()
-        return "Item saved"
+        return render_template("item_saved.html")
 
     # getting all the categories
     cursor.execute("SELECT * FROM category")
@@ -429,6 +510,11 @@ def item_form():
     connect.close()
 
     return render_template("item_form.html", categories=categories_list, status=status_list, conditions=conditions_list)
+
+
+@app.route("/item_saved")
+def item_saved():
+    return render_template("item_saved.html")
 
 
 if __name__ == "__main__":
