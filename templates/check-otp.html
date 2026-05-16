@@ -6,7 +6,7 @@
     <title>Check OTP</title>
     <link rel="stylesheet" href="/css/layout.css">
 </head>
-<body class="check-otp">
+<body class="check-otp-page">
     {% with messages = get_flashed_messages()%}
         {% if messages%}
             <div class="flash">
@@ -30,7 +30,7 @@
     </header>
 
     <div class="check-otp-container">
-        <div class="check-otp-form">
+        <div class="check-otp">
             <h2>MMU Marketplace</h2>
             <h3>Check OTP</h3>
             <form method="POST" action="{{url_for('check_otp',email=email)}}"> <!--action tells the form where to submit the data, send email to check_otp route so it know which acc need to check-->

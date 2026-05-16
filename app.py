@@ -1,12 +1,22 @@
 # import tools for handling form data and page navigation
 from flask import request, redirect, url_for, flash, session
 from flask import Flask, render_template
+from flask_mail import Mail, Message    
+import random
+from datetime import datetime, timedelta
 import sqlite3
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com' #configure mail server, here using gmail
+app.config['MAIL_PORT'] = 587   #configure mail port, 587 is commonly used for secure email submission
+app.config['MAIL_USE_TLS'] = True #enable secure email encryption
+app.config['MAIL_USERNAME'] = 'valorantsing2007@gmail.com' 
+app.config['MAIL_PASSWORD'] = 'idzw zprj hqak xypr' #use app password for security, generate from google account setting
+
+mail = Mail(app) #initialize flask-mail, connect to flaskapp
 
 # Creating the tables
 
@@ -196,7 +206,8 @@ def login():
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
             # create session, store user identity in session
-            session['user_id'] = user_id
+            # remember which user is logged in by storing user id in session
+            session['user_id'] = user_id 
             session['email'] = user_email
 
             return redirect(url_for('home_page'))
@@ -228,12 +239,68 @@ def forgot_password():
         conn.close()
 
         if user:
-            return redirect(url_for('reset_password', email=email))
+            otp = str(random.randint(100000, 999999)) #generate random 6 digit otp
+            session['otp'] = otp #store otp in session to compare later
+            session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S') #set otp expiry time to 10 minutes
+
+            session['reset_email'] = email #store email in session to identify which user is resetting password
+            msg = Message("Password Reset OTP", sender=app.config['MAIL_USERNAME'], recipients=[email]) #create email message
+            msg.html = f"""
+<html>
+    <body>
+        <p>Dear {user[2]},</p>
+
+        <p>🔐Your One-Time Password (OTP) is:</p>
+
+        <h3><b>{otp}</b></h3>
+        
+        <p>It will expire in 10 minutes.</p>
+            
+        <p>Thank you.</p>
+    </body>
+</html>"""
+            mail.send(msg) 
+
+            flash("OTP sent to your email. Please check your inbox.")
+            return redirect(url_for('check_otp')) #redirect to check otp page 
 
         else:
             flash("Email not found. Please enter a valid email.")
             return redirect(url_for('forgot_password'))
     return render_template("forgot_password.html")
+
+
+@app.route("/check-otp", methods=['GET','POST'])
+def check_otp():
+    if request.method == 'POST' :
+
+        user_otp = request.form['otp']
+        stored_otp = session.get('otp')
+        expiry_time = session.get('otp_expiry')
+
+        #session expired or no otp in session
+        if not stored_otp or not expiry_time:
+            flash("No OTP found. Please request a new OTP.")
+            return redirect(url_for('forgot_password'))
+        
+        #otp expired
+        if datetime.now() > datetime.strptime(expiry_time, '%Y-%m-%d %H:%M:%S'):
+            flash("OTP has expired. Please request a new OTP.")
+            return redirect(url_for('forgot_password'))
+        #otp correct
+        if user_otp ==stored_otp:
+            #clear otp after success verify
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+            flash("OTP verified. Please reset your password.")
+            #redirect to reset password page and pass email to identify which user is resetting password
+            return redirect(url_for('reset_password',email=session.get('reset_email'))) 
+        
+        else:
+            flash("Invalid OTP. Please try again.")
+            return redirect(url_for('check_otp'))
+            
+    return render_template("check-otp.html")
 
 
 @app.route("/reset_password/<email>", methods=['GET', 'POST'])
