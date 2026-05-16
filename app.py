@@ -125,7 +125,7 @@ def register():
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
-            """, (email, username, password, gender, role))  # insert user data using ?
+            """, (email, username, hashed_password, gender, role))  # insert user data using ?
 
         conn.commit()  # save change to the database
         conn.close()
@@ -151,8 +151,7 @@ def login():
         cursor = conn.cursor()
 
         # serching user by email
-        cursor.execute(
-            """SELECT id, email, password FROM user WHERE email =?""", (email,))
+        cursor.execute("""SELECT id, email, password FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
         conn.close()
 
