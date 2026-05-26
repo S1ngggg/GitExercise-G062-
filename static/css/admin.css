@@ -192,29 +192,98 @@
     color: #93a0b4;
 }
 
-.welcome-panel {
-    min-height: 330px;
-    padding: 48px;
+.listings-panel {
+    padding: 25px;
     border: 1px solid var(--line);
     border-radius: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     background: var(--white);
-    text-align: center;
 }
 
-.welcome-panel h2 {
-    margin: 0 0 10px;
-    font-size: 25px;
+.panel-heading {
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
-.welcome-panel p {
-    max-width: 490px;
+.panel-heading h2 {
+    margin: 0 0 6px;
+    font-size: 21px;
+}
+
+.panel-heading p {
     margin: 0;
     color: var(--muted);
-    line-height: 1.6;
+    font-size: 14px;
+}
+
+.panel-heading a {
+    color: var(--blue);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.listing-table th {
+    padding: 0 12px 13px;
+    color: #93a0b4;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.listing-table td {
+    padding: 16px 12px;
+    border-top: 1px solid var(--line);
+    color: #46536a;
+    font-size: 14px;
+}
+
+.listing-table td:first-child strong {
+    display: block;
+    color: var(--text);
+}
+
+.listing-table td:first-child small {
+    color: #93a0b4;
+}
+
+.status {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-available {
+    color: #05734e;
+    background: #def7ec;
+}
+
+.status-reserved {
+    color: #986100;
+    background: #fff1d6;
+}
+
+.status-sold {
+    color: #b13c46;
+    background: #ffeaec;
+}
+
+.empty-row td {
+    padding: 36px 12px;
+    color: var(--muted);
+    text-align: center;
 }
 
 @media (max-width: 760px) {
@@ -250,5 +319,14 @@
 
     .stat-grid {
         grid-template-columns: 1fr;
+    }
+
+    .panel-heading {
+        display: block;
+    }
+
+    .panel-heading a {
+        display: inline-block;
+        margin-top: 12px;
     }
 }

@@ -371,6 +371,16 @@ def admin_dashboard():
     """)
     available_listings = cursor.fetchone()[0]
 
+    cursor.execute("""
+        SELECT item.id, item.title, item.price, category.name, status.condition
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        ORDER BY item.id DESC
+        LIMIT 5
+    """)
+    recent_items = cursor.fetchall()
+
     connect.close()
 
     stats = {
@@ -379,7 +389,7 @@ def admin_dashboard():
         "available_listings": available_listings
     }
 
-    return render_template("admin.html", stats=stats)
+    return render_template("admin.html", stats=stats, recent_items=recent_items)
 
 
 @app.route("/marketplace", methods=['GET'])

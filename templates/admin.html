@@ -26,8 +26,8 @@
             </nav>
 
             <section class="preview-note">
-                <p class="preview-label">Version 2</p>
-                <p>Dashboard layout with marketplace statistics.</p>
+                <p class="preview-label">Version 3</p>
+                <p>Dashboard with statistics and recent listings.</p>
             </section>
         </aside>
 
@@ -59,9 +59,44 @@
                 </article>
             </section>
 
-            <section class="welcome-panel">
-                <h2>Welcome to the admin panel</h2>
-                <p>This version adds a simple overview of marketplace activity. More management information will be added in later versions.</p>
+            <section class="listings-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Recent listings</h2>
+                        <p>Latest items added to the marketplace.</p>
+                    </div>
+                    <a href="{{ url_for('marketplace') }}">View marketplace</a>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="listing-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_id, title, price, category, status in recent_items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ title }}</strong>
+                                    <small>#{{ item_id }}</small>
+                                </td>
+                                <td>{{ category }}</td>
+                                <td>RM {{ "%.2f" | format(price) }}</td>
+                                <td><span class="status status-{{ status | lower }}">{{ status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="4">No items listed yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </main>
     </div>
