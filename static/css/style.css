@@ -1,8 +1,8 @@
-.title-home{
+.title-home {
     font-family: "Satisfy", cursive;
     font-weight: 400;
     font-style: normal;
-    color:#8dbfe3;
+    color: #8dbfe3;
 }
 
 .highlight-home {
@@ -19,11 +19,13 @@
 
 .item_card {
     background: white;
-    border-radius: 15px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 22px;
     width: 250px;
-    box-shadow: 0 4px 8px black;
+    box-shadow: 0 4px 20px rgba(47, 93, 159, 0.15);
     text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(143, 182, 232, 0.2);
 }
 
 .description_text {
@@ -88,7 +90,8 @@
 }
 
 .item_card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(47, 93, 159, 0.22);
 }
 
 .buynow_button:hover {
@@ -167,4 +170,212 @@
     font-size: 18px;
     border-radius: 12px;
     min-width: 220px;
+}
+
+.home_body {
+    margin: 0;
+    background-color: #dde4ed;
+    min-height: 100vh;
+    font-family: "Fredoka", sans-serif;
+}
+
+.home_nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    background: white;
+    border-bottom: 1px solid rgba(143, 182, 232, 0.35);
+    box-shadow: 0 2px 16px rgba(47, 93, 159, 0.09);
+}
+
+.home_nav_left .title_home {
+    margin: 0;
+    font-size: 26px;
+}
+
+.home_nav_right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nav_button {
+    background-color: transparent;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 20px;
+    padding: 7px 18px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.nav_button:hover {
+    background-color: #2f5d9f;
+    color: white;
+}
+
+.nav_button_primary {
+    background-color: #2f5d9f;
+    color: white;
+}
+
+.nav_button_primary:hover {
+    background-color: #e07a2f;
+    border-color: #e07a2f;
+    color: white;
+}
+
+.nav_button_logout {
+    border-color: #e07a2f;
+    color: #e07a2f;
+}
+
+.nav_button_logout:hover {
+    background-color: #e07a2f;
+    color: white;
+}
+
+/* hero banner section */
+.home_hero {
+    background: linear-gradient(135deg, #2f5d9f 0%, #5b8fd4 60%, #8dbfe3 100%);
+    padding: 48px 60px 36px 60px;
+    color: white;
+    position: relative;
+}
+
+.home_hero::after {
+    content: "🧺";
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.home_hero_top {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #D8a16b;
+    margin: 0 0 10px 0;
+}
+
+.home_hero_heading {
+    font-family: "DM Serif Text", serif;
+    font-size: 42px;
+    font-weight: 400;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    color: white;
+}
+
+.home_hero_sub {
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 0 24px 0;
+    max-width: 520px;
+}
+
+.home_hero_stat_row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.home_stat_sec {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+}
+
+.home_main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 32px 60px 32px;
+}
+
+.home_section_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid rgba(143, 182, 232, 0.35);
+}
+
+.home_section_title {
+    font-family: "DM Serif Text", serif;
+    font-size: 30px;
+    font-weight: 400;
+    color: #2f5d9f;
+    margin: 0;
+}
+
+.home_list_link {
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e07a2f;
+    border: 1.5px solid #e07a2f;
+    border-radius: 20px;
+    padding: 6px 18px;
+}
+
+.home_list_link:hover {
+    background: #e07a2f;
+    color: white;
+}
+
+/* ---- Grid overrides for home page ---- */
+.home_main .marketplace_grid {
+    justify-content: flex-start;
+    padding: 0;
+    gap: 24px;
+}
+
+/* ---- Empty State ---- */
+.empty_state {
+    text-align: center;
+    padding: 70px 20px;
+    font-family: "Fredoka", sans-serif;
+    color: #4b5563;
+    font-size: 18px;
+}
+
+.empty_state_icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty_state p {
+    margin-bottom: 20px;
+    color: #6b7280;
+}
+
+.empty_list-button {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 32px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.empty_list_button:hover {
+    background-color: #e07a2f;
 }
