@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>User Profile</title>
+</head>
+
+<body class="userprofile-body">
+    <div class="sidebar">
+        <div class="logo"></div>
+        <ul>
+            <li>
+                <a href="#">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('home_page') }}">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="maincontent">
+        <div class="headeroutside">
+            <div class="header-dashboard">
+                <span>{{ username }} 's</span>
+                <h2>Dashboard</h2>
+            </div>
+            <div class="aboutuser">
+                <div class="searchbox">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="profile-picture">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
