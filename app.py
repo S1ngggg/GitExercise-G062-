@@ -354,7 +354,32 @@ def home_page():
 
 @app.route("/admin")
 def admin_dashboard():
-    return render_template("admin.html")
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM user")
+    total_users = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM item")
+    total_listings = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM item
+        JOIN status ON item.status_id = status.id
+        WHERE status.condition = 'Available'
+    """)
+    available_listings = cursor.fetchone()[0]
+
+    connect.close()
+
+    stats = {
+        "total_users": total_users,
+        "total_listings": total_listings,
+        "available_listings": available_listings
+    }
+
+    return render_template("admin.html", stats=stats)
 
 
 @app.route("/marketplace", methods=['GET'])

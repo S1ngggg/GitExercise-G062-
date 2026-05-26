@@ -26,8 +26,8 @@
             </nav>
 
             <section class="preview-note">
-                <p class="preview-label">Version 1</p>
-                <p>Basic admin panel layout preview.</p>
+                <p class="preview-label">Version 2</p>
+                <p>Dashboard layout with marketplace statistics.</p>
             </section>
         </aside>
 
@@ -41,9 +41,27 @@
                 <a class="button" href="{{ url_for('home') }}">Back to site</a>
             </header>
 
+            <section class="stat-grid" aria-label="Marketplace statistics">
+                <article class="stat-card">
+                    <p>Total users</p>
+                    <strong>{{ stats.total_users }}</strong>
+                    <small>Registered accounts</small>
+                </article>
+                <article class="stat-card">
+                    <p>Total listings</p>
+                    <strong>{{ stats.total_listings }}</strong>
+                    <small>Items posted</small>
+                </article>
+                <article class="stat-card">
+                    <p>Available now</p>
+                    <strong>{{ stats.available_listings }}</strong>
+                    <small>Ready to purchase</small>
+                </article>
+            </section>
+
             <section class="welcome-panel">
                 <h2>Welcome to the admin panel</h2>
-                <p>This first version sets up the dashboard layout. More management information will be added in later versions.</p>
+                <p>This version adds a simple overview of marketplace activity. More management information will be added in later versions.</p>
             </section>
         </main>
     </div>
