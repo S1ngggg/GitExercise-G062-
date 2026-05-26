@@ -351,12 +351,14 @@ def home_page():
     cursor = connect.cursor()
 
     cursor.execute("""
-        SELECT item.title, item.description, item.price, 
-               category.name, status.condition 
+    SELECT item.id, item.title, item.description, item.price,
+           category.name, status.condition, item_condition.name
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
-    """)
+        JOIN item_condition ON item.condition_id = item_condition.id
+                   
+        """)
 
     items_list = cursor.fetchall()
     connect.close()
@@ -595,6 +597,30 @@ def item_form():
     connect.close()
 
     return render_template("item_form.html", categories=categories_list, status=status_list, conditions=conditions_list)
+
+
+@app.route("/item/<int:item_id>")
+def item_detail(item_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.description, item.price,
+               category.name, status.condition, item_condition.name
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        JOIN item_condition ON item.condition_id = item_condition.id
+        WHERE item.id = ?
+    """, (item_id,))
+
+    item = cursor.fetchone()
+    connect.close()
+
+    if item is None:
+        return "Item not found", 404
+
+    return render_template("item_detail.html", item=item)
 
 
 @app.route("/item_saved")

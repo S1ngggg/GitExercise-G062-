@@ -1,11 +1,11 @@
-.title-home {
+.title_home {
     font-family: "Satisfy", cursive;
     font-weight: 400;
     font-style: normal;
     color: #8dbfe3;
 }
 
-.highlight-home {
+.highlight_home {
     color: #D8a16b;
 }
 
@@ -103,7 +103,6 @@
     margin: 0 0 6px 0;
 }
 
-/* Empty state when no items are listed */
 .empty_state {
     text-align: center;
     padding: 40px 20px;
@@ -147,7 +146,7 @@
 
 }
 
-.upload_buttom {
+.upload_button {
     margin-top: 10px;
     border-radius: 20px;
     border: none;
@@ -378,4 +377,183 @@
 
 .empty_list_button:hover {
     background-color: #e07a2f;
+}
+
+/* for item detail page */
+
+.detail_centering {
+    max-width: 1000px;
+    margin: 48px auto;
+    padding: 0 32px 60px 32px;
+}
+
+.detail_card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(47, 93, 159, 0.13);
+    border: 1px solid rgba(143, 182, 232, 0.25);
+    display: flex;
+    gap: 0;
+    min-height: 420px;
+}
+
+.detail_image {
+    width: 40%;
+    background: linear-gradient(160deg, #eef4fc 0%, #dde9f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    flex-shrink: 0;
+}
+
+.detail_image_placeholder {
+    text-align: center;
+    color: #94a3b8;
+}
+
+.detail_image_icon {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.55;
+}
+
+.detail_image_label {
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.detail_info {
+    flex: 1;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.detail_top_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.detail_category {
+    font-size: 12px;
+}
+
+.detail_title {
+    font-family: "DM Serif Text", serif;
+    font-size: 34px;
+    font-weight: 400;
+    color: #1e3a6e;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+.detail_price {
+    font-size: 32px;
+    font-weight: 700;
+    color: #e67e22;
+    margin: 0 0 14px 0;
+    font-family: "Fredoka", sans-serif;
+}
+
+.detail_meta_row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.detail_meta_pill {
+    background: #eef4fc;
+    border: 1px solid rgba(143, 182, 232, 0.4);
+    border-radius: 30px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-family: "Fredoka", sans-serif;
+    color: #2f5d9f;
+}
+
+.detail_divider {
+    border: none;
+    border-top: 1px solid rgba(143, 182, 232, 0.3);
+    margin: 16px 0;
+}
+
+.detail_desc_label {
+    font-family: "Fredoka", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #4b5563;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail_description {
+    font-family: "Fredoka", sans-serif;
+    font-size: 16px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.detail_actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.detail_button_primary {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    flex: 1;
+}
+
+.detail_button_primary:hover {
+    background-color: #e07a2f;
+    transform: translateY(-2px);
+}
+
+.detail_button_secondary {
+    background-color: white;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+}
+
+.detail_button_secondary:hover {
+    background-color: #eef4fc;
+    transform: translateY(-2px);
+}
+
+
+.detail_note {
+    font-family: "Fredoka", sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 14px 0 0 0;
+}
+
+.buynow_link {
+    display: block;
+    text-decoration: none;
 }

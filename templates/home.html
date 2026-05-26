@@ -27,9 +27,9 @@
             <p class="home_hero_sub">Browse items listed by MMU students — textbooks, gadgets, furniture & more.</p>
         </div>
         <div class="home_hero_stat_row">
-            <div class="home_stat_sec">📦 {{ items|length }} item{% if items|length != 1 %}s{% endif %} listed</div>
-            <div class="home_stat_sec">🎓 MMU Students Only</div>
-            <div class="home_stat_sec">💸 Student Prices</div>
+            <div class="home_stat_sec"> {{ items|length }} item{% if items|length != 1 %}s{% endif %} listed</div>
+            <div class="home_stat_sec"> MMU Students Only</div>
+            <div class="home_stat_sec"> Student Prices</div>
         </div>
     </div>
 
@@ -40,10 +40,9 @@
             <a href="{{ url_for('item_form') }}" class="home_list_link"> List an item</a>
         </div>
 
-        <!-- Item Grid -->
         {% if items %}
         <div class="marketplace_grid">
-            {% for title, description, price, category, status in items %}
+            {% for item_id, title, description, price, category, status, condition in items %}
             <div class="item_card">
 
                 <div class="item_top_row">
@@ -54,7 +53,8 @@
                 <h3 class="item_title">{{ title }}</h3>
                 <p class="description_text">{{ description }}</p>
                 <p class="price">RM {{ "%.2f" | format(price) }}</p>
-                <button class="buynow_button">Buy Now</button>
+                <a href="{{ url_for('item_detail', item_id=item_id) }}" class="buynow_link">
+                    <button class="buynow_button">Buy Now</button>
 
             </div>
             {% endfor %}

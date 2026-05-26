@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %} Item Detail Page {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<body class="home-body">
+
+    <nav class="home_nav">
+        <div class="home_nav_left">
+            <h1 class="title_home">MMU <span class="highlight_home">Marketplace 🧺</span></h1>
+        </div>
+        <div class="home_nav_right">
+            <a href="{{ url_for('home_page') }}"><button class="nav_button">← Back</button></a>
+            <a href="{{ url_for('profile') }}"><button class="nav_button">Profile</button></a>
+        </div>
+    </nav>
+
+    <div class="detail_centering">
+
+        <div class="detail_card">
+
+            <div class="detail_image">
+                <div class="detail_image_placeholder">
+                    <span class="detail_image_icon">🧺</span>
+                    <p class="detail_image_label">No photo yet</p>
+                </div>
+            </div>
+
+            <div class="detail_info">
+
+                <div class="detail_top_row">
+                    <span class="category_label detail_category">{{ item[4] }}</span>
+                    <span class="status_badge status_{{ item[5] | lower }}">{{ item[5] }}</span>
+                </div>
+
+                <h1 class="detail_title">{{ item[1] }}</h1>
+
+                <p class="detail_price">RM {{ "%.2f" | format(item[3]) }}</p>
+
+                <div class="detail_meta_row">
+                    <div class="detail_meta_pill"> {{ item[6] }}</div>
+                </div>
+
+                <hr class="detail_divider">
+
+                <h3 class="detail_desc_label">Description</h3>
+                <p class="detail_description">{{ item[2] }}</p>
+
+                <hr class="detail_divider">
+
+                <div class="detail_actions">
+                    <button class="detail_button_primary">Contact Seller</button>
+                </div>
+
+                <p class="detail_note">Message the seller now to ask about this product!</p>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+{% endblock %}
