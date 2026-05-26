@@ -1,3 +1,14 @@
+.title-home{
+    font-family: "Satisfy", cursive;
+    font-weight: 400;
+    font-style: normal;
+    color:#8dbfe3;
+}
+
+.highlight-home {
+    color: #D8a16b;
+}
+
 .marketplace_grid {
     display: flex;
     flex-wrap: wrap;
