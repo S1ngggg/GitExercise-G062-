@@ -26,8 +26,8 @@
             </nav>
 
             <section class="preview-note">
-                <p class="preview-label">Version 3</p>
-                <p>Dashboard with statistics and recent listings.</p>
+                <p class="preview-label">Version 4</p>
+                <p>Dashboard with listing summaries by status and category.</p>
             </section>
         </aside>
 
@@ -59,45 +59,83 @@
                 </article>
             </section>
 
-            <section class="listings-panel">
-                <div class="panel-heading">
-                    <div>
-                        <h2>Recent listings</h2>
-                        <p>Latest items added to the marketplace.</p>
+            <div class="dashboard-columns">
+                <section class="listings-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Recent listings</h2>
+                            <p>Latest items added to the marketplace.</p>
+                        </div>
+                        <a href="{{ url_for('marketplace') }}">View marketplace</a>
                     </div>
-                    <a href="{{ url_for('marketplace') }}">View marketplace</a>
-                </div>
 
-                <div class="table-wrap">
-                    <table class="listing-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item_id, title, price, category, status in recent_items %}
-                            <tr>
-                                <td>
-                                    <strong>{{ title }}</strong>
-                                    <small>#{{ item_id }}</small>
-                                </td>
-                                <td>{{ category }}</td>
-                                <td>RM {{ "%.2f" | format(price) }}</td>
-                                <td><span class="status status-{{ status | lower }}">{{ status }}</span></td>
-                            </tr>
-                            {% else %}
-                            <tr class="empty-row">
-                                <td colspan="4">No items listed yet.</td>
-                            </tr>
+                    <div class="table-wrap">
+                        <table class="listing-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item_id, title, price, category, status in recent_items %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ title }}</strong>
+                                        <small>#{{ item_id }}</small>
+                                    </td>
+                                    <td>{{ category }}</td>
+                                    <td>RM {{ "%.2f" | format(price) }}</td>
+                                    <td><span class="status status-{{ status | lower }}">{{ status }}</span></td>
+                                </tr>
+                                {% else %}
+                                <tr class="empty-row">
+                                    <td colspan="4">No items listed yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div class="summary-panels">
+                    <section class="summary-panel">
+                        <div class="panel-heading small">
+                            <div>
+                                <h2>Listing status</h2>
+                                <p>Items by availability.</p>
+                            </div>
+                        </div>
+                        <div class="summary-list">
+                            {% for status, count in status_summary %}
+                            <div>
+                                <span class="status status-{{ status | lower }}">{{ status }}</span>
+                                <strong>{{ count }}</strong>
+                            </div>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </div>
+                    </section>
+
+                    <section class="summary-panel">
+                        <div class="panel-heading small">
+                            <div>
+                                <h2>Categories</h2>
+                                <p>Items in each section.</p>
+                            </div>
+                        </div>
+                        <div class="category-list">
+                            {% for category, count in category_summary %}
+                            <div>
+                                <span>{{ category }}</span>
+                                <strong>{{ count }}</strong>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </div>
         </main>
     </div>
 </body>

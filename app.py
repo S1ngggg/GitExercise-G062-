@@ -381,6 +381,24 @@ def admin_dashboard():
     """)
     recent_items = cursor.fetchall()
 
+    cursor.execute("""
+        SELECT status.condition, COUNT(item.id)
+        FROM status
+        LEFT JOIN item ON item.status_id = status.id
+        GROUP BY status.id, status.condition
+        ORDER BY status.id
+    """)
+    status_summary = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT category.name, COUNT(item.id)
+        FROM category
+        LEFT JOIN item ON item.category_id = category.id
+        GROUP BY category.id, category.name
+        ORDER BY COUNT(item.id) DESC, category.name ASC
+    """)
+    category_summary = cursor.fetchall()
+
     connect.close()
 
     stats = {
@@ -389,7 +407,11 @@ def admin_dashboard():
         "available_listings": available_listings
     }
 
-    return render_template("admin.html", stats=stats, recent_items=recent_items)
+    return render_template("admin.html",
+                           stats=stats,
+                           recent_items=recent_items,
+                           status_summary=status_summary,
+                           category_summary=category_summary)
 
 
 @app.route("/marketplace", methods=['GET'])
