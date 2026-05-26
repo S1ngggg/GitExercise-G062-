@@ -19,14 +19,32 @@
             <select name="category">
                 <option value="">All Categories</option>
                 {% for id, name in categories %}
-                <option value="{{ id }}" {% if selected_category == id|string %}selected{% endif %}>{{ name }}</option>
+                <option value="{{ id }}" {% if selected_category==id|string %}selected{% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
 
             <select name="status">
                 <option value="">All Status</option>
-                {% for id, condition in status %}
-                <option value="{{ id }}" {% if selected_status == id|string %}selected{% endif %}>{{ condition }}</option>
+                {% for id, status_name in status %}
+                <option value="{{ id }}" {% if selected_status==id|string %}selected{% endif %}>{{ status_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <select name="condition">
+                <option value="">All Conditions</option>
+                {% for id, name in conditions %}
+                <option value="{{ id }}" {% if selected_condition==id|string %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="number" name="min_price" placeholder="Min price" min="0" step="0.01" value="{{ min_price }}">
+            <input type="number" name="max_price" placeholder="Max price" min="0" step="0.01" value="{{ max_price }}">
+
+            <select name="sort">
+                {% for sort_key, sort_data in sort_options.items() %}
+                <option value="{{ sort_key }}" {% if selected_sort==sort_key %}selected{% endif %}>{{ sort_data.label }}
+                </option>
                 {% endfor %}
             </select>
 
@@ -34,19 +52,40 @@
             <a href="{{ url_for('marketplace') }}">Reset</a>
         </form>
 
-        <p>Total items found: {{ items|length }}</p>
+        <div class="marketplace-summary">
+            <p>
+                Showing {{ items|length }} item{% if items|length != 1 %}s{% endif %}
+                {% if active_filters %}matching your search and filters{% else %}available in the marketplace{% endif
+                %}.
+            </p>
+
+            {% if active_filters %}
+            <div class="active-filter-list">
+                {% for filter in active_filters %}
+                <a class="filter-chip" href="{{ filter.remove_url }}">
+                    {{ filter.label }}: {{ filter.value }} <span>Remove</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
 
         <div class="simple-listing-grid">
-            {% for title, description, price, category_name, status_name in items %}
+            {% for item_id, title, description, price, category_name, status_name, condition_name in items %}
             <article class="simple-listing-card">
                 <h2>{{ title }}</h2>
                 <p>{{ description }}</p>
                 <p><b>Price:</b> RM {{ price }}</p>
                 <p><b>Category:</b> {{ category_name }}</p>
                 <p><b>Status:</b> {{ status_name }}</p>
+                <p><b>Condition:</b> {{ condition_name }}</p>
             </article>
             {% else %}
-            <p>No item found.</p>
+            <div class="empty-marketplace">
+                <h2>No items found</h2>
+                <p>Try changing your keyword, price range, category, status, or condition filter.</p>
+                <a href="{{ url_for('marketplace') }}">Clear all filters</a>
+            </div>
             {% endfor %}
         </div>
     </section>
