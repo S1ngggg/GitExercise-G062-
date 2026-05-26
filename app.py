@@ -352,6 +352,11 @@ def home_page():
     return render_template("home.html", items=items_list)
 
 
+@app.route("/admin")
+def admin_dashboard():
+    return render_template("admin.html")
+
+
 @app.route("/marketplace", methods=['GET'])
 def marketplace():
     search = request.args.get("search", "").strip()

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | MMU Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">M</span>
+                <span>
+                    <strong>MMU</strong>
+                    <small>Marketplace Admin</small>
+                </span>
+            </a>
+
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a class="active" href="{{ url_for('admin_dashboard') }}">Overview</a>
+                <span class="disabled">Listings</span>
+                <span class="disabled">Users</span>
+                <span class="disabled">Reports</span>
+                <a href="{{ url_for('home') }}">View website</a>
+            </nav>
+
+            <section class="preview-note">
+                <p class="preview-label">Version 1</p>
+                <p>Basic admin panel layout preview.</p>
+            </section>
+        </aside>
+
+        <main class="admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ADMIN PANEL</p>
+                    <h1>Dashboard overview</h1>
+                    <p class="dashboard-subtitle">Manage the MMU Marketplace from one place.</p>
+                </div>
+                <a class="button" href="{{ url_for('home') }}">Back to site</a>
+            </header>
+
+            <section class="welcome-panel">
+                <h2>Welcome to the admin panel</h2>
+                <p>This first version sets up the dashboard layout. More management information will be added in later versions.</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
