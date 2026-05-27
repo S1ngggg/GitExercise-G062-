@@ -42,8 +42,16 @@
 
         {% if items %}
         <div class="marketplace_grid">
-            {% for item_id, title, description, price, category, status, condition in items %}
+            {% for item_id, title, description, price, category, status, condition, image in items %}
             <div class="item_card">
+
+                <div class="card_image_wrap">
+                    {% if image %}
+                    <img src="/uploads/{{ image }}" alt="{{ title }}" class="card_image">
+                    {% else %}
+                    <div class="card_image_placeholder">🧺</div>
+                    {% endif %}
+                </div>
 
                 <div class="item_top_row">
                     <span class="category_label">{{ category }}</span>
@@ -52,9 +60,12 @@
 
                 <h3 class="item_title">{{ title }}</h3>
                 <p class="description_text">{{ description }}</p>
-                <p class="price">RM {{ "%.2f" | format(price) }}</p>
-                <a href="{{ url_for('item_detail', item_id=item_id) }}" class="buynow_link">
-                    <button class="buynow_button">Buy Now</button>
+                <div class="card_bottom">
+                    <p class="price">RM {{ "%.2f" | format(price) }}</p>
+                    <a href="{{ url_for('item_detail', item_id=item_id) }}" class="buynow_link">
+                        <button class="buynow_button">Buy Now</button>
+                    </a>
+                </div>
 
             </div>
             {% endfor %}

@@ -13,9 +13,9 @@ app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
 
 # Image upload
-upload_folder = os.path.join('static', 'uploads')
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-app.config['UPLOAD_FOLDER'] = upload_folder
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -46,7 +46,7 @@ def create_database():
                    CREATE TABLE IF NOT EXISTS category(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    name TEXT NOT NULL UNIQUE
-                   
+
                    )
                    """)
 
@@ -54,7 +54,7 @@ def create_database():
                    CREATE TABLE IF NOT EXISTS status(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    condition TEXT NOT NULL UNIQUE
-                   
+
                    )
                    """)
 
@@ -120,9 +120,15 @@ def create_database():
                 "UPDATE item SET condition_id = ? WHERE condition_id IS NULL",
                 (default_condition[0],))
 
+    # add image column if it doesn't exist yet
+    cursor.execute("PRAGMA table_info(item)")
+    item_columns = [column[1] for column in cursor.fetchall()]
+    if "image" not in item_columns:
+        cursor.execute("ALTER TABLE item ADD COLUMN image TEXT")
+
     # create user table if does not exist yet
     cursor.execute("""
-                   
+
                 CREATE TABLE IF NOT EXISTS user(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
@@ -278,9 +284,9 @@ def forgot_password():
         <p>🔐Your One-Time Password (OTP) is:</p>
 
         <h3><b>{otp}</b></h3>
-        
+
         <p>It will expire in 10 minutes.</p>
-            
+
         <p>Thank you.</p>
     </body>
 </html>"""
@@ -365,12 +371,12 @@ def home_page():
 
     cursor.execute("""
     SELECT item.id, item.title, item.description, item.price,
-           category.name, status.condition, item_condition.name
+           category.name, status.condition,
+            item_condition.name, item.image
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
         JOIN item_condition ON item.condition_id = item_condition.id
-                   
         """)
 
     items_list = cursor.fetchall()
@@ -589,10 +595,19 @@ def item_form():
         status = request.form['status']
         condition = request.form['condition']
 
+        # Handle image upload
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '' and allowed_file(file.filename):
+                image_filename = secure_filename(file.filename)
+                file.save(os.path.join(
+                    app.config['UPLOAD_FOLDER'], image_filename))
+
         cursor.execute("""
-                       INSERT INTO item(title, description, category_id, status_id, condition_id, price)
-                       VALUES(?,?,?,?,?,?)
-                       """, (title, description, category, status, condition, price))
+                       INSERT INTO item(title, description, category_id, status_id, condition_id, price, image)
+                       VALUES(?,?,?,?,?,?,?)
+                       """, (title, description, category, status, condition, price, image_filename))
         connect.commit()
         connect.close()
         return render_template("item_saved.html")
@@ -619,7 +634,8 @@ def item_detail(item_id):
 
     cursor.execute("""
         SELECT item.id, item.title, item.description, item.price,
-               category.name, status.condition, item_condition.name
+               category.name, status.condition,
+               item_condition.name, item.image
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id

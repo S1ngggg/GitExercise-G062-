@@ -71,6 +71,20 @@
                 </div>
             </div>
 
+            <div class="input-group" style="margin-top:12px;">
+                <label for="image">Item Photo <span class="optional_label">(optional)</span></label>
+                <div class="image_upload_area" id="upload_area">
+                    <input type="file" id="image" name="image" accept="image/*" class="image_file_input"
+                        onchange="previewImage(event)">
+                    <div class="image_upload_inner" id="upload_inner">
+                        <span class="image_upload_icon">📷</span>
+                        <p class="image_upload_text">Click or drag an image here</p>
+                        <p class="image_upload_hint">PNG, JPG, GIF, WEBP — max ~5MB</p>
+                    </div>
+                    <img id="image_preview" class="image_preview_img" src="" alt="Preview" style="display:none;">
+                </div>
+            </div>
+
             <button type="submit" class="register-button"
                 style="width:100%; margin-top:20px; padding:12px; font-size:16px;">
                 Upload Item

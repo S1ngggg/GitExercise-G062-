@@ -337,14 +337,12 @@
     color: white;
 }
 
-/* ---- Grid overrides for home page ---- */
 .home_main .marketplace_grid {
     justify-content: flex-start;
     padding: 0;
     gap: 24px;
 }
 
-/* ---- Empty State ---- */
 .empty_state {
     text-align: center;
     padding: 70px 20px;
@@ -556,4 +554,185 @@
 .buynow_link {
     display: block;
     text-decoration: none;
+}
+
+.card_image_wrap {
+    width: 100%;
+    height: 170px;
+    background: #eef4fc;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(143, 182, 232, 0.2);
+}
+
+.card_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card_image_placeholder {
+    font-size: 52px;
+    opacity: 0.3;
+    user-select: none;
+}
+
+.item_top_row,
+.item_title,
+.card_description,
+.condition_label {
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.item_top_row {
+    padding-top: 14px;
+}
+
+.item_title {
+    margin: 6px 0 4px 0;
+}
+
+.condition_label {
+    font-size: 12px;
+    color: #7b8fa1;
+    font-family: "Fredoka", sans-serif;
+    margin: 0 0 8px 0;
+}
+
+.card_bottom {
+    margin-top: auto;
+    padding: 10px 18px 18px 18px;
+    border-top: 1px solid rgba(143, 182, 232, 0.15);
+}
+
+.card_bottom .price {
+    margin: 0 0 10px 0;
+}
+
+.buynow_link {
+    display: block;
+    text-decoration: none;
+}
+
+
+.detail_image_full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    display: block;
+}
+
+.detail_image {
+    width: 40%;
+    background: linear-gradient(160deg, #eef4fc 0%, #dde9f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 20px 0 0 20px;
+    min-height: 420px;
+}
+
+
+.optional_label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: normal;
+    font-family: "Fredoka", sans-serif;
+}
+
+.image_upload_area {
+    position: relative;
+    border: 2px dashed rgba(143, 182, 232, 0.6);
+    border-radius: 12px;
+    background: #f0f6fd;
+    cursor: pointer;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.18s, background 0.18s;
+}
+
+.image_upload_area:hover {
+    border-color: #2f5d9f;
+    background: #e6f0fb;
+}
+
+.image_file_input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.image_upload_inner {
+    text-align: center;
+    pointer-events: none;
+    padding: 20px;
+}
+
+.image_upload_icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.image_upload_text {
+    font-family: "Fredoka", sans-serif;
+    font-size: 15px;
+    color: #2f5d9f;
+    margin: 0 0 4px 0;
+}
+
+.image_upload_hint {
+    font-family: "Fredoka", sans-serif;
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.image_preview_img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+}
+
+.detail_button_reserved {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: not-allowed;
+    opacity: 0.85;
+    flex: 1;
+}
+
+.detail_button_sold {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: not-allowed;
+    opacity: 0.85;
+    flex: 1;
 }
