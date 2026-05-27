@@ -191,7 +191,7 @@ def login():
         cursor = conn.cursor()
 
         # serching user by email
-        cursor.execute("""SELECT id, email, password FROM user WHERE email =?""", (email,))
+        cursor.execute("""SELECT id, email, username, password FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
         conn.close()
 
@@ -201,7 +201,7 @@ def login():
             return redirect(url_for('login'))
 
         # split database result into separate variable
-        user_id, user_email, stored_password = user
+        user_id, user_email, username, stored_password = user
 
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
@@ -209,6 +209,7 @@ def login():
             # remember which user is logged in by storing user id in session
             session['user_id'] = user_id 
             session['email'] = user_email
+            session['username'] = username
 
             return redirect(url_for('home_page'))
         else:
@@ -245,10 +246,11 @@ def forgot_password():
 
             session['reset_email'] = email #store email in session to identify which user is resetting password
             msg = Message("Password Reset OTP", sender=app.config['MAIL_USERNAME'], recipients=[email]) #create email message
+            username = user[2] #get username from database result, index 2 is username column
             msg.html = f"""
 <html>
     <body>
-        <p>Dear {user[2]},</p>
+        <p>Dear {username},</p>
 
         <p>🔐Your One-Time Password (OTP) is:</p>
 
@@ -421,6 +423,10 @@ def admin_dashboard():
                            status_summary=status_summary,
                            category_summary=category_summary,
                            recent_users=recent_users)
+@app.route("/profile")
+def profile():
+    username = session.get('username', 'Your')  # get username from session, default to 'Your' if not found
+    return render_template("user_profile.html", username=username) 
 
 
 @app.route("/marketplace", methods=['GET'])

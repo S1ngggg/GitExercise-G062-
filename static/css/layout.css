@@ -969,3 +969,156 @@ input,select{
     font-size: 17px;
 }
 
+/*user profile*/
+
+.userprofile-body{
+    margin: 0px;
+    padding:0;
+    border:none;
+    outline: 0;
+    box-sizing: border-box;
+    display: flex;
+
+}
+
+.sidebar{
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 70px;
+    overflow: hidden;
+    height:100vh;
+    background: #015d91;
+    color: white;
+    padding:0 1.7rem;
+    transition: 0.5s;
+}
+
+.sidebar ul li span{
+    display: none; /*text remove when pointer remove*/
+}
+
+.sidebar:hover ul li span{
+    display: inline;
+}
+
+.logo{
+    height: 110px;
+    padding:16px;
+}
+
+.sidebar ul{
+    list-style: none;
+    padding: 0;
+
+    position: relative;
+}
+
+.sidebar ul li{
+    margin: 20px 0;
+    border-radius: 10px;
+    transition: all 0.5s ease-in-out;
+    padding: 1rem;
+    height: 30px;
+    align-items: center;
+    display: flex;
+}
+
+.sidebar ul li:hover{
+    background: #e0e0e058;
+}
+
+.sidebar ul li a{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    line-height: 30px;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar:hover{
+    width:15%;
+    transition:0.5s;
+}
+
+.maincontent{
+    position: relative;
+    background: #ebe9e9;
+    width:100%;
+    padding: 16px;
+}
+
+.headeroutside{
+    display: flex; /* Use flexbox to arrange header content become horizontal */
+    justify-content: space-between; /* Space out header content */
+    align-items: center; /* Align header content vertically */
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+}
+
+.header-dashboard span, .header-dashboard h2{
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    color: #015d91;
+
+}
+
+.header-dashboard span{
+    font-size:20px;
+}
+
+.searchbox{
+    position: relative;
+    width: 250px;
+    outline: none;
+}
+
+.searchbox input{
+    width: 200px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border:1px solid #ccc;
+    padding-left: 40px; /* Add padding to the left to make space for the search icon */
+}
+
+.searchbox i{
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.profile-picture{
+    width:50px;
+    height:50px;
+    border-radius: 50%;
+    cursor:pointer;
+    background: #ebe9e9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.aboutuser{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.searchbox:hover{
+    outline: 2px solid #015d91;
+    border-radius: 20px;
+}
+
