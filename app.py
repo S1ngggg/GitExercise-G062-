@@ -399,6 +399,14 @@ def admin_dashboard():
     """)
     category_summary = cursor.fetchall()
 
+    cursor.execute("""
+        SELECT username, email, role
+        FROM user
+        ORDER BY id DESC
+        LIMIT 4
+    """)
+    recent_users = cursor.fetchall()
+
     connect.close()
 
     stats = {
@@ -411,7 +419,8 @@ def admin_dashboard():
                            stats=stats,
                            recent_items=recent_items,
                            status_summary=status_summary,
-                           category_summary=category_summary)
+                           category_summary=category_summary,
+                           recent_users=recent_users)
 
 
 @app.route("/marketplace", methods=['GET'])
