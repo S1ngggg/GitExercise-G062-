@@ -5,10 +5,23 @@ from flask_mail import Mail, Message
 import random
 from datetime import datetime, timedelta
 import sqlite3
+import os
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
+
+# Image upload
+upload_folder = os.path.join('static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = upload_folder
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # configure mail server, here using gmail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
