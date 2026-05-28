@@ -20,7 +20,7 @@
             Fill in the details below to post your item for sale.
         </p>
 
-        <form method="POST" class="neat_edges">
+        <form method="POST" enctype="multipart/form-data" class="neat_edges">>
             <div class="input-group">
                 <label for="title">Item Title</label>
                 <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
@@ -79,7 +79,7 @@
                     <div class="image_upload_inner" id="upload_inner">
                         <span class="image_upload_icon">📷</span>
                         <p class="image_upload_text">Click or drag an image here</p>
-                        <p class="image_upload_hint">PNG, JPG, GIF, WEBP — max ~5MB</p>
+                        <p class="image_upload_hint">PNG, JPG, GIF, WEBP</p>
                     </div>
                     <img id="image_preview" class="image_preview_img" src="" alt="Preview" style="display:none;">
                 </div>
@@ -91,5 +91,22 @@
             </button>
         </form>
     </div>
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('image_preview');
+            const inner = document.getElementById('upload_inner');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    inner.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </body>
 {% endblock %}
