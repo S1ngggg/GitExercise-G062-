@@ -23,7 +23,8 @@
 
             <div class="detail_image">
                 {% if item[7] %}
-                <img src="/uploads/{{ item[7] }}" alt="{{ item[1] }}" class="detail_image_full">
+                <img src="{{ url_for('static', filename='uploads/' + item[7]) }}" alt="{{ item[1] }}"
+                    class="detail_image_full">
                 {% else %}
                 <div class="detail_image_placeholder">
                     <span class="detail_image_icon">🧺</span>
