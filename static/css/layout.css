@@ -1071,34 +1071,14 @@ input,select{
     font-style: normal;
     font-variation-settings:"wdth" 100;
     color: #015d91;
-
+    line-height: 1.0;
+    padding-right: 20px;
 }
 
 .header-dashboard span{
     font-size:20px;
 }
 
-.searchbox{
-    position: relative;
-    width: 250px;
-    outline: none;
-}
-
-.searchbox input{
-    width: 200px;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border:1px solid #ccc;
-    padding-left: 40px; /* Add padding to the left to make space for the search icon */
-}
-
-.searchbox i{
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-}
 
 .profile-picture{
     width:50px;
@@ -1109,6 +1089,7 @@ input,select{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-right: 0px;
 }
 
 .aboutuser{
@@ -1117,8 +1098,57 @@ input,select{
     align-items: center;
 }
 
-.searchbox:hover{
-    outline: 2px solid #015d91;
-    border-radius: 20px;
+
+.user-info li{
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    color: gray;
+    margin: 0;
+    line-height: 1.5;
 }
 
+.overview{
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+}
+
+.overviewcontainer{
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.overviewcard{
+    background: white;
+    border-radius: 5px;
+    border:1px solid #e5e7eb;   
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.overviewcard i{
+    font-size: 30px;
+    background: #edf4ff;
+    padding: 20px;
+    border-radius: 50%;
+    color: #2563eb;
+}
+
+.recentactivity{
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+
+}

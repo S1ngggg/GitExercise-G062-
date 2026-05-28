@@ -10,11 +10,10 @@
     <header>
         <h1 class="title-home">MMU <span class="highlight-home">Marketplace 🧺</span></h1>
         <div class="navigation">
-            <!-- <a href="{{ url_for('home') }}"><button>Back to Main Page</button></a> -->
             <a href="{{ url_for('item_form') }}"><button>Sell Item</button></a>
-            <a href="{{ url_for('profile')}}"><button>Profile</button></a>
+            <a href="{{ url_for('profile')}}"><button>Dashboard</button></a>
             <a href="#"><button>Settings</button></a>
-            <a href="#"><button>Logout</button></a>
+            <a href="{{ url_for('logout') }}"><button>Logout</button></a>
         </div>
     </header>
 

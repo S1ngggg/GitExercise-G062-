@@ -191,7 +191,7 @@ def login():
         cursor = conn.cursor()
 
         # serching user by email
-        cursor.execute("""SELECT id, email, username, password FROM user WHERE email =?""", (email,))
+        cursor.execute("""SELECT id, email, username, password, gender, role FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
         conn.close()
 
@@ -201,7 +201,7 @@ def login():
             return redirect(url_for('login'))
 
         # split database result into separate variable
-        user_id, user_email, username, stored_password = user
+        user_id, user_email, username, stored_password , gender, role= user
 
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
@@ -210,6 +210,8 @@ def login():
             session['user_id'] = user_id 
             session['email'] = user_email
             session['username'] = username
+            session['gender'] = gender 
+            session['role'] = role
 
             return redirect(url_for('home_page'))
         else:
@@ -354,10 +356,19 @@ def home_page():
     return render_template("home.html", items=items_list)
 
 
-@app.route("/profile")
+@app.route("/user_profile")
 def profile():
     username = session.get('username', 'Your')  # get username from session, default to 'Your' if not found
-    return render_template("user_profile.html", username=username) 
+    email= session.get('email', '')
+    gender = session.get('gender', '')
+    role = session.get('role', '')
+
+    return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
+
+@app.route("/logout")
+def logout():
+    session.clear()  # clear all session data to log out the user
+    return redirect(url_for('home')) 
 
 
 @app.route("/marketplace", methods=['GET'])
