@@ -10,27 +10,37 @@
 }
 
 .marketplace_grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 0;
 }
 
 .item_card {
     background: white;
     border-radius: 16px;
-    padding: 22px;
-    width: 250px;
+    padding: 0;
+    width: 100%;
     box-shadow: 0 4px 20px rgba(47, 93, 159, 0.15);
     text-align: left;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid rgba(143, 182, 232, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .description_text {
     font-size: 14px;
     color: #555;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0 0 6px 0;
+    flex-grow: 1;
+    padding-left: 18px;
+    padding-right: 18px;
 }
 
 /* Top row: category label + status badge side by side */
