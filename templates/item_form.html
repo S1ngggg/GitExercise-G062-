@@ -8,38 +8,39 @@
 
 <body class="outside">
     <header>
-        <h1 class="title">MMU <span class="highlight">Marketplace</span></h1>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
         <div class="navigation">
-            <a href="{{ url_for('home_page') }}"><button>Back to Homepage</button></a>
+            <a href="{{ url_for('home_page') }}"><button>← Back to Homepage</button></a>
         </div>
     </header>
 
     <div class="insidepart1 sell_container">
+
         <h2 class="headerpart2">List an Item</h2>
         <p class="sell_description">
             Fill in the details below to post your item for sale.
         </p>
 
-        <form method="POST" class="neat_edges">
+        <form method="POST" enctype="multipart/form-data" class="neat_edges">>
             <div class="input-group">
-                <label for="title">Item Title</label>
+                <label for="title">📝 Item Title</label>
                 <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
             </div>
 
             <div class="input-group" style="margin-top:12px;">
-                <label for="description">Description</label>
+                <label for="description">📄 Description</label>
                 <textarea id="description" name="description" placeholder="Describe your item."
-                    class="description_textarea" required></textarea>
+                    class="description_textarea"></textarea>
             </div>
 
             <div class="input-row" style="margin-top:12px;">
                 <div class="input-group">
-                    <label for="price">Price (RM)</label>
+                    <label for="price">💰 Price (RM)</label>
                     <input type="number" id="price" name="price" placeholder="eg 10" min="0" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="category">Category</label>
+                    <label for="category">🏷️ Category</label>
                     <select id="category" name="category" required>
                         <option value="" disabled selected>Select a category</option>
                         {% for id, name in categories %}
@@ -49,25 +50,27 @@
                 </div>
             </div>
 
-            <div class="input-row" style="margin-top:12px;">
-                <div class="input-group">
-                    <label for="condition">Condition</label>
-                    <select id="condition" name="condition" required>
-                        <option value="" disabled selected>Select a condition</option>
-                        {% for id, name in conditions %}
-                        <option value="{{ id }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="input-group" style="margin-top:12px;">
+                <label for="status">📦 Availability Status</label>
+                <select id="status" name="status" required>
+                    <option value="" disabled selected>Select a status</option>
+                    {% for id, condition in status %}
+                    <option value="{{ id }}">{{ condition }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <div class="input-group">
-                    <label for="status">Availability Status</label>
-                    <select id="status" name="status" required>
-                        <option value="" disabled selected>Select a status</option>
-                        {% for id, condition in status %}
-                        <option value="{{ id }}">{{ condition }}</option>
-                        {% endfor %}
-                    </select>
+            <div class="input-group" style="margin-top:12px;">
+                <label for="image">Item Photo <span class="optional_label">(optional)</span></label>
+                <div class="image_upload_area" id="upload_area">
+                    <input type="file" id="image" name="image" accept="image/*" class="image_file_input"
+                        onchange="previewImage(event)">
+                    <div class="image_upload_inner" id="upload_inner">
+                        <span class="image_upload_icon">📷</span>
+                        <p class="image_upload_text">Click or drag an image here</p>
+                        <p class="image_upload_hint">PNG, JPG, GIF, WEBP</p>
+                    </div>
+                    <img id="image_preview" class="image_preview_img" src="" alt="Preview" style="display:none;">
                 </div>
             </div>
 
@@ -75,7 +78,26 @@
                 style="width:100%; margin-top:20px; padding:12px; font-size:16px;">
                 Upload Item
             </button>
+
         </form>
+
     </div>
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('image_preview');
+            const inner = document.getElementById('upload_inner');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    inner.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </body>
 {% endblock %}

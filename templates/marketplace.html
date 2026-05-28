@@ -19,21 +19,22 @@
             <select name="category">
                 <option value="">All Categories</option>
                 {% for id, name in categories %}
-                <option value="{{ id }}" {% if selected_category == id|string %}selected{% endif %}>{{ name }}</option>
+                <option value="{{ id }}" {% if selected_category==id|string %}selected{% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
 
             <select name="status">
                 <option value="">All Status</option>
                 {% for id, status_name in status %}
-                <option value="{{ id }}" {% if selected_status == id|string %}selected{% endif %}>{{ status_name }}</option>
+                <option value="{{ id }}" {% if selected_status==id|string %}selected{% endif %}>{{ status_name }}
+                </option>
                 {% endfor %}
             </select>
 
             <select name="condition">
                 <option value="">All Conditions</option>
                 {% for id, name in conditions %}
-                <option value="{{ id }}" {% if selected_condition == id|string %}selected{% endif %}>{{ name }}</option>
+                <option value="{{ id }}" {% if selected_condition==id|string %}selected{% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
 
@@ -42,7 +43,8 @@
 
             <select name="sort">
                 {% for sort_key, sort_data in sort_options.items() %}
-                <option value="{{ sort_key }}" {% if selected_sort == sort_key %}selected{% endif %}>{{ sort_data.label }}</option>
+                <option value="{{ sort_key }}" {% if selected_sort==sort_key %}selected{% endif %}>{{ sort_data.label }}
+                </option>
                 {% endfor %}
             </select>
 
@@ -53,7 +55,8 @@
         <div class="marketplace-summary">
             <p>
                 Showing {{ items|length }} item{% if items|length != 1 %}s{% endif %}
-                {% if active_filters %}matching your search and filters{% else %}available in the marketplace{% endif %}.
+                {% if active_filters %}matching your search and filters{% else %}available in the marketplace{% endif
+                %}.
             </p>
 
             {% if active_filters %}
