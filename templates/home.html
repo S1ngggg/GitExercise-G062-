@@ -47,7 +47,8 @@
 
                 <div class="card_image_wrap">
                     {% if image %}
-                    <img src="/uploads/{{ image }}" alt="{{ title }}" class="card_image">
+                    <img src="{{ url_for('static', filename='uploads/' + image) }}" alt="{{ title }}"
+                        class="card_image">
                     {% else %}
                     <div class="card_image_placeholder">🧺</div>
                     {% endif %}
