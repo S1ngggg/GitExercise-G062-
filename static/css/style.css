@@ -1,23 +1,46 @@
+.title_home {
+    font-family: "Satisfy", cursive;
+    font-weight: 400;
+    font-style: normal;
+    color: #8dbfe3;
+}
+
+.highlight_home {
+    color: #D8a16b;
+}
+
 .marketplace_grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 0;
 }
 
 .item_card {
     background: white;
-    border-radius: 15px;
-    padding: 20px;
-    width: 250px;
-    box-shadow: 0 4px 8px black;
+    border-radius: 16px;
+    padding: 0;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(47, 93, 159, 0.15);
     text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(143, 182, 232, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .description_text {
     font-size: 14px;
     color: #555;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0 0 6px 0;
+    flex-grow: 1;
+    padding-left: 18px;
+    padding-right: 18px;
 }
 
 /* Top row: category label + status badge side by side */
@@ -77,7 +100,8 @@
 }
 
 .item_card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(47, 93, 159, 0.22);
 }
 
 .buynow_button:hover {
@@ -89,7 +113,6 @@
     margin: 0 0 6px 0;
 }
 
-/* Empty state when no items are listed */
 .empty_state {
     text-align: center;
     padding: 40px 20px;
@@ -133,7 +156,7 @@
 
 }
 
-.upload_buttom {
+.upload_button {
     margin-top: 10px;
     border-radius: 20px;
     border: none;
@@ -156,4 +179,570 @@
     font-size: 18px;
     border-radius: 12px;
     min-width: 220px;
+}
+
+.home_body {
+    margin: 0;
+    background-color: #dde4ed;
+    min-height: 100vh;
+    font-family: "Fredoka", sans-serif;
+}
+
+.home_nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    background: white;
+    border-bottom: 1px solid rgba(143, 182, 232, 0.35);
+    box-shadow: 0 2px 16px rgba(47, 93, 159, 0.09);
+}
+
+.home_nav_left .title_home {
+    margin: 0;
+    font-size: 26px;
+}
+
+.home_nav_right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nav_button {
+    background-color: transparent;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 20px;
+    padding: 7px 18px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.nav_button:hover {
+    background-color: #2f5d9f;
+    color: white;
+}
+
+.nav_button_primary {
+    background-color: #2f5d9f;
+    color: white;
+}
+
+.nav_button_primary:hover {
+    background-color: #e07a2f;
+    border-color: #e07a2f;
+    color: white;
+}
+
+.nav_button_logout {
+    border-color: #e07a2f;
+    color: #e07a2f;
+}
+
+.nav_button_logout:hover {
+    background-color: #e07a2f;
+    color: white;
+}
+
+/* hero banner section */
+.home_hero {
+    background: linear-gradient(135deg, #2f5d9f 0%, #5b8fd4 60%, #8dbfe3 100%);
+    padding: 48px 60px 36px 60px;
+    color: white;
+    position: relative;
+}
+
+.home_hero::after {
+    content: "🧺";
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.home_hero_top {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #D8a16b;
+    margin: 0 0 10px 0;
+}
+
+.home_hero_heading {
+    font-family: "DM Serif Text", serif;
+    font-size: 42px;
+    font-weight: 400;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    color: white;
+}
+
+.home_hero_sub {
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 0 24px 0;
+    max-width: 520px;
+}
+
+.home_hero_stat_row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.home_stat_sec {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+}
+
+.home_main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 32px 60px 32px;
+}
+
+.home_section_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid rgba(143, 182, 232, 0.35);
+}
+
+.home_section_title {
+    font-family: "DM Serif Text", serif;
+    font-size: 30px;
+    font-weight: 400;
+    color: #2f5d9f;
+    margin: 0;
+}
+
+.home_list_link {
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e07a2f;
+    border: 1.5px solid #e07a2f;
+    border-radius: 20px;
+    padding: 6px 18px;
+}
+
+.home_list_link:hover {
+    background: #e07a2f;
+    color: white;
+}
+
+.home_main .marketplace_grid {
+    justify-content: flex-start;
+    padding: 0;
+    gap: 24px;
+}
+
+.empty_state {
+    text-align: center;
+    padding: 70px 20px;
+    font-family: "Fredoka", sans-serif;
+    color: #4b5563;
+    font-size: 18px;
+}
+
+.empty_state_icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty_state p {
+    margin-bottom: 20px;
+    color: #6b7280;
+}
+
+.empty_list-button {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 32px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.empty_list_button:hover {
+    background-color: #e07a2f;
+}
+
+/* for item detail page */
+
+.detail_centering {
+    max-width: 1000px;
+    margin: 48px auto;
+    padding: 0 32px 60px 32px;
+}
+
+.detail_card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(47, 93, 159, 0.13);
+    border: 1px solid rgba(143, 182, 232, 0.25);
+    display: flex;
+    gap: 0;
+    min-height: 420px;
+}
+
+.detail_image {
+    width: 40%;
+    background: linear-gradient(160deg, #eef4fc 0%, #dde9f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    flex-shrink: 0;
+}
+
+.detail_image_placeholder {
+    text-align: center;
+    color: #94a3b8;
+}
+
+.detail_image_icon {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.55;
+}
+
+.detail_image_label {
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.detail_info {
+    flex: 1;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.detail_top_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.detail_category {
+    font-size: 12px;
+}
+
+.detail_title {
+    font-family: "DM Serif Text", serif;
+    font-size: 34px;
+    font-weight: 400;
+    color: #1e3a6e;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+.detail_price {
+    font-size: 32px;
+    font-weight: 700;
+    color: #e67e22;
+    margin: 0 0 14px 0;
+    font-family: "Fredoka", sans-serif;
+}
+
+.detail_meta_row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.detail_meta_pill {
+    background: #eef4fc;
+    border: 1px solid rgba(143, 182, 232, 0.4);
+    border-radius: 30px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-family: "Fredoka", sans-serif;
+    color: #2f5d9f;
+}
+
+.detail_divider {
+    border: none;
+    border-top: 1px solid rgba(143, 182, 232, 0.3);
+    margin: 16px 0;
+}
+
+.detail_desc_label {
+    font-family: "Fredoka", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #4b5563;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail_description {
+    font-family: "Fredoka", sans-serif;
+    font-size: 16px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.detail_actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.detail_button_primary {
+    background-color: #2f5d9f;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    flex: 1;
+}
+
+.detail_button_primary:hover {
+    background-color: #e07a2f;
+    transform: translateY(-2px);
+}
+
+.detail_button_secondary {
+    background-color: white;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+}
+
+.detail_button_secondary:hover {
+    background-color: #eef4fc;
+    transform: translateY(-2px);
+}
+
+
+.detail_note {
+    font-family: "Fredoka", sans-serif;
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 14px 0 0 0;
+}
+
+.buynow_link {
+    display: block;
+    text-decoration: none;
+}
+
+.card_image_wrap {
+    width: 100%;
+    height: 170px;
+    background: #eef4fc;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(143, 182, 232, 0.2);
+}
+
+.card_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card_image_placeholder {
+    font-size: 52px;
+    opacity: 0.3;
+    user-select: none;
+}
+
+.item_top_row,
+.item_title,
+.card_description,
+.condition_label {
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.item_top_row {
+    padding-top: 14px;
+}
+
+.item_title {
+    margin: 6px 0 4px 0;
+}
+
+.condition_label {
+    font-size: 12px;
+    color: #7b8fa1;
+    font-family: "Fredoka", sans-serif;
+    margin: 0 0 8px 0;
+}
+
+.card_bottom {
+    margin-top: auto;
+    padding: 10px 18px 18px 18px;
+    border-top: 1px solid rgba(143, 182, 232, 0.15);
+}
+
+.card_bottom .price {
+    margin: 0 0 10px 0;
+}
+
+.buynow_link {
+    display: block;
+    text-decoration: none;
+}
+
+
+.detail_image_full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    display: block;
+}
+
+.detail_image {
+    width: 40%;
+    background: linear-gradient(160deg, #eef4fc 0%, #dde9f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 20px 0 0 20px;
+    min-height: 420px;
+}
+
+
+.optional_label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: normal;
+    font-family: "Fredoka", sans-serif;
+}
+
+.image_upload_area {
+    position: relative;
+    border: 2px dashed rgba(143, 182, 232, 0.6);
+    border-radius: 12px;
+    background: #f0f6fd;
+    cursor: pointer;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.18s, background 0.18s;
+}
+
+.image_upload_area:hover {
+    border-color: #2f5d9f;
+    background: #e6f0fb;
+}
+
+.image_file_input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.image_upload_inner {
+    text-align: center;
+    pointer-events: none;
+    padding: 20px;
+}
+
+.image_upload_icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.image_upload_text {
+    font-family: "Fredoka", sans-serif;
+    font-size: 15px;
+    color: #2f5d9f;
+    margin: 0 0 4px 0;
+}
+
+.image_upload_hint {
+    font-family: "Fredoka", sans-serif;
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.image_preview_img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+}
+
+.detail_button_reserved {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: not-allowed;
+    opacity: 0.85;
+    flex: 1;
+}
+
+.detail_button_sold {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: not-allowed;
+    opacity: 0.85;
+    flex: 1;
 }

@@ -6,23 +6,53 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-<body class="outside">
-    <header>
-        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
-        <div class="navigation">
-            <a href="{{ url_for('home') }}"><button>Back to Main Page</button></a>
-            <a href="{{ url_for('item_form') }}"><button>Sell Item</button></a>
+<body class="home_body">
 
+    <nav class="home_nav">
+        <div class="home_nav_left">
+            <h1 class="title_home">MMU <span class="highlight_home">Marketplace 🧺</span></h1>
         </div>
-    </header>
+        <div class="home_nav_right">
+            <a href="{{ url_for('item_form') }}"><button class="nav_button nav_button_primary">Sell Item</button></a>
+            <a href="{{ url_for('profile') }}"><button class="nav_button">Profile</button></a>
+            <a href="#"><button class="nav_button">Settings</button></a>
+            <a href="#"><button class="nav_button nav_button_logout">Logout</button></a>
+        </div>
+    </nav>
 
-    <div class="insidepart1">
-        <h2 class="headerpart2">Items for Sale</h2>
+    <div class="home_hero">
+        <div>
+            <p class="home_hero_top">Browse, Locate, Purchase!</p>
+            <h2 class="home_hero_heading">Find great deals<br>from MMU students</h2>
+            <p class="home_hero_sub">Browse items listed by MMU students — textbooks, gadgets, furniture & more.</p>
+        </div>
+        <div class="home_hero_stat_row">
+            <div class="home_stat_sec"> {{ items|length }} item{% if items|length != 1 %}s{% endif %} listed</div>
+            <div class="home_stat_sec"> MMU Students Only</div>
+            <div class="home_stat_sec"> Student Prices</div>
+        </div>
+    </div>
+
+    <div class="home_main">
+
+        <div class="home_section_header">
+            <h2 class="home_section_title">Items for Sale</h2>
+            <a href="{{ url_for('item_form') }}" class="home_list_link"> List an item</a>
+        </div>
 
         {% if items %}
         <div class="marketplace_grid">
-            {% for title, description, price, category, status in items %}
+            {% for item_id, title, description, price, category, status, condition, image in items %}
             <div class="item_card">
+
+                <div class="card_image_wrap">
+                    {% if image %}
+                    <img src="{{ url_for('static', filename='uploads/' + image) }}" alt="{{ title }}"
+                        class="card_image">
+                    {% else %}
+                    <div class="card_image_placeholder">🧺</div>
+                    {% endif %}
+                </div>
 
                 <div class="item_top_row">
                     <span class="category_label">{{ category }}</span>
@@ -31,8 +61,12 @@
 
                 <h3 class="item_title">{{ title }}</h3>
                 <p class="description_text">{{ description }}</p>
-                <p class="price">RM {{ "%.2f" | format(price) }}</p>
-                <button class="buynow_button">Buy Now</button>
+                <div class="card_bottom">
+                    <p class="price">RM {{ "%.2f" | format(price) }}</p>
+                    <a href="{{ url_for('item_detail', item_id=item_id) }}" class="buynow_link">
+                        <button class="buynow_button">Buy Now</button>
+                    </a>
+                </div>
 
             </div>
             {% endfor %}
@@ -40,11 +74,13 @@
 
         {% else %}
         <div class="empty_state">
-            <p>No items listed yet.</p>
-            <a href="{{ url_for('item_form') }}"><button>List an Item Now!</button></a>
+            <div class="empty_state_icon">🧺</div>
+            <p>No items listed yet. Be the first!</p>
+            <a href="{{ url_for('item_form') }}"><button class="empty-list-btn">List an Item Now!</button></a>
         </div>
         {% endif %}
 
     </div>
+
 </body>
 {% endblock %}

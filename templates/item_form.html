@@ -21,8 +21,12 @@
             Fill in the details below to post your item for sale.
         </p>
 
+<<<<<<< HEAD
         <form method="POST" class="neat_edges">
 
+=======
+        <form method="POST" enctype="multipart/form-data" class="neat_edges">>
+>>>>>>> database-setup
             <div class="input-group">
                 <label for="title">📝 Item Title</label>
                 <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
@@ -61,12 +65,48 @@
                 </select>
             </div>
 
+<<<<<<< HEAD
             <button type="submit" class="upload_button">
+=======
+            <div class="input-group" style="margin-top:12px;">
+                <label for="image">Item Photo <span class="optional_label">(optional)</span></label>
+                <div class="image_upload_area" id="upload_area">
+                    <input type="file" id="image" name="image" accept="image/*" class="image_file_input"
+                        onchange="previewImage(event)">
+                    <div class="image_upload_inner" id="upload_inner">
+                        <span class="image_upload_icon">📷</span>
+                        <p class="image_upload_text">Click or drag an image here</p>
+                        <p class="image_upload_hint">PNG, JPG, GIF, WEBP</p>
+                    </div>
+                    <img id="image_preview" class="image_preview_img" src="" alt="Preview" style="display:none;">
+                </div>
+            </div>
+
+            <button type="submit" class="register-button"
+                style="width:100%; margin-top:20px; padding:12px; font-size:16px;">
+>>>>>>> database-setup
                 Upload Item
             </button>
 
         </form>
 
     </div>
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('image_preview');
+            const inner = document.getElementById('upload_inner');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    inner.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </body>
 {% endblock %}

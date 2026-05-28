@@ -1,14 +1,41 @@
 # import tools for handling form data and page navigation
 from flask import request, redirect, url_for, flash, session
 from flask import Flask, render_template
+from flask_mail import Mail, Message
+import random
+from datetime import datetime, timedelta
 import sqlite3
+import os
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
 
+# Image upload
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# configure mail server, here using gmail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+# configure mail port, 587 is commonly used for secure email submission
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True  # enable secure email encryption
+app.config['MAIL_USERNAME'] = 'valorantsing2007@gmail.com'
+# use app password for security, generate from google account setting
+app.config['MAIL_PASSWORD'] = 'idzw zprj hqak xypr'
+
+mail = Mail(app)  # initialize flask-mail, connect to flaskapp
 
 # Creating the tables
+
 
 def create_database():
     connect = sqlite3.connect("database.db")
@@ -19,7 +46,7 @@ def create_database():
                    CREATE TABLE IF NOT EXISTS category(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    name TEXT NOT NULL UNIQUE
-                   
+
                    )
                    """)
 
@@ -27,7 +54,7 @@ def create_database():
                    CREATE TABLE IF NOT EXISTS status(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    condition TEXT NOT NULL UNIQUE
-                   
+
                    )
                    """)
 
@@ -93,9 +120,15 @@ def create_database():
                 "UPDATE item SET condition_id = ? WHERE condition_id IS NULL",
                 (default_condition[0],))
 
+    # add image column if it doesn't exist yet
+    cursor.execute("PRAGMA table_info(item)")
+    item_columns = [column[1] for column in cursor.fetchall()]
+    if "image" not in item_columns:
+        cursor.execute("ALTER TABLE item ADD COLUMN image TEXT")
+
     # create user table if does not exist yet
     cursor.execute("""
-                   
+
                 CREATE TABLE IF NOT EXISTS user(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
@@ -155,7 +188,11 @@ def register():
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
+<<<<<<< HEAD
             """, (email, username, hashed_password, gender, role))
+=======
+            """, (email, username, hashed_password, gender, role))  # insert user data using ?
+>>>>>>> database-setup
 
         conn.commit()  # save change to the database
         conn.close()
@@ -182,7 +219,7 @@ def login():
 
         # serching user by email
         cursor.execute(
-            """SELECT id, email, password FROM user WHERE email =?""", (email,))
+            """SELECT id, email, username, password FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
         conn.close()
 
@@ -192,13 +229,15 @@ def login():
             return redirect(url_for('login'))
 
         # split database result into separate variable
-        user_id, user_email, stored_password = user
+        user_id, user_email, username, stored_password = user
 
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
             # create session, store user identity in session
+            # remember which user is logged in by storing user id in session
             session['user_id'] = user_id
             session['email'] = user_email
+            session['username'] = username
 
             return redirect(url_for('home_page'))
         else:
@@ -229,12 +268,74 @@ def forgot_password():
         conn.close()
 
         if user:
-            return redirect(url_for('reset_password', email=email))
+            # generate random 6 digit otp
+            otp = str(random.randint(100000, 999999))
+            session['otp'] = otp  # store otp in session to compare later
+            session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).strftime(
+                '%Y-%m-%d %H:%M:%S')  # set otp expiry time to 10 minutes
+
+            # store email in session to identify which user is resetting password
+            session['reset_email'] = email
+            msg = Message("Password Reset OTP", sender=app.config['MAIL_USERNAME'], recipients=[
+                          email])  # create email message
+            # get username from database result, index 2 is username column
+            username = user[2]
+            msg.html = f"""
+<html>
+    <body>
+        <p>Dear {username},</p>
+
+        <p>🔐Your One-Time Password (OTP) is:</p>
+
+        <h3><b>{otp}</b></h3>
+
+        <p>It will expire in 10 minutes.</p>
+
+        <p>Thank you.</p>
+    </body>
+</html>"""
+            mail.send(msg)
+
+            flash("OTP sent to your email. Please check your inbox.")
+            return redirect(url_for('check_otp'))  # redirect to check otp page
 
         else:
             flash("Email not found. Please enter a valid email.")
             return redirect(url_for('forgot_password'))
     return render_template("forgot_password.html")
+
+
+@app.route("/check-otp", methods=['GET', 'POST'])
+def check_otp():
+    if request.method == 'POST':
+
+        user_otp = request.form['otp']
+        stored_otp = session.get('otp')
+        expiry_time = session.get('otp_expiry')
+
+        # session expired or no otp in session
+        if not stored_otp or not expiry_time:
+            flash("No OTP found. Please request a new OTP.")
+            return redirect(url_for('forgot_password'))
+
+        # otp expired
+        if datetime.now() > datetime.strptime(expiry_time, '%Y-%m-%d %H:%M:%S'):
+            flash("OTP has expired. Please request a new OTP.")
+            return redirect(url_for('forgot_password'))
+        # otp correct
+        if user_otp == stored_otp:
+            # clear otp after success verify
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+            flash("OTP verified. Please reset your password.")
+            # redirect to reset password page and pass email to identify which user is resetting password
+            return redirect(url_for('reset_password', email=session.get('reset_email')))
+
+        else:
+            flash("Invalid OTP. Please try again.")
+            return redirect(url_for('check_otp'))
+
+    return render_template("check-otp.html")
 
 
 @app.route("/reset_password/<email>", methods=['GET', 'POST'])
@@ -273,17 +374,26 @@ def home_page():
     cursor = connect.cursor()
 
     cursor.execute("""
-        SELECT item.title, item.description, item.price, 
-               category.name, status.condition 
+    SELECT item.id, item.title, item.description, item.price,
+           category.name, status.condition,
+            item_condition.name, item.image
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
-    """)
+        JOIN item_condition ON item.condition_id = item_condition.id
+        """)
 
     items_list = cursor.fetchall()
     connect.close()
 
     return render_template("home.html", items=items_list)
+
+
+@app.route("/profile")
+def profile():
+    # get username from session, default to 'Your' if not found
+    username = session.get('username', 'Your')
+    return render_template("user_profile.html", username=username)
 
 
 @app.route("/marketplace", methods=['GET'])
@@ -489,10 +599,19 @@ def item_form():
         status = request.form['status']
         condition = request.form['condition']
 
+        # Handle image upload
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '' and allowed_file(file.filename):
+                image_filename = secure_filename(file.filename)
+                file.save(os.path.join(
+                    app.config['UPLOAD_FOLDER'], image_filename))
+
         cursor.execute("""
-                       INSERT INTO item(title, description, category_id, status_id, condition_id, price)
-                       VALUES(?,?,?,?,?,?)
-                       """, (title, description, category, status, condition, price))
+                       INSERT INTO item(title, description, category_id, status_id, condition_id, price, image)
+                       VALUES(?,?,?,?,?,?,?)
+                       """, (title, description, category, status, condition, price, image_filename))
         connect.commit()
         connect.close()
         return render_template("item_saved.html")
@@ -512,6 +631,31 @@ def item_form():
     return render_template("item_form.html", categories=categories_list, status=status_list, conditions=conditions_list)
 
 
+@app.route("/item/<int:item_id>")
+def item_detail(item_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.description, item.price,
+               category.name, status.condition,
+               item_condition.name, item.image
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        JOIN item_condition ON item.condition_id = item_condition.id
+        WHERE item.id = ?
+    """, (item_id,))
+
+    item = cursor.fetchone()
+    connect.close()
+
+    if item is None:
+        return "Item not found", 404
+
+    return render_template("item_detail.html", item=item)
+
+
 @app.route("/item_saved")
 def item_saved():
     return render_template("item_saved.html")
@@ -519,4 +663,8 @@ def item_saved():
 
 if __name__ == "__main__":
     create_database()
+<<<<<<< HEAD
     app.run(debug=True)
+=======
+    app.run(debug=True, host='0.0.0.0')
+>>>>>>> database-setup
