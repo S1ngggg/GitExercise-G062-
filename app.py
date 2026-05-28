@@ -393,6 +393,77 @@ def profile():
     return render_template("user_profile.html", username=username)
 
 
+@app.route("/admin")
+def admin_dashboard():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM user")
+    total_users = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM item")
+    total_listings = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM item
+        JOIN status ON item.status_id = status.id
+        WHERE status.condition = 'Available'
+    """)
+    available_listings = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.price, category.name, status.condition
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        ORDER BY item.id DESC
+        LIMIT 5
+    """)
+    recent_items = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT status.condition, COUNT(item.id)
+        FROM status
+        LEFT JOIN item ON item.status_id = status.id
+        GROUP BY status.id, status.condition
+        ORDER BY status.id
+    """)
+    status_summary = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT category.name, COUNT(item.id)
+        FROM category
+        LEFT JOIN item ON item.category_id = category.id
+        GROUP BY category.id, category.name
+        ORDER BY category.name
+    """)
+    category_summary = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT username, email, role
+        FROM user
+        ORDER BY id DESC
+        LIMIT 6
+    """)
+    recent_users = cursor.fetchall()
+
+    connect.close()
+
+    stats = {
+        "total_users": total_users,
+        "total_listings": total_listings,
+        "available_listings": available_listings
+    }
+
+    return render_template("admin.html",
+                           stats=stats,
+                           recent_items=recent_items,
+                           status_summary=status_summary,
+                           category_summary=category_summary,
+                           recent_users=recent_users)
+
+
 @app.route("/marketplace", methods=['GET'])
 def marketplace():
     search = request.args.get("search", "").strip()
