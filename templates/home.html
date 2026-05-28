@@ -6,27 +6,17 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-<body class="outside">
-    <header>
-        <h1 class="title-home">MMU <span class="highlight-home">Marketplace 🧺</span></h1>
-        <div class="navigation">
-            <a href="{{ url_for('item_form') }}"><button>Sell Item</button></a>
-            <a href="{{ url_for('profile')}}"><button>Dashboard</button></a>
-            <a href="#"><button>Settings</button></a>
-            <a href="{{ url_for('logout') }}"><button>Logout</button></a>
-        </div>
-    </header>
-
-
+<body class="home_body">
+    
     <nav class="home_nav">
         <div class="home_nav_left">
             <h1 class="title_home">MMU <span class="highlight_home">Marketplace 🧺</span></h1>
         </div>
         <div class="home_nav_right">
             <a href="{{ url_for('item_form') }}"><button class="nav_button nav_button_primary">Sell Item</button></a>
-            <a href="{{ url_for('profile') }}"><button class="nav_button">Profile</button></a>
+            <a href="{{ url_for('profile') }}"><button class="nav_button">Dashboard</button></a>
             <a href="#"><button class="nav_button">Settings</button></a>
-            <a href="#"><button class="nav_button nav_button_logout">Logout</button></a>
+            <a href="{{ url_for('logout') }}"><button class="nav_button nav_button_logout">Logout</button></a>
         </div>
     </nav>
 
