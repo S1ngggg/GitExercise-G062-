@@ -188,11 +188,7 @@ def register():
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role)
             VALUES(?, ?, ?, ?, ?)
-<<<<<<< HEAD
-            """, (email, username, hashed_password, gender, role))
-=======
             """, (email, username, hashed_password, gender, role))  # insert user data using ?
->>>>>>> database-setup
 
         conn.commit()  # save change to the database
         conn.close()
@@ -293,7 +289,8 @@ def forgot_password():
 
         <p>Thank you.</p>
     </body>
-</html>"""
+</html>
+"""
             mail.send(msg)
 
             flash("OTP sent to your email. Please check your inbox.")
@@ -389,75 +386,6 @@ def home_page():
     return render_template("home.html", items=items_list)
 
 
-@app.route("/admin")
-def admin_dashboard():
-    connect = sqlite3.connect("database.db")
-    cursor = connect.cursor()
-
-    cursor.execute("SELECT COUNT(*) FROM user")
-    total_users = cursor.fetchone()[0]
-
-    cursor.execute("SELECT COUNT(*) FROM item")
-    total_listings = cursor.fetchone()[0]
-
-    cursor.execute("""
-        SELECT COUNT(*)
-        FROM item
-        JOIN status ON item.status_id = status.id
-        WHERE status.condition = 'Available'
-    """)
-    available_listings = cursor.fetchone()[0]
-
-    cursor.execute("""
-        SELECT item.id, item.title, item.price, category.name, status.condition
-        FROM item
-        JOIN category ON item.category_id = category.id
-        JOIN status ON item.status_id = status.id
-        ORDER BY item.id DESC
-        LIMIT 5
-    """)
-    recent_items = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT status.condition, COUNT(item.id)
-        FROM status
-        LEFT JOIN item ON item.status_id = status.id
-        GROUP BY status.id, status.condition
-        ORDER BY status.id
-    """)
-    status_summary = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT category.name, COUNT(item.id)
-        FROM category
-        LEFT JOIN item ON item.category_id = category.id
-        GROUP BY category.id, category.name
-        ORDER BY COUNT(item.id) DESC, category.name ASC
-    """)
-    category_summary = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT username, email, role
-        FROM user
-        ORDER BY id DESC
-        LIMIT 4
-    """)
-    recent_users = cursor.fetchall()
-
-    connect.close()
-
-    stats = {
-        "total_users": total_users,
-        "total_listings": total_listings,
-        "available_listings": available_listings
-    }
-
-    return render_template("admin.html",
-                           stats=stats,
-                           recent_items=recent_items,
-                           status_summary=status_summary,
-                           category_summary=category_summary,
-                           recent_users=recent_users)
 @app.route("/profile")
 def profile():
     # get username from session, default to 'Your' if not found
@@ -732,8 +660,4 @@ def item_saved():
 
 if __name__ == "__main__":
     create_database()
-<<<<<<< HEAD
-    app.run(debug=True)
-=======
     app.run(debug=True, host='0.0.0.0')
->>>>>>> database-setup
