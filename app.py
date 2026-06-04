@@ -757,7 +757,6 @@ def edit_item(item_id):
         status = request.form['status']
         condition = request.form['condition']
 
-        # Keep existing image unless a new one is uploaded
         cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
         row = cursor.fetchone()
         image_filename = row[0] if row else None
@@ -765,7 +764,6 @@ def edit_item(item_id):
         if 'image' in request.files:
             file = request.files['image']
             if file and file.filename != '' and allowed_file(file.filename):
-                # Delete old image file if it exists
                 if image_filename:
                     old_path = os.path.join(
                         app.config['UPLOAD_FOLDER'], image_filename)
@@ -785,7 +783,6 @@ def edit_item(item_id):
         connect.close()
         return redirect(url_for('item_detail', item_id=item_id))
 
-    # GET — fetch raw item data (IDs, not names) for pre-filling the form
     cursor.execute("""
         SELECT id, title, description, price, category_id, status_id, condition_id, image
         FROM item WHERE id = ?
@@ -809,6 +806,24 @@ def edit_item(item_id):
                            categories=categories_list,
                            status=status_list,
                            conditions=conditions_list)
+
+
+@app.route("/item/<int:item_id>/delete", methods=['POST'])
+def delete_item(item_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
+    row = cursor.fetchone()
+    if row and row[0]:
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], row[0])
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    cursor.execute("DELETE FROM item WHERE id = ?", (item_id,))
+    connect.commit()
+    connect.close()
+    return redirect(url_for('home_page'))
 
 
 if __name__ == "__main__":
