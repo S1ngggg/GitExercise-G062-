@@ -214,7 +214,8 @@ def login():
         cursor = conn.cursor()
 
         # serching user by email
-        cursor.execute("""SELECT id, email, username, password, gender, role FROM user WHERE email =?""", (email,))
+        cursor.execute(
+            """SELECT id, email, username, password, gender, role FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
         conn.close()
 
@@ -224,7 +225,7 @@ def login():
             return redirect(url_for('login'))
 
         # split database result into separate variable
-        user_id, user_email, username, stored_password , gender, role= user
+        user_id, user_email, username, stored_password, gender, role = user
 
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
@@ -233,7 +234,7 @@ def login():
             session['user_id'] = user_id
             session['email'] = user_email
             session['username'] = username
-            session['gender'] = gender 
+            session['gender'] = gender
             session['role'] = role
 
             return redirect(url_for('home_page'))
@@ -389,17 +390,19 @@ def home_page():
 
 @app.route("/user_profile")
 def profile():
-    username = session.get('username', 'Your')  # get username from session, default to 'Your' if not found
-    email= session.get('email', '')
+    # get username from session, default to 'Your' if not found
+    username = session.get('username', 'Your')
+    email = session.get('email', '')
     gender = session.get('gender', '')
     role = session.get('role', '')
 
     return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
 
+
 @app.route("/logout")
 def logout():
     session.clear()  # clear all session data to log out the user
-    return redirect(url_for('home')) 
+    return redirect(url_for('home'))
     # get username from session, default to 'Your' if not found
     username = session.get('username', 'Your')
     return render_template("user_profile.html", username=username)
@@ -739,6 +742,73 @@ def item_detail(item_id):
 @app.route("/item_saved")
 def item_saved():
     return render_template("item_saved.html")
+
+
+@app.route("/item/<int:item_id>/edit", methods=['GET', 'POST'])
+def edit_item(item_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        price = request.form['price']
+        category = request.form['category']
+        status = request.form['status']
+        condition = request.form['condition']
+
+        # Keep existing image unless a new one is uploaded
+        cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
+        row = cursor.fetchone()
+        image_filename = row[0] if row else None
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '' and allowed_file(file.filename):
+                # Delete old image file if it exists
+                if image_filename:
+                    old_path = os.path.join(
+                        app.config['UPLOAD_FOLDER'], image_filename)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                image_filename = secure_filename(file.filename)
+                file.save(os.path.join(
+                    app.config['UPLOAD_FOLDER'], image_filename))
+
+        cursor.execute("""
+            UPDATE item
+            SET title=?, description=?, category_id=?, status_id=?,
+                condition_id=?, price=?, image=?
+            WHERE id=?
+        """, (title, description, category, status, condition, price, image_filename, item_id))
+        connect.commit()
+        connect.close()
+        return redirect(url_for('item_detail', item_id=item_id))
+
+    # GET — fetch raw item data (IDs, not names) for pre-filling the form
+    cursor.execute("""
+        SELECT id, title, description, price, category_id, status_id, condition_id, image
+        FROM item WHERE id = ?
+    """, (item_id,))
+    item = cursor.fetchone()
+
+    if item is None:
+        connect.close()
+        return "Item not found", 404
+
+    cursor.execute("SELECT * FROM category")
+    categories_list = cursor.fetchall()
+    cursor.execute("SELECT * FROM status")
+    status_list = cursor.fetchall()
+    cursor.execute("SELECT * FROM item_condition")
+    conditions_list = cursor.fetchall()
+    connect.close()
+
+    return render_template("item_edit.html",
+                           item=item,
+                           categories=categories_list,
+                           status=status_list,
+                           conditions=conditions_list)
 
 
 if __name__ == "__main__":
