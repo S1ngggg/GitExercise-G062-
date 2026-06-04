@@ -21,26 +21,26 @@
             Fill in the details below to post your item for sale.
         </p>
 
-        <form method="POST" enctype="multipart/form-data" class="neat_edges">>
+        <form method="POST" enctype="multipart/form-data" class="neat_edges">
             <div class="input-group">
-                <label for="title">📝 Item Title</label>
+                <label for="title">Item</label>
                 <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
             </div>
 
             <div class="input-group" style="margin-top:12px;">
-                <label for="description">📄 Description</label>
+                <label for="description"> Description</label>
                 <textarea id="description" name="description" placeholder="Describe your item."
                     class="description_textarea"></textarea>
             </div>
 
             <div class="input-row" style="margin-top:12px;">
                 <div class="input-group">
-                    <label for="price">💰 Price (RM)</label>
+                    <label for="price"> Price (RM)</label>
                     <input type="number" id="price" name="price" placeholder="eg 10" min="0" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="category">🏷️ Category</label>
+                    <label for="category"> Category</label>
                     <select id="category" name="category" required>
                         <option value="" disabled selected>Select a category</option>
                         {% for id, name in categories %}
@@ -50,18 +50,30 @@
                 </div>
             </div>
 
-            <div class="input-group" style="margin-top:12px;">
-                <label for="status">📦 Availability Status</label>
-                <select id="status" name="status" required>
-                    <option value="" disabled selected>Select a status</option>
-                    {% for id, condition in status %}
-                    <option value="{{ id }}">{{ condition }}</option>
-                    {% endfor %}
-                </select>
+            <div class="input-row" style="margin-top:12px;">
+                <div class="input-group">
+                    <label for="condition"> Condition</label>
+                    <select id="condition" name="condition" required>
+                        <option value="" disabled selected>Select a condition</option>
+                        {% for id, name in conditions %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="input-group" style="margin-top:12px;">
+                    <label for="status"> Status</label>
+                    <select id="status" name="status" required>
+                        <option value="" disabled selected>Select a status</option>
+                        {% for id, condition in status %}
+                        <option value="{{ id }}">{{ condition }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
 
             <div class="input-group" style="margin-top:12px;">
-                <label for="image">Item Photo <span class="optional_label">(optional)</span></label>
+                <label for="image">Photo <span class="optional_label">(optional)</span></label>
                 <div class="image_upload_area" id="upload_area">
                     <input type="file" id="image" name="image" accept="image/*" class="image_file_input"
                         onchange="previewImage(event)">
