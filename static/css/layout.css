@@ -9,6 +9,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=DM+Serif+Text:ital@0;1&family=Fredoka:wght@300..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Satisfy&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=DM+Serif+Text:ital@0;1&family=Fredoka:wght@300..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Slab:wght@100..900&family=Satisfy&display=swap');
+
 /* https://www.youtube.com/watch?v=HmaQwuKUYTc&t=11s */
 /* https://www.youtube.com/watch?v=JYfiaSKeYhE&t=6s */
 /* https://www.youtube.com/watch?v=wsTv9y931o8&t=265s */
@@ -1105,7 +1107,7 @@ select {
 }
 
 .maincontent{
-    position: relative;
+    position: relative; /**/
     background: #ebe9e9;
     width:100%;
     padding: 16px;
@@ -1129,7 +1131,7 @@ select {
     font-variation-settings:"wdth" 100;
     color: #015d91;
     line-height: 1.0;
-    padding-right: 20px;
+    padding-right: 10px;
 }
 
 .header-dashboard span{
@@ -1138,15 +1140,30 @@ select {
 
 
 .profile-picture{
-    width:50px;
-    height:50px;
+    width:90px;
+    height:90px;
     border-radius: 50%;
     cursor:pointer;
     background: #ebe9e9;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 0px;
+    margin-left: 13px;
+    overflow: hidden;
+    
+}
+
+.profile-picture img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;/*fill the container without cutting the img*/
+    display:block;
+}
+
+#default-icon{
+    font-size: 40px;
+    color: gray;
 }
 
 .aboutuser{
@@ -1165,6 +1182,14 @@ select {
     color: gray;
     margin: 0;
     line-height: 1.5;
+}
+
+.user-info h3{
+    font-family: "Roboto Slab", serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    margin-bottom: 4px;
 }
 
 .overview{
@@ -1208,4 +1233,187 @@ select {
     padding: 10px 20px;
     margin-bottom: 16px;
 
+}
+
+.upload-button{
+    background-color: white;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 20px;
+    padding: 8px 20px;
+    margin-left: 15px;
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+}
+
+.upload-button:hover{
+    background-color: #2f5d9f;
+    color: white;
+    cursor: pointer;
+}
+
+.header-settings{
+    display: flex; 
+    justify-content: space-between; 
+    align-items:left; 
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.header-settings h1{
+    font-family: "DM Serif Text", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.header-settings p{
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    color: #4b5563;
+}
+
+.header-settings h1, .header-settings p{
+    line-height: 0.3;
+}
+
+.profilesummary{
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+}
+
+.profilesummary h2{
+    font-family: "DM Serif Text", serif;
+    font-weight: 500;
+    font-style: normal;
+    margin-top: 0;
+    font-size: 22px;
+}
+
+.picture-summary{
+    width:90px;
+    height:90px;
+    border-radius: 50%;
+    cursor:pointer;
+    background: #ebe9e9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 13px;
+    overflow: hidden;
+}
+
+.picture-summary img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;/*fill the container without cutting the img*/
+    display:block;
+}
+
+.summary-info{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+}
+
+.user-text{
+    margin-left: 20px;
+    margin-top: -20px;
+    font-family: "DM Serif Text", serif;
+    font-weight: 200;
+    font-style: normal;
+
+}
+
+.nav-editbutton{
+    margin-left: auto; /*push the element to the far right inside flex container*/
+}
+
+.edit-button{
+    background-color: white;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    padding: 8px 20px;
+    margin-left: 15px;
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    margin-top: -10px;
+}
+
+.edit-button:hover{
+    background-color: #2f5d9f;
+    color: white;
+    cursor: pointer;
+}
+
+.information{
+    background: white;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    padding: 10px 20px;
+    padding-right: 50px;
+}
+
+.information h2{
+    font-family: "DM Serif Text", serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 22px;
+    margin-top: 0;
+}
+
+.info-form label{
+    margin-bottom: 5px;
+    font-size: 14px;
+
+}
+
+.info-form input,
+.info-form select{
+    width: 100%;
+    padding: 8px;
+}
+
+input:focus, select:focus{ /*the border will change when click*/
+    outline: none;
+    border-color: #2f5d9f;
+    border-width: 2px;
+}
+
+.save-button{
+    background-color: #2f5d9f;
+    color: white;
+    padding: 8px 20px;
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:"wdth" 100;
+    height: auto;
+    width: auto;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    margin-top: -10px;
+
+}
+
+.btn-container{
+    justify-content: center;
+    display: flex;
 }

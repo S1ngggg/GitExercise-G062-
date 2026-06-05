@@ -13,7 +13,7 @@
         <div class="logo"></div>
         <ul>
             <li>
-                <a href="#">
+                <a href="{{url_for('profile')}}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="{{url_for('setting')}}">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
@@ -42,11 +42,17 @@
     <div class="maincontent">
         <div class="headeroutside">
             <div class="aboutuser">
-                <div class="profile-picture">
-                    <i class="fa-solid fa-user"></i>
-                </div>
+                <form action="/upload_profile" method="post" enctype="multipart/form-data">
+                    <label for="profile_image" class="profile-picture"> <!--click icons open file picker-->
+                        <img id="preview-image" src="{% if profile_image %}{{ url_for('static', filename='uploads/' + profile_image) }}{% endif %}" alt="Profile Picture" {% if not profile_image %}style="display:none;"{% endif %}>
+                        <i class="fa-solid fa-user" id="default-icon"{% if profile_image %}style="display:none;"{% endif %}></i>
+                    </label>
+                    <input type="file" id="profile_image" name="profile_image" accept="image/*" hidden>
+                    <button class="upload-button" type="submit">Upload</button>
+                </form>
+
                 <ul class="user-info">
-                    <li>{{ username }}</li>
+                    <h3>{{ username }}</h3>
                     <li>{{ email }}</li>
                     <li>{{ gender }}</li>
                     <li>{{ role }}</li>
@@ -77,5 +83,21 @@
             <h3>Recent Activity</h3>
         </div>
     </div>
+<script>
+document.getElementById('profile_image').addEventListener('change',function(event){
+    const file = event.target.files[0];
+    if (file) {
+        const preview = document.getElementById('preview-image');
+        const icon = document.getElementById('default-icon');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    
+
+    if (icon) {
+            icon.style.display = 'none';
+        }
+    }
+});
+</script>
 </body>
 </html>
