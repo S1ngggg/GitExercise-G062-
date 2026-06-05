@@ -367,120 +367,7 @@ def reset_password(email):
     return render_template("reset_password.html", email=email)
 
 
-@app.route("/home")
-def home_page():
-    connect = sqlite3.connect("database.db")
-    cursor = connect.cursor()
-
-    cursor.execute("""
-    SELECT item.id, item.title, item.description, item.price,
-           category.name, status.condition,
-            item_condition.name, item.image
-        FROM item
-        JOIN category ON item.category_id = category.id
-        JOIN status ON item.status_id = status.id
-        JOIN item_condition ON item.condition_id = item_condition.id
-        """)
-
-    items_list = cursor.fetchall()
-    connect.close()
-
-    return render_template("home.html", items=items_list)
-
-
-@app.route("/user_profile")
-def profile():
-    # get username from session, default to 'Your' if not found
-    username = session.get('username', 'Your')
-    email = session.get('email', '')
-    gender = session.get('gender', '')
-    role = session.get('role', '')
-
-    return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
-
-
-@app.route("/logout")
-def logout():
-    session.clear()  # clear all session data to log out the user
-    return redirect(url_for('home'))
-    # get username from session, default to 'Your' if not found
-    username = session.get('username', 'Your')
-    return render_template("user_profile.html", username=username)
-
-
-@app.route("/admin")
-def admin_dashboard():
-    connect = sqlite3.connect("database.db")
-    cursor = connect.cursor()
-
-    cursor.execute("SELECT COUNT(*) FROM user")
-    total_users = cursor.fetchone()[0]
-
-    cursor.execute("SELECT COUNT(*) FROM item")
-    total_listings = cursor.fetchone()[0]
-
-    cursor.execute("""
-        SELECT COUNT(*)
-        FROM item
-        JOIN status ON item.status_id = status.id
-        WHERE status.condition = 'Available'
-    """)
-    available_listings = cursor.fetchone()[0]
-
-    cursor.execute("""
-        SELECT item.id, item.title, item.price, category.name, status.condition
-        FROM item
-        JOIN category ON item.category_id = category.id
-        JOIN status ON item.status_id = status.id
-        ORDER BY item.id DESC
-        LIMIT 5
-    """)
-    recent_items = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT status.condition, COUNT(item.id)
-        FROM status
-        LEFT JOIN item ON item.status_id = status.id
-        GROUP BY status.id, status.condition
-        ORDER BY status.id
-    """)
-    status_summary = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT category.name, COUNT(item.id)
-        FROM category
-        LEFT JOIN item ON item.category_id = category.id
-        GROUP BY category.id, category.name
-        ORDER BY category.name
-    """)
-    category_summary = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT username, email, role
-        FROM user
-        ORDER BY id DESC
-        LIMIT 6
-    """)
-    recent_users = cursor.fetchall()
-
-    connect.close()
-
-    stats = {
-        "total_users": total_users,
-        "total_listings": total_listings,
-        "available_listings": available_listings
-    }
-
-    return render_template("admin.html",
-                           stats=stats,
-                           recent_items=recent_items,
-                           status_summary=status_summary,
-                           category_summary=category_summary,
-                           recent_users=recent_users)
-
-
-@app.route("/marketplace", methods=['GET'])
-def marketplace():
+def get_marketplace_context(endpoint):
     search = request.args.get("search", "").strip()
     category = request.args.get("category", "").strip()
     status = request.args.get("status", "").strip()
@@ -536,7 +423,7 @@ def marketplace():
     query = """
             SELECT item.id, item.title, item.description, item.price,
                    category.name, status.condition,
-                   COALESCE(item_condition.name, 'Not specified')
+                   COALESCE(item_condition.name, 'Not specified'), item.image
             FROM item
             JOIN category ON item.category_id = category.id
             JOIN status ON item.status_id = status.id
@@ -634,7 +521,7 @@ def marketplace():
         active_filters.append({
             "label": label,
             "value": value,
-            "remove_url": url_for("marketplace", **remove_params)
+            "remove_url": url_for(endpoint, **remove_params)
         })
 
     if search:
@@ -652,20 +539,118 @@ def marketplace():
     if sort != "newest":
         add_active_filter("sort", "Sort", sort_options[sort]["label"])
 
-    return render_template("marketplace.html",
-                           items=items,
-                           categories=categories_list,
-                           status=status_list,
-                           conditions=conditions_list,
-                           sort_options=sort_options,
-                           active_filters=active_filters,
-                           search=search,
-                           selected_category=category,
-                           selected_status=status,
-                           selected_condition=condition,
-                           min_price=min_price,
-                           max_price=max_price,
-                           selected_sort=sort)
+    return {
+        "items": items,
+        "categories": categories_list,
+        "status": status_list,
+        "conditions": conditions_list,
+        "sort_options": sort_options,
+        "active_filters": active_filters,
+        "search": search,
+        "selected_category": category,
+        "selected_status": status,
+        "selected_condition": condition,
+        "min_price": min_price,
+        "max_price": max_price,
+        "selected_sort": sort
+    }
+
+
+@app.route("/home")
+def home_page():
+    context = get_marketplace_context("home_page")
+    return render_template("home.html", **context)
+
+
+@app.route("/profile")
+@app.route("/user_profile")
+def profile():
+    # get username from session, default to 'Your' if not found
+    username = session.get('username', 'Your')
+    email = session.get('email', '')
+    gender = session.get('gender', '')
+    role = session.get('role', '')
+    return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+@app.route("/admin")
+def admin_dashboard():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM user")
+    total_users = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM item")
+    total_listings = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM item
+        JOIN status ON item.status_id = status.id
+        WHERE status.condition = 'Available'
+    """)
+    available_listings = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.price, category.name, status.condition
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        ORDER BY item.id DESC
+        LIMIT 5
+    """)
+    recent_items = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT status.condition, COUNT(item.id)
+        FROM status
+        LEFT JOIN item ON item.status_id = status.id
+        GROUP BY status.id, status.condition
+        ORDER BY status.id
+    """)
+    status_summary = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT category.name, COUNT(item.id)
+        FROM category
+        LEFT JOIN item ON item.category_id = category.id
+        GROUP BY category.id, category.name
+        ORDER BY category.name
+    """)
+    category_summary = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT username, email, role
+        FROM user
+        ORDER BY id DESC
+        LIMIT 6
+    """)
+    recent_users = cursor.fetchall()
+
+    connect.close()
+
+    stats = {
+        "total_users": total_users,
+        "total_listings": total_listings,
+        "available_listings": available_listings
+    }
+
+    return render_template("admin.html",
+                           stats=stats,
+                           recent_items=recent_items,
+                           status_summary=status_summary,
+                           category_summary=category_summary,
+                           recent_users=recent_users)
+
+
+@app.route("/marketplace", methods=['GET'])
+def marketplace():
+    return redirect(url_for("home_page", **request.args.to_dict()))
 
 
 @app.route("/item_form", methods=['GET', 'POST'])
