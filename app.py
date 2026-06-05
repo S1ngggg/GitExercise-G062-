@@ -567,23 +567,8 @@ def get_marketplace_context(endpoint):
 
 @app.route("/home")
 def home_page():
-    connect = sqlite3.connect("database.db")
-    cursor = connect.cursor()
-
-    cursor.execute("""
-    SELECT item.id, item.title, item.description, item.price,
-           category.name, status.condition,
-            item_condition.name, item.image
-        FROM item
-        JOIN category ON item.category_id = category.id
-        JOIN status ON item.status_id = status.id
-        JOIN item_condition ON item.condition_id = item_condition.id
-        """)
-
-    items_list = cursor.fetchall()
-    connect.close()
-
-    return render_template("home.html", items=items_list)
+    context = get_marketplace_context("home_page")
+    return render_template("home.html", **context)
 
 
 @app.route("/user_profile")
