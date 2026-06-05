@@ -567,23 +567,8 @@ def get_marketplace_context(endpoint):
 
 @app.route("/home")
 def home_page():
-    connect = sqlite3.connect("database.db")
-    cursor = connect.cursor()
-
-    cursor.execute("""
-    SELECT item.id, item.title, item.description, item.price,
-           category.name, status.condition,
-            item_condition.name, item.image
-        FROM item
-        JOIN category ON item.category_id = category.id
-        JOIN status ON item.status_id = status.id
-        JOIN item_condition ON item.condition_id = item_condition.id
-        """)
-
-    items_list = cursor.fetchall()
-    connect.close()
-
-    return render_template("home.html", items=items_list)
+    context = get_marketplace_context("home_page")
+    return render_template("home.html", **context)
 
 
 @app.route("/user_profile")
@@ -592,14 +577,13 @@ def profile():
     if not user_id:
         return redirect(url_for('login'))
     connect = sqlite3.connect("database.db")
+    connect.row_factory = sqlite3.Row #access column by name
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     connect.close()
-    #store the image filename if it exists
-    profile_image = user[6] if user else None
 
-    return render_template("user_profile.html", username=user[2] if user else '', email=user[1] if user else '', phone_num=user[7] if user else '', role=user[5] if user else '', gender=user[4] if user else '', profile_image=profile_image)
+    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', profile_image=user["profile_image"if user else None])
 
 
 @app.route("/upload_profile", methods=['POST'])
