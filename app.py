@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 import sqlite3
 import os
+import uuid
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -139,6 +140,15 @@ def create_database():
                 )
 
                 """)
+    
+    cursor.execute("PRAGMA table_info(user)")
+    user_column = [column[1] for column in cursor.fetchall()]
+    if "profile_image" not in user_column:
+        cursor.execute("ALTER TABLE user ADD COLUMN profile_image TEXT")
+    if "phone_num" not in user_column:
+        cursor.execute("ALTER TABLE user ADD COLUMN phone_num TEXT")
+    if "address" not in user_column:
+        cursor.execute("ALTER TABLE user ADD COLUMN address TEXT")
 
     connect.commit()
     connect.close()
@@ -235,7 +245,6 @@ def login():
             session['username'] = username
             session['gender'] = gender 
             session['role'] = role
-
             return redirect(url_for('home_page'))
         else:
             flash("Invalid email or password")
@@ -389,12 +398,115 @@ def home_page():
 
 @app.route("/user_profile")
 def profile():
-    username = session.get('username', 'Your')  # get username from session, default to 'Your' if not found
-    email= session.get('email', '')
-    gender = session.get('gender', '')
-    role = session.get('role', '')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    connect.close()
+    #store the image filename if it exists
+    profile_image = user[6] if user else None
 
-    return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
+    return render_template("user_profile.html", username=user[2] if user else '', email=user[1] if user else '', phone_num=user[7] if user else '', role=user[5] if user else '', gender=user[4] if user else '', profile_image=profile_image)
+
+@app.route("/upload_profile", methods=['POST'])
+def upload_profile():
+
+    #get the uploaded file from the form
+    file=request.files.get('profile_image')
+    #check if a file is uploaded and has a filename
+    if file and file.filename != '': 
+        #generate a random filename using uuid for prevent overwrting
+        extension = os.path.splitext(file.filename)[1]
+        filename = str(uuid.uuid4()) + extension
+        #create the upload folder if it doesnt exist yet
+        upload_folder = os.path.join(app.static_folder, 'uploads')
+        
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        file.save(os.path.join(upload_folder, filename)) #save to upload folder
+
+        #update the user profile image in
+        user_id = session['user_id']
+        connect = sqlite3.connect("database.db")
+        cursor = connect.cursor()
+        cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        connect.commit()
+        connect.close()
+
+    return redirect(url_for('profile'))
+
+@app.route("/setting")
+def setting():
+
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    connect.close()
+    #store the image filename if it exists
+    profile_image = user[6] if user else None
+
+    return render_template("setting.html", username=user[2] if user else '', email=user[1] if user else '', phone_num=user[7] if user else '', role=user[5] if user else '', gender=user[4] if user else '', address=user[8] if user else '', profile_image=profile_image)
+
+
+@app.route("/upload_setting", methods=['POST'])
+def upload_setting():
+
+    #get the uploaded file from the form
+    file=request.files.get('profile_image')
+    #check if a file is uploaded and has a filename
+    if file and file.filename != '': 
+        #generate a random filename using uuid for prevent overwrting
+        extension = os.path.splitext(file.filename)[1]
+        filename = str(uuid.uuid4()) + extension
+        #create the upload folder if it doesnt exist yet
+        upload_folder = os.path.join(app.static_folder, 'uploads')
+        
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        file.save(os.path.join(upload_folder, filename)) #save to upload folder
+
+        #update the user profile image in
+        user_id = session['user_id']
+        connect = sqlite3.connect("database.db")
+        cursor = connect.cursor()
+        cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        connect.commit()
+        connect.close()
+
+    return redirect(url_for('setting'))
+
+@app.route("/update_info", methods=['POST'])
+def update_info():
+    user_id = session['user_id']
+
+    username = request.form.get('username')
+    email = request.form.get('email')
+    phone_num = request.form.get('phone_num')
+    role = request.form.get('role')
+    gender = request.form.get('gender')
+    address = request.form.get('address')
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?", (username, email, phone_num, role, gender, address, user_id))
+    conn.commit()
+    conn.close()
+
+    session['username'] = username
+    session['email'] = email
+    session['role'] = role
+    session['gender'] = gender
+
+    return redirect(url_for('setting'))
 
 @app.route("/logout")
 def logout():
