@@ -806,13 +806,6 @@ select {
     /*move the elemnts to middle*/
     padding: 16px 20px;
     box-shadow: 0 4px 10px (rgba(0, 0, 0, 0.2));
-<<<<<<< HEAD
-    z-index: 9999;
-    /*to make sure flash message appear above all elements*/
-    transform: translateX(-50%);
-    /*shift left of its own width*/
-}
-=======
     z-index: 9999; /*to make sure flash message appear above all elements*/
     transform: translateX(-50%);/*shift left of its own width*/
 }
@@ -1184,4 +1177,3 @@ select {
     border-radius: 20px;
 }
 
->>>>>>> database-setup
