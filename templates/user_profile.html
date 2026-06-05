@@ -19,12 +19,6 @@
                 </a>
             </li>
             <li>
-                <a href="#">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li>
                 <a href="{{ url_for('home_page') }}">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
@@ -37,7 +31,7 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="{{ url_for('logout') }}">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -47,19 +41,40 @@
 
     <div class="maincontent">
         <div class="headeroutside">
+            <div class="aboutuser">
+                <div class="profile-picture">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <ul class="user-info">
+                    <li>{{ username }}</li>
+                    <li>{{ email }}</li>
+                    <li>{{ gender }}</li>
+                    <li>{{ role }}</li>
+                </ul>
+            </div>
             <div class="header-dashboard">
                 <span>{{ username }} 's</span>
                 <h2>Dashboard</h2>
             </div>
-            <div class="aboutuser">
-                <div class="searchbox">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Search...">
+        </div>
+        <div class="overview"> 
+            <h2>Overview</h2> 
+            <div class="overviewcontainer"> 
+                <div class="overviewcard"> 
+                    <i class="fas fa-bag-shopping"></i>
+                    <h3>Orders</h3> 
+                    <p>-</p>
                 </div>
-                <div class="profile-picture">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-            </div>
+                <div class="overviewcard"> 
+                    <i class="fa-regular fa-heart"></i> 
+                    <h3>Wishlist</h3> 
+                    <p>-</p> 
+                </div> 
+            </div> 
+        </div>
+
+        <div class="recentactivity">
+            <h3>Recent Activity</h3>
         </div>
     </div>
 </body>

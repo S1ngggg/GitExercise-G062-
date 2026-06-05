@@ -59,6 +59,18 @@
                     <button class="detail_button_primary">Contact Seller</button>
                 </div>
 
+                {% if session.get('user_id') %}
+                <div class="detail_crud_actions">
+                    <a href="{{ url_for('edit_item', item_id=item[0]) }}">
+                        <button class="detail_button_edit">Edit Item</button>
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_item', item_id=item[0]) }}"
+                        onsubmit="return confirm('Are you sure you want to delete this item?')">
+                        <button type="submit" class="detail_button_delete">Delete Item</button>
+                    </form>
+                </div>
+                {% endif %}
+
                 <p class="detail_note">Message the seller now to ask about this product!</p>
 
             </div>
