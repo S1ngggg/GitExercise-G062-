@@ -6,6 +6,10 @@ import random
 from datetime import datetime, timedelta
 import sqlite3
 import os
+import io
+import json
+import google.generativeai as genai
+from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -150,6 +154,10 @@ def home():
 
 
 app.secret_key = "my_secret_key......"
+
+
+genai.configure(
+    api_key="AQ.Ab8RN6JyE3N-SQH64-pqCnyVGN8a7pEOYRnMWlE43Wd03CLocw")
 # required for session + flash
 # accept displaying form and processing form
 
@@ -559,7 +567,8 @@ def get_marketplace_context(endpoint):
 @app.route("/home")
 def home_page():
     context = get_marketplace_context("home_page")
-    return render_template("home.html", **context)
+    ai_label = request.args.get("ai_label", "")
+    return render_template("home.html", **context, ai_label=ai_label)
 
 
 @app.route("/profile")
@@ -572,10 +581,12 @@ def profile():
     role = session.get('role', '')
     return render_template("user_profile.html", username=username, email=email, gender=gender, role=role)
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for('home'))
+
 
 @app.route("/admin")
 def admin_dashboard():
@@ -722,6 +733,51 @@ def item_detail(item_id):
         return "Item not found", 404
 
     return render_template("item_detail.html", item=item)
+
+
+@app.route("/search_by_image", methods=['POST'])
+def search_by_image():
+    if 'search_image' not in request.files:
+        flash("No image provided.")
+        return redirect(url_for('home_page'))
+
+    file = request.files['search_image']
+    if not file or file.filename == '':
+        flash("No image selected.")
+        return redirect(url_for('home_page'))
+
+    try:
+        image_bytes = file.read()
+        img = Image.open(io.BytesIO(image_bytes))
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content([
+            "Identify the item in this image. "
+            "Reply ONLY with a JSON object, no other text:\n"
+            '{"keywords": ["word1", "word2", "word3"], "label": "short plain-English name of the item"}',
+            img
+        ])
+
+        raw = response.text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+
+        result = json.loads(raw.strip())
+        keywords = result.get("keywords", [])
+        ai_label = result.get("label", "")
+
+    except Exception as e:
+        flash(f"Image search failed: {e}")
+        return redirect(url_for('home_page'))
+
+    if not keywords:
+        flash("Could not identify the item")
+        return redirect(url_for('home_page'))
+
+    search_query = keywords[0]
+    return redirect(url_for('home_page', search=search_query, ai_label=ai_label))
 
 
 @app.route("/item_saved")
