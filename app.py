@@ -16,6 +16,7 @@ app = Flask(__name__, template_folder='templates',
 # Image upload
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+CATEGORY_NAME_MAX_LENGTH = 50
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -790,6 +791,8 @@ def admin_categories():
 
         if not name:
             flash("Category name cannot be empty.")
+        elif len(name) > CATEGORY_NAME_MAX_LENGTH:
+            flash("Category name must be 50 characters or fewer.")
         elif category_name_exists(cursor, name):
             flash("Category already exists.")
         else:
@@ -818,7 +821,8 @@ def admin_categories():
 
     return render_template("admin_categories.html",
                            categories=categories,
-                           stats=stats)
+                           stats=stats,
+                           category_name_max_length=CATEGORY_NAME_MAX_LENGTH)
 
 
 @app.route("/admin/categories/<int:category_id>/edit", methods=['POST'])
@@ -827,6 +831,9 @@ def edit_category(category_id):
 
     if not name:
         flash("Category name cannot be empty.")
+        return redirect(url_for('admin_categories'))
+    if len(name) > CATEGORY_NAME_MAX_LENGTH:
+        flash("Category name must be 50 characters or fewer.")
         return redirect(url_for('admin_categories'))
 
     connect = sqlite3.connect("database.db")

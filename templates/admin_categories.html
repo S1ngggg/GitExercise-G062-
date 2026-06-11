@@ -99,7 +99,7 @@
                                     <td>{{ item_count }}</td>
                                     <td>
                                         <form class="inline-category-form" method="POST" action="{{ url_for('edit_category', category_id=category_id) }}">
-                                            <input type="text" name="name" value="{{ name }}" required>
+                                            <input type="text" name="name" value="{{ name }}" maxlength="{{ category_name_max_length }}" required>
                                             <button type="submit">Save</button>
                                         </form>
                                     </td>
@@ -129,7 +129,7 @@
 
                     <form class="category-create-form" method="POST" action="{{ url_for('admin_categories') }}">
                         <label for="category-name">Category name</label>
-                        <input id="category-name" type="text" name="name" placeholder="e.g. Stationery" required>
+                        <input id="category-name" type="text" name="name" placeholder="e.g. Stationery" maxlength="{{ category_name_max_length }}" required>
                         <button type="submit">Add Category</button>
                     </form>
                 </section>
