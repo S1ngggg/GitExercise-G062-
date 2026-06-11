@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing Management | MMU Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">M</span>
+                <span>
+                    <strong>MMU</strong>
+                    <small>Marketplace Admin</small>
+                </span>
+            </a>
+
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+                <a class="active" href="{{ url_for('admin_items') }}">Listings</a>
+                <a href="{{ url_for('admin_categories') }}">Categories</a>
+                <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
+                <span class="disabled">Reports</span>
+                <a href="{{ url_for('home') }}">View website</a>
+            </nav>
+
+            <section class="preview-note">
+                <p class="preview-label">Listing Management</p>
+                <p>Edit item price, category, condition, and availability status.</p>
+            </section>
+        </aside>
+
+        <main class="admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ADMIN PANEL</p>
+                    <h1>Listing management</h1>
+                    <p class="dashboard-subtitle">Update marketplace item details from one admin table.</p>
+                </div>
+                <a class="button" href="{{ url_for('admin_dashboard') }}">Back to overview</a>
+            </header>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="admin-flashes">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="stat-grid" aria-label="Listing statistics">
+                <article class="stat-card">
+                    <p>Total listings</p>
+                    <strong>{{ stats.total_items }}</strong>
+                    <small>Items in the marketplace</small>
+                </article>
+                <article class="stat-card">
+                    <p>Available now</p>
+                    <strong>{{ stats.available_items }}</strong>
+                    <small>Items ready to purchase</small>
+                </article>
+                <article class="stat-card">
+                    <p>Sold</p>
+                    <strong>{{ stats.sold_items }}</strong>
+                    <small>Completed listings</small>
+                </article>
+            </section>
+
+            <section class="listings-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>All listings</h2>
+                        <p>Edit price, category, condition, and status for each item.</p>
+                    </div>
+                    <a href="{{ url_for('home_page') }}">View marketplace</a>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="listing-table admin-item-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Manage details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_id, title, price, category_id, category_name, status_id, status_name, condition_id, condition_name in items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ title }}</strong>
+                                    <small>#{{ item_id }} · {{ category_name }} · {{ status_name }}</small>
+                                    <a class="table-action-link" href="{{ url_for('item_detail', item_id=item_id) }}">View item</a>
+                                </td>
+                                <td>
+                                    <form class="item-admin-form" method="POST" action="{{ url_for('update_admin_item', item_id=item_id) }}">
+                                        <label class="item-admin-field">
+                                            <span>Price</span>
+                                            <input type="number" name="price" value="{{ '%.2f' | format(price) }}" min="0" step="0.01" required>
+                                        </label>
+
+                                        <label class="item-admin-field">
+                                            <span>Category</span>
+                                            <select name="category" required>
+                                                {% for category_option_id, category_option_name in categories %}
+                                                <option value="{{ category_option_id }}" {% if category_option_id == category_id %}selected{% endif %}>{{ category_option_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+
+                                        <label class="item-admin-field">
+                                            <span>Condition</span>
+                                            <select name="condition" required>
+                                                {% for condition_option_id, condition_option_name in conditions %}
+                                                <option value="{{ condition_option_id }}" {% if condition_option_id == condition_id %}selected{% endif %}>{{ condition_option_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+
+                                        <label class="item-admin-field">
+                                            <span>Status</span>
+                                            <select name="status" required>
+                                                {% for status_option_id, status_option_name in statuses %}
+                                                <option value="{{ status_option_id }}" {% if status_option_id == status_id %}selected{% endif %}>{{ status_option_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+
+                                        <button type="submit">Save</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="2">No listings available yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

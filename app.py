@@ -43,6 +43,11 @@ def category_name_exists(cursor, name, category_id=None):
     return cursor.fetchone() is not None
 
 
+def record_exists(cursor, table_name, record_id):
+    cursor.execute(f"SELECT id FROM {table_name} WHERE id = ?", (record_id,))
+    return cursor.fetchone() is not None
+
+
 # configure mail server, here using gmail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 # configure mail port, 587 is commonly used for secure email submission
@@ -779,6 +784,100 @@ def admin_dashboard():
                            status_summary=status_summary,
                            category_summary=category_summary,
                            recent_users=recent_users)
+
+
+@app.route("/admin/items")
+def admin_items():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.price,
+               item.category_id, category.name,
+               item.status_id, status.condition,
+               item.condition_id, COALESCE(item_condition.name, 'Not specified')
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        LEFT JOIN item_condition ON item.condition_id = item_condition.id
+        ORDER BY item.id DESC
+    """)
+    items = cursor.fetchall()
+
+    cursor.execute("SELECT id, name FROM category ORDER BY name")
+    categories = cursor.fetchall()
+
+    cursor.execute("SELECT id, condition FROM status ORDER BY id")
+    statuses = cursor.fetchall()
+
+    cursor.execute("SELECT id, name FROM item_condition ORDER BY id")
+    conditions = cursor.fetchall()
+
+    stats = {
+        "total_items": len(items),
+        "available_items": sum(1 for item in items if item[6] == "Available"),
+        "sold_items": sum(1 for item in items if item[6] == "Sold")
+    }
+
+    connect.close()
+
+    return render_template("admin_items.html",
+                           items=items,
+                           categories=categories,
+                           statuses=statuses,
+                           conditions=conditions,
+                           stats=stats)
+
+
+@app.route("/admin/items/<int:item_id>/update", methods=['POST'])
+def update_admin_item(item_id):
+    price = request.form.get('price', '').strip()
+    category = request.form.get('category', '').strip()
+    status = request.form.get('status', '').strip()
+    condition = request.form.get('condition', '').strip()
+
+    try:
+        price_value = float(price)
+        if price_value < 0:
+            raise ValueError
+    except ValueError:
+        flash("Price must be a valid number greater than or equal to 0.")
+        return redirect(url_for('admin_items'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM item WHERE id = ?", (item_id,))
+    if cursor.fetchone() is None:
+        flash("Item not found.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "category", category):
+        flash("Selected category does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "status", status):
+        flash("Selected status does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "item_condition", condition):
+        flash("Selected condition does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    cursor.execute("""
+        UPDATE item
+        SET price = ?, category_id = ?, status_id = ?, condition_id = ?
+        WHERE id = ?
+    """, (price_value, category, status, condition, item_id))
+    connect.commit()
+    connect.close()
+
+    flash("Item updated successfully.")
+    return redirect(url_for('admin_items'))
 
 
 @app.route("/admin/categories", methods=['GET', 'POST'])

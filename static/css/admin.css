@@ -508,6 +508,65 @@
     font-weight: 700;
 }
 
+.admin-item-table td:first-child {
+    min-width: 210px;
+}
+
+.table-action-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.item-admin-form {
+    min-width: 720px;
+    display: grid;
+    grid-template-columns: minmax(110px, .8fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(140px, 1fr) auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.item-admin-field {
+    display: grid;
+    gap: 6px;
+}
+
+.item-admin-field span {
+    color: #93a0b4;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.item-admin-form input,
+.item-admin-form select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    background: var(--white);
+    font: inherit;
+}
+
+.item-admin-form button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 10px;
+    color: var(--white);
+    background: var(--blue);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
 @media (max-width: 1050px) {
     .dashboard-columns {
         grid-template-columns: 1fr;
