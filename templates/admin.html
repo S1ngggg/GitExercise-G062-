@@ -20,6 +20,7 @@
             <nav class="admin-nav" aria-label="Admin navigation">
                 <a class="active" href="{{ url_for('admin_dashboard') }}">Overview</a>
                 <a href="{{ url_for('home_page') }}">Listings</a>
+                <a href="{{ url_for('admin_categories') }}">Categories</a>
                 <a href="#recent-users">Users</a>
                 <span class="disabled">Reports</span>
                 <a href="{{ url_for('home') }}">View website</a>
@@ -124,6 +125,7 @@
                                 <h2>Categories</h2>
                                 <p>Items in each section.</p>
                             </div>
+                            <a href="{{ url_for('admin_categories') }}">Manage</a>
                         </div>
                         <div class="category-list">
                             {% for category, count in category_summary %}

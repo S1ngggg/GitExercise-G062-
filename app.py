@@ -24,6 +24,24 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def clean_category_name(name):
+    return " ".join(name.strip().split())
+
+
+def category_name_exists(cursor, name, category_id=None):
+    if category_id is None:
+        cursor.execute(
+            "SELECT id FROM category WHERE LOWER(name) = LOWER(?)",
+            (name,))
+    else:
+        cursor.execute("""
+            SELECT id FROM category
+            WHERE LOWER(name) = LOWER(?) AND id != ?
+        """, (name, category_id))
+
+    return cursor.fetchone() is not None
+
+
 # configure mail server, here using gmail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 # configure mail port, 587 is commonly used for secure email submission
@@ -760,6 +778,101 @@ def admin_dashboard():
                            status_summary=status_summary,
                            category_summary=category_summary,
                            recent_users=recent_users)
+
+
+@app.route("/admin/categories", methods=['GET', 'POST'])
+def admin_categories():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    if request.method == 'POST':
+        name = clean_category_name(request.form.get('name', ''))
+
+        if not name:
+            flash("Category name cannot be empty.")
+        elif category_name_exists(cursor, name):
+            flash("Category already exists.")
+        else:
+            cursor.execute("INSERT INTO category (name) VALUES (?)", (name,))
+            connect.commit()
+            flash("Category added successfully.")
+
+        connect.close()
+        return redirect(url_for('admin_categories'))
+
+    cursor.execute("""
+        SELECT category.id, category.name, COUNT(item.id)
+        FROM category
+        LEFT JOIN item ON item.category_id = category.id
+        GROUP BY category.id, category.name
+        ORDER BY category.name
+    """)
+    categories = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_categories": len(categories),
+        "linked_items": sum(row[2] for row in categories),
+        "empty_categories": sum(1 for row in categories if row[2] == 0)
+    }
+
+    return render_template("admin_categories.html",
+                           categories=categories,
+                           stats=stats)
+
+
+@app.route("/admin/categories/<int:category_id>/edit", methods=['POST'])
+def edit_category(category_id):
+    name = clean_category_name(request.form.get('name', ''))
+
+    if not name:
+        flash("Category name cannot be empty.")
+        return redirect(url_for('admin_categories'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM category WHERE id = ?", (category_id,))
+    if cursor.fetchone() is None:
+        flash("Category not found.")
+    elif category_name_exists(cursor, name, category_id):
+        flash("Category already exists.")
+    else:
+        cursor.execute(
+            "UPDATE category SET name = ? WHERE id = ?",
+            (name, category_id))
+        connect.commit()
+        flash("Category updated successfully.")
+
+    connect.close()
+    return redirect(url_for('admin_categories'))
+
+
+@app.route("/admin/categories/<int:category_id>/delete", methods=['POST'])
+def delete_category(category_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM category WHERE id = ?", (category_id,))
+    if cursor.fetchone() is None:
+        flash("Category not found.")
+        connect.close()
+        return redirect(url_for('admin_categories'))
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM item WHERE category_id = ?",
+        (category_id,))
+    item_count = cursor.fetchone()[0]
+
+    if item_count > 0:
+        flash("Cannot delete a category that still has items.")
+    else:
+        cursor.execute("DELETE FROM category WHERE id = ?", (category_id,))
+        connect.commit()
+        flash("Category deleted successfully.")
+
+    connect.close()
+    return redirect(url_for('admin_categories'))
 
 
 @app.route("/marketplace", methods=['GET'])
