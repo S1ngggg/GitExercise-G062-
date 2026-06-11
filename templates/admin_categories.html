@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management | MMU Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">M</span>
+                <span>
+                    <strong>MMU</strong>
+                    <small>Marketplace Admin</small>
+                </span>
+            </a>
+
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+                <a href="{{ url_for('admin_items') }}">Listings</a>
+                <a class="active" href="{{ url_for('admin_categories') }}">Categories</a>
+                <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
+                <span class="disabled">Reports</span>
+                <a href="{{ url_for('home') }}">View website</a>
+            </nav>
+
+            <section class="preview-note">
+                <p class="preview-label">Category Management</p>
+                <p>Add, rename, and remove marketplace categories safely.</p>
+            </section>
+        </aside>
+
+        <main class="admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ADMIN PANEL</p>
+                    <h1>Category management</h1>
+                    <p class="dashboard-subtitle">Control the sections students use when listing items.</p>
+                </div>
+                <a class="button" href="{{ url_for('admin_dashboard') }}">Back to overview</a>
+            </header>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="admin-flashes">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="stat-grid" aria-label="Category statistics">
+                <article class="stat-card">
+                    <p>Total categories</p>
+                    <strong>{{ stats.total_categories }}</strong>
+                    <small>Available listing sections</small>
+                </article>
+                <article class="stat-card">
+                    <p>Linked items</p>
+                    <strong>{{ stats.linked_items }}</strong>
+                    <small>Items currently using categories</small>
+                </article>
+                <article class="stat-card">
+                    <p>Empty categories</p>
+                    <strong>{{ stats.empty_categories }}</strong>
+                    <small>Safe to delete if no longer needed</small>
+                </article>
+            </section>
+
+            <div class="category-management-grid">
+                <section class="listings-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>All categories</h2>
+                            <p>Rename categories or remove unused ones.</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="listing-table category-admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Items</th>
+                                    <th>Rename</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category_id, name, item_count in categories %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ name }}</strong>
+                                        <small>#{{ category_id }}</small>
+                                    </td>
+                                    <td>{{ item_count }}</td>
+                                    <td>
+                                        <form class="inline-category-form" method="POST" action="{{ url_for('edit_category', category_id=category_id) }}">
+                                            <input type="text" name="name" value="{{ name }}" maxlength="{{ category_name_max_length }}" required>
+                                            <button type="submit">Save</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('delete_category', category_id=category_id) }}" onsubmit="return confirm('Delete this category?')">
+                                            <button class="danger-button" type="submit" {% if item_count > 0 %}disabled{% endif %}>Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr class="empty-row">
+                                    <td colspan="4">No categories yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="summary-panel add-category-panel">
+                    <div class="panel-heading small">
+                        <div>
+                            <h2>Add category</h2>
+                            <p>Create a new section for item listings.</p>
+                        </div>
+                    </div>
+
+                    <form class="category-create-form" method="POST" action="{{ url_for('admin_categories') }}">
+                        <label for="category-name">Category name</label>
+                        <input id="category-name" type="text" name="name" placeholder="e.g. Stationery" maxlength="{{ category_name_max_length }}" required>
+                        <button type="submit">Add Category</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

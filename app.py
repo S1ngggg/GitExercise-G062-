@@ -16,12 +16,36 @@ app = Flask(__name__, template_folder='templates',
 # Image upload
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+CATEGORY_NAME_MAX_LENGTH = 50
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def clean_category_name(name):
+    return " ".join(name.strip().split())
+
+
+def category_name_exists(cursor, name, category_id=None):
+    if category_id is None:
+        cursor.execute(
+            "SELECT id FROM category WHERE LOWER(name) = LOWER(?)",
+            (name,))
+    else:
+        cursor.execute("""
+            SELECT id FROM category
+            WHERE LOWER(name) = LOWER(?) AND id != ?
+        """, (name, category_id))
+
+    return cursor.fetchone() is not None
+
+
+def record_exists(cursor, table_name, record_id):
+    cursor.execute(f"SELECT id FROM {table_name} WHERE id = ?", (record_id,))
+    return cursor.fetchone() is not None
 
 
 # configure mail server, here using gmail
@@ -760,6 +784,201 @@ def admin_dashboard():
                            status_summary=status_summary,
                            category_summary=category_summary,
                            recent_users=recent_users)
+
+
+@app.route("/admin/items")
+def admin_items():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.price,
+               item.category_id, category.name,
+               item.status_id, status.condition,
+               item.condition_id, COALESCE(item_condition.name, 'Not specified')
+        FROM item
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        LEFT JOIN item_condition ON item.condition_id = item_condition.id
+        ORDER BY item.id DESC
+    """)
+    items = cursor.fetchall()
+
+    cursor.execute("SELECT id, name FROM category ORDER BY name")
+    categories = cursor.fetchall()
+
+    cursor.execute("SELECT id, condition FROM status ORDER BY id")
+    statuses = cursor.fetchall()
+
+    cursor.execute("SELECT id, name FROM item_condition ORDER BY id")
+    conditions = cursor.fetchall()
+
+    stats = {
+        "total_items": len(items),
+        "available_items": sum(1 for item in items if item[6] == "Available"),
+        "sold_items": sum(1 for item in items if item[6] == "Sold")
+    }
+
+    connect.close()
+
+    return render_template("admin_items.html",
+                           items=items,
+                           categories=categories,
+                           statuses=statuses,
+                           conditions=conditions,
+                           stats=stats)
+
+
+@app.route("/admin/items/<int:item_id>/update", methods=['POST'])
+def update_admin_item(item_id):
+    price = request.form.get('price', '').strip()
+    category = request.form.get('category', '').strip()
+    status = request.form.get('status', '').strip()
+    condition = request.form.get('condition', '').strip()
+
+    try:
+        price_value = float(price)
+        if price_value < 0:
+            raise ValueError
+    except ValueError:
+        flash("Price must be a valid number greater than or equal to 0.")
+        return redirect(url_for('admin_items'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM item WHERE id = ?", (item_id,))
+    if cursor.fetchone() is None:
+        flash("Item not found.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "category", category):
+        flash("Selected category does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "status", status):
+        flash("Selected status does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    if not record_exists(cursor, "item_condition", condition):
+        flash("Selected condition does not exist.")
+        connect.close()
+        return redirect(url_for('admin_items'))
+
+    cursor.execute("""
+        UPDATE item
+        SET price = ?, category_id = ?, status_id = ?, condition_id = ?
+        WHERE id = ?
+    """, (price_value, category, status, condition, item_id))
+    connect.commit()
+    connect.close()
+
+    flash("Item updated successfully.")
+    return redirect(url_for('admin_items'))
+
+
+@app.route("/admin/categories", methods=['GET', 'POST'])
+def admin_categories():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    if request.method == 'POST':
+        name = clean_category_name(request.form.get('name', ''))
+
+        if not name:
+            flash("Category name cannot be empty.")
+        elif len(name) > CATEGORY_NAME_MAX_LENGTH:
+            flash("Category name must be 50 characters or fewer.")
+        elif category_name_exists(cursor, name):
+            flash("Category already exists.")
+        else:
+            cursor.execute("INSERT INTO category (name) VALUES (?)", (name,))
+            connect.commit()
+            flash("Category added successfully.")
+
+        connect.close()
+        return redirect(url_for('admin_categories'))
+
+    cursor.execute("""
+        SELECT category.id, category.name, COUNT(item.id)
+        FROM category
+        LEFT JOIN item ON item.category_id = category.id
+        GROUP BY category.id, category.name
+        ORDER BY category.name
+    """)
+    categories = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_categories": len(categories),
+        "linked_items": sum(row[2] for row in categories),
+        "empty_categories": sum(1 for row in categories if row[2] == 0)
+    }
+
+    return render_template("admin_categories.html",
+                           categories=categories,
+                           stats=stats,
+                           category_name_max_length=CATEGORY_NAME_MAX_LENGTH)
+
+
+@app.route("/admin/categories/<int:category_id>/edit", methods=['POST'])
+def edit_category(category_id):
+    name = clean_category_name(request.form.get('name', ''))
+
+    if not name:
+        flash("Category name cannot be empty.")
+        return redirect(url_for('admin_categories'))
+    if len(name) > CATEGORY_NAME_MAX_LENGTH:
+        flash("Category name must be 50 characters or fewer.")
+        return redirect(url_for('admin_categories'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM category WHERE id = ?", (category_id,))
+    if cursor.fetchone() is None:
+        flash("Category not found.")
+    elif category_name_exists(cursor, name, category_id):
+        flash("Category already exists.")
+    else:
+        cursor.execute(
+            "UPDATE category SET name = ? WHERE id = ?",
+            (name, category_id))
+        connect.commit()
+        flash("Category updated successfully.")
+
+    connect.close()
+    return redirect(url_for('admin_categories'))
+
+
+@app.route("/admin/categories/<int:category_id>/delete", methods=['POST'])
+def delete_category(category_id):
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM category WHERE id = ?", (category_id,))
+    if cursor.fetchone() is None:
+        flash("Category not found.")
+        connect.close()
+        return redirect(url_for('admin_categories'))
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM item WHERE category_id = ?",
+        (category_id,))
+    item_count = cursor.fetchone()[0]
+
+    if item_count > 0:
+        flash("Cannot delete a category that still has items.")
+    else:
+        cursor.execute("DELETE FROM category WHERE id = ?", (category_id,))
+        connect.commit()
+        flash("Category deleted successfully.")
+
+    connect.close()
+    return redirect(url_for('admin_categories'))
 
 
 @app.route("/marketplace", methods=['GET'])
