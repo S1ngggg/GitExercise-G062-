@@ -149,7 +149,21 @@ def create_database():
         cursor.execute("ALTER TABLE user ADD COLUMN phone_num TEXT")
     if "address" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN address TEXT")
+    if "login_count" not in user_column:
+        cursor.execute("ALTER TABLE user ADD COLUMN login_count INTEGER DEFAULT 0")
+    #count how many time user has login
+    if "register_time" not in user_column:
+        cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
+    cursor.execute("""
+                CREATE TABLE IF NOT EXISTS activity(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                activity TEXT,
+                activity_time TEXT
+                )
+                """)
+    
     connect.commit()
     connect.close()
 
@@ -163,7 +177,11 @@ app.secret_key = "my_secret_key......"
 # required for session + flash
 # accept displaying form and processing form
 
-
+def addactivity(cursor, user_id, activity):
+    time = datetime.now().strftime("%d %b %Y, %I:%M %p")
+    cursor.execute(
+            """INSERT INTO activity(user_id, activity,activity_time) VALUES(?, ?, ?)""", (user_id, activity, time))
+    
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':  # if user submit form
@@ -193,13 +211,12 @@ def register():
 
         # hash password befor storing into databse
         hashed_password = generate_password_hash(password)
-
+        register_time = datetime.now().strftime("%Y-%m-%d")
         # inseert new user using hashed_password
         cursor.execute("""
-            INSERT INTO user (email, username, password, gender, role)
+            INSERT INTO user (email, username, password, gender, role, register_time)
             VALUES(?, ?, ?, ?, ?)
-            """, (email, username, hashed_password, gender, role))  # insert user data using ?
-
+            """, (email, username, hashed_password, gender, role,register_time))  # insert user data using ?
         conn.commit()  # save change to the database
         conn.close()
 
@@ -208,7 +225,7 @@ def register():
         return redirect(url_for('login'))
 
     return render_template("register.html")
-
+    
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -227,7 +244,6 @@ def login():
         cursor.execute(
             """SELECT id, email, username, password, gender, role FROM user WHERE email =?""", (email,))
         user = cursor.fetchone()
-        conn.close()
 
         # if user not found
         if not user:
@@ -239,6 +255,12 @@ def login():
 
         # compare hashed password from database with user input
         if check_password_hash(stored_password, password):
+            cursor.execute(
+                """UPDATE user SET login_count = login_count + 1 WHERE id = ?""", (user_id,))
+            addactivity(cursor, user_id, "Logged into account")
+
+            conn.commit()
+            conn.close()
             # create session, store user identity in session
             # remember which user is logged in by storing user id in session
             session['user_id'] = user_id
@@ -365,6 +387,12 @@ def reset_password(email):
         password = generate_password_hash(new_password)
         cursor.execute(
             "UPDATE user SET password = ? WHERE email = ?", (password, email))
+        cursor.execute(
+            "SELECT id, username FROM user WHERE email =?", (email,))
+        user = cursor.fetchone()
+        if user:
+            user_id,username = user
+            addactivity(cursor,user_id, "Reset account password")
         conn.commit()
         conn.close()
 
@@ -581,9 +609,17 @@ def profile():
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
+    column = user
+    filled = sum(1 for f in column if f and str(f).strip()) #count how many column r fill inside user table
+    total = len(column)
+    percentage = int((filled/total)*100) #
+    cursor.execute(
+        """SELECT * FROM activity WHERE user_id =? ORDER BY activity_time DESC LIMIT 5""",(user_id,)) #DESC = descending (newest first) only get the 7 latest activity
+    #fetch all result from the query (list of activity)
+    recent_activity = cursor.fetchall()
     connect.close()
 
-    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', profile_image=user["profile_image"if user else None])
+    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', login_count=user["login_count"] if user else'0', profile_image=user["profile_image"]if user else None,percentage=percentage, register_time = user["register_time"]if user and user["register_time"] else 'Not Recorded',recent_activity=recent_activity)
 
 
 @app.route("/upload_profile", methods=['POST'])
@@ -608,6 +644,7 @@ def upload_profile():
         connect = sqlite3.connect("database.db")
         cursor = connect.cursor()
         cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        addactivity(cursor, user_id, "Changed profile picture.")
         connect.commit()
         connect.close()
 
@@ -654,6 +691,7 @@ def upload_setting():
         connect = sqlite3.connect("database.db")
         cursor = connect.cursor()
         cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        addactivity(cursor,user_id, "Changed profile picture.")
         connect.commit()
         connect.close()
 
@@ -673,6 +711,7 @@ def update_info():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?", (username, email, phone_num, role, gender, address, user_id))
+    addactivity(cursor, user_id, "Updated profile info.")
     conn.commit()
     conn.close()
 
@@ -683,13 +722,71 @@ def update_info():
 
     return redirect(url_for('setting'))
 
+def get_user_data(user_id):
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row #enable the row factory
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM user WHERE id=?",(user_id,))
+    user=cursor.fetchone()
+    conn.close()
+
+    if not user:
+        return None
+    
+    return{"username":user["username"],
+           "email":user["email"],
+           "address":user["address"],
+           "gender":user["gender"],
+           "role":user["role"],
+           "phone_num":user["phone_num"],
+           "profile_image":user["profile_image"]}
+    
+@app.route("/setting_password", methods=["POST"])
+def setting_password():
+    user_id=session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+    
+    old_password = request.form.get("old_password")
+    password_new = request.form.get("password_new")
+    confirm_password = request.form.get("confirm_password")
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT password FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        return render_template('setting.html',error=" User not found ")
+    
+    store_password=user[0]
+    data = get_user_data(user_id)
+    if not check_password_hash(store_password,old_password):
+        return render_template('setting.html',error=" Incorrect current password ",**data)
+    
+    if password_new != confirm_password:
+        return render_template('setting.html',error=" Password do not match ",**data) #send the data that function get from user table and sen saperate so data will not lost
+    
+    hashed_password = generate_password_hash(password_new)
+    cursor.execute("UPDATE user SET password=? WHERE id =?",(hashed_password,user_id))
+    addactivity(cursor,user_id, "Updated new password")
+
+    conn.commit()
+    conn.close()
+
+    return render_template('setting.html',success=" Password updated successfully ",**data)
+
+
 @app.route("/logout")
 def logout():
+    user_id = session.get("user_id")
+    if user_id:
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        addactivity(cursor, user_id, "Logged out.")
+        conn.commit()
+        conn.close()
     session.clear()  # clear all session data to log out the user
     return redirect(url_for('home')) 
-    # get username from session, default to 'Your' if not found
-    username = session.get('username', 'Your')
-    return render_template("user_profile.html", username=username)
 
 @app.route("/admin")
 def admin_dashboard():
@@ -794,6 +891,9 @@ def item_form():
                        INSERT INTO item(title, description, category_id, status_id, condition_id, price, image)
                        VALUES(?,?,?,?,?,?,?)
                        """, (title, description, category, status, condition, price, image_filename))
+        user_id = session.get("user_id")
+        if user_id:
+            addactivity(cursor, user_id, "Added item")
         connect.commit()
         connect.close()
         return render_template("item_saved.html")
@@ -878,6 +978,8 @@ def edit_item(item_id):
                 condition_id=?, price=?, image=?
             WHERE id=?
         """, (title, description, category, status, condition, price, image_filename, item_id))
+        user_id = session.get("user_id")
+        addactivity(cursor, user_id, "Edit item details")
         connect.commit()
         connect.close()
         return redirect(url_for('item_detail', item_id=item_id))
@@ -920,6 +1022,9 @@ def delete_item(item_id):
             os.remove(img_path)
 
     cursor.execute("DELETE FROM item WHERE id = ?", (item_id,))
+    user_id=session.get("user_id")
+    if user_id:
+        addactivity(cursor, user_id, "Deleted item")
     connect.commit()
     connect.close()
     return redirect(url_for('home_page'))
