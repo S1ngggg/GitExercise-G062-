@@ -217,7 +217,7 @@ def register():
         role = request.form['role']
 
         if password != confirm_password:
-            flash("Password not match")
+            flash("Password do not match")
             return render_template("register.html")
 
         conn = sqlite3.connect('database.db')  # connect to sqlite database
@@ -239,7 +239,7 @@ def register():
         # inseert new user using hashed_password
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role, register_time)
-            VALUES(?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?,?)
             """, (email, username, hashed_password, gender, role,register_time))  # insert user data using ?
         conn.commit()  # save change to the database
         conn.close()
