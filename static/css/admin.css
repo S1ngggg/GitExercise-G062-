@@ -282,6 +282,33 @@
     color: #93a0b4;
 }
 
+.reports-table td {
+    vertical-align: top;
+}
+
+.report-details {
+    max-width: 420px;
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.report-details.muted {
+    color: #9aa5b5;
+    font-style: italic;
+}
+
+.report-status {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #fff1d6;
+    color: #986100;
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .status {
     padding: 6px 10px;
     border-radius: 20px;

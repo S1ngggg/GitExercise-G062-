@@ -853,6 +853,34 @@ def admin_items():
                            stats=stats)
 
 
+@app.route("/admin/reports")
+def admin_reports():
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT report.id, report.reason, report.details, report.status,
+               report.created_at, item.id, item.title,
+               user.username, user.email
+        FROM report
+        JOIN item ON report.item_id = item.id
+        JOIN user ON report.reporter_id = user.id
+        ORDER BY report.id DESC
+    """)
+    reports = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_reports": len(reports),
+        "pending_reports": sum(1 for report in reports if report[3] == "Pending"),
+        "reviewed_reports": sum(1 for report in reports if report[3] != "Pending")
+    }
+
+    return render_template("admin_reports.html",
+                           reports=reports,
+                           stats=stats)
+
+
 @app.route("/admin/items/<int:item_id>/update", methods=['POST'])
 def update_admin_item(item_id):
     price = request.form.get('price', '').strip()
