@@ -17,6 +17,14 @@ app = Flask(__name__, template_folder='templates',
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 CATEGORY_NAME_MAX_LENGTH = 50
+REPORT_REASONS = [
+    "Misleading listing",
+    "Inappropriate content",
+    "Suspicious seller",
+    "Duplicate listing",
+    "Other"
+]
+REPORT_DETAIL_MAX_LENGTH = 500
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -173,6 +181,22 @@ def create_database():
         cursor.execute("ALTER TABLE user ADD COLUMN phone_num TEXT")
     if "address" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN address TEXT")
+
+    cursor.execute("""
+                CREATE TABLE IF NOT EXISTS report(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_id INTEGER NOT NULL,
+                reporter_id INTEGER NOT NULL,
+                reason TEXT NOT NULL,
+                details TEXT,
+                status TEXT NOT NULL DEFAULT 'Pending',
+                admin_note TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY(item_id) REFERENCES item(id),
+                FOREIGN KEY(reporter_id) REFERENCES user(id)
+                )
+                """)
 
     connect.commit()
     connect.close()
@@ -1054,7 +1078,50 @@ def item_detail(item_id):
     if item is None:
         return "Item not found", 404
 
-    return render_template("item_detail.html", item=item)
+    return render_template("item_detail.html",
+                           item=item,
+                           report_reasons=REPORT_REASONS,
+                           report_detail_max_length=REPORT_DETAIL_MAX_LENGTH)
+
+
+@app.route("/item/<int:item_id>/report", methods=['POST'])
+def report_item(item_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please login before reporting a listing.")
+        return redirect(url_for('login'))
+
+    reason = request.form.get("reason", "").strip()
+    details = request.form.get("details", "").strip()
+
+    if not reason:
+        flash("Please choose a reason for the report.")
+        return redirect(url_for('item_detail', item_id=item_id))
+    if reason not in REPORT_REASONS:
+        flash("Please choose a valid report reason.")
+        return redirect(url_for('item_detail', item_id=item_id))
+    if len(details) > REPORT_DETAIL_MAX_LENGTH:
+        flash("Report details must be 500 characters or fewer.")
+        return redirect(url_for('item_detail', item_id=item_id))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM item WHERE id = ?", (item_id,))
+    if cursor.fetchone() is None:
+        connect.close()
+        return "Item not found", 404
+
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        INSERT INTO report (item_id, reporter_id, reason, details, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (item_id, user_id, reason, details, "Pending", now, now))
+    connect.commit()
+    connect.close()
+
+    flash("Report submitted. An admin will review it soon.")
+    return redirect(url_for('item_detail', item_id=item_id))
 
 
 @app.route("/item_saved")

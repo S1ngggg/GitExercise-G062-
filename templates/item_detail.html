@@ -34,6 +34,15 @@
             </div>
 
             <div class="detail_info">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <div class="detail_flash_messages">
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
 
                 <div class="detail_top_row">
                     <span class="category_label detail_category">{{ item[4] }}</span>
@@ -72,6 +81,33 @@
                 {% endif %}
 
                 <p class="detail_note">Message the seller now to ask about this product!</p>
+
+                <hr class="detail_divider">
+
+                <div class="report_panel">
+                    <h3 class="detail_desc_label">Report this listing</h3>
+                    {% if session.get('user_id') %}
+                    <form method="POST" action="{{ url_for('report_item', item_id=item[0]) }}" class="report_form">
+                        <label for="report-reason">Reason</label>
+                        <select id="report-reason" name="reason" required>
+                            <option value="" disabled selected>Select a reason</option>
+                            {% for reason in report_reasons %}
+                            <option value="{{ reason }}">{{ reason }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="report-details">Details</label>
+                        <textarea id="report-details" name="details" maxlength="{{ report_detail_max_length }}"
+                            placeholder="Briefly explain what admin should review."></textarea>
+
+                        <button type="submit" class="detail_button_delete">Submit Report</button>
+                    </form>
+                    {% else %}
+                    <p class="detail_note">
+                        <a href="{{ url_for('login') }}">Login</a> to report this listing.
+                    </p>
+                    {% endif %}
+                </div>
 
             </div>
         </div>
