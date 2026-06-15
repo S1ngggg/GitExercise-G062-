@@ -301,12 +301,72 @@
 
 .report-status {
     display: inline-flex;
+    margin-bottom: 10px;
     padding: 6px 10px;
     border-radius: 20px;
     background: #fff1d6;
     color: #986100;
     font-size: 12px;
     font-weight: 600;
+}
+
+.report-status.status-reviewed {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.report-status.status-resolved {
+    color: #05734e;
+    background: #def7ec;
+}
+
+.report-status.status-dismissed {
+    color: #6b7280;
+    background: #eef2f7;
+}
+
+.report-review-form {
+    display: grid;
+    gap: 9px;
+    min-width: 220px;
+}
+
+.report-review-form label {
+    display: grid;
+    gap: 5px;
+}
+
+.report-review-form span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.report-review-form select,
+.report-review-form textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+    padding: 9px 10px;
+}
+
+.report-review-form textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.report-review-form button {
+    border: none;
+    border-radius: 10px;
+    color: var(--white);
+    background: var(--blue);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 12px;
 }
 
 .status {

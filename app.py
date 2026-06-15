@@ -24,6 +24,7 @@ REPORT_REASONS = [
     "Duplicate listing",
     "Other"
 ]
+REPORT_STATUSES = ["Pending", "Reviewed", "Resolved", "Dismissed"]
 REPORT_DETAIL_MAX_LENGTH = 500
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -860,7 +861,7 @@ def admin_reports():
 
     cursor.execute("""
         SELECT report.id, report.reason, report.details, report.status,
-               report.created_at, item.id, item.title,
+               report.admin_note, report.created_at, item.id, item.title,
                user.username, user.email
         FROM report
         JOIN item ON report.item_id = item.id
@@ -878,7 +879,39 @@ def admin_reports():
 
     return render_template("admin_reports.html",
                            reports=reports,
-                           stats=stats)
+                           stats=stats,
+                           report_statuses=REPORT_STATUSES)
+
+
+@app.route("/admin/reports/<int:report_id>/update", methods=['POST'])
+def update_admin_report(report_id):
+    status = request.form.get('status', '').strip()
+    admin_note = request.form.get('admin_note', '').strip()
+
+    if status not in REPORT_STATUSES:
+        flash("Selected report status does not exist.")
+        return redirect(url_for('admin_reports'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM report WHERE id = ?", (report_id,))
+    if cursor.fetchone() is None:
+        flash("Report not found.")
+        connect.close()
+        return redirect(url_for('admin_reports'))
+
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        UPDATE report
+        SET status = ?, admin_note = ?, updated_at = ?
+        WHERE id = ?
+    """, (status, admin_note, now, report_id))
+    connect.commit()
+    connect.close()
+
+    flash("Report updated successfully.")
+    return redirect(url_for('admin_reports'))
 
 
 @app.route("/admin/items/<int:item_id>/update", methods=['POST'])

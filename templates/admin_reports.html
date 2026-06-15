@@ -42,6 +42,16 @@
                 <a class="button" href="{{ url_for('admin_dashboard') }}">Back to overview</a>
             </header>
 
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="admin-flashes">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
             <section class="stat-grid" aria-label="Report statistics">
                 <article class="stat-card">
                     <p>Total reports</p>
@@ -76,12 +86,12 @@
                                 <th>Reported item</th>
                                 <th>Reporter</th>
                                 <th>Reason</th>
-                                <th>Status</th>
+                                <th>Admin review</th>
                                 <th>Submitted</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for report_id, reason, details, status, created_at, item_id, item_title, reporter_name, reporter_email in reports %}
+                            {% for report_id, reason, details, status, admin_note, created_at, item_id, item_title, reporter_name, reporter_email in reports %}
                             <tr>
                                 <td>
                                     <strong>{{ item_title }}</strong>
@@ -100,7 +110,24 @@
                                     <p class="report-details muted">No extra details provided.</p>
                                     {% endif %}
                                 </td>
-                                <td><span class="report-status status-{{ status | lower }}">{{ status }}</span></td>
+                                <td>
+                                    <span class="report-status status-{{ status | lower }}">{{ status }}</span>
+                                    <form class="report-review-form" method="POST" action="{{ url_for('update_admin_report', report_id=report_id) }}">
+                                        <label>
+                                            <span>Status</span>
+                                            <select name="status" required>
+                                                {% for status_option in report_statuses %}
+                                                <option value="{{ status_option }}" {% if status_option == status %}selected{% endif %}>{{ status_option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                        <label>
+                                            <span>Admin note</span>
+                                            <textarea name="admin_note" maxlength="500" placeholder="Add a short review note.">{{ admin_note or '' }}</textarea>
+                                        </label>
+                                        <button type="submit">Save Review</button>
+                                    </form>
+                                </td>
                                 <td>{{ created_at }}</td>
                             </tr>
                             {% else %}
