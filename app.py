@@ -759,6 +759,12 @@ def admin_dashboard():
     """)
     available_listings = cursor.fetchone()[0]
 
+    cursor.execute("SELECT COUNT(*) FROM report")
+    total_reports = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM report WHERE status = 'Pending'")
+    pending_reports = cursor.fetchone()[0]
+
     cursor.execute("""
         SELECT item.id, item.title, item.price, category.name, status.condition
         FROM item
@@ -800,7 +806,9 @@ def admin_dashboard():
     stats = {
         "total_users": total_users,
         "total_listings": total_listings,
-        "available_listings": available_listings
+        "available_listings": available_listings,
+        "total_reports": total_reports,
+        "pending_reports": pending_reports
     }
 
     return render_template("admin.html",
@@ -856,8 +864,26 @@ def admin_items():
 
 @app.route("/admin/reports")
 def admin_reports():
+    selected_status = request.args.get("status", "").strip()
+    if selected_status not in REPORT_STATUSES:
+        selected_status = ""
+
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT status, COUNT(*)
+        FROM report
+        GROUP BY status
+    """)
+    status_counts = {row[0]: row[1] for row in cursor.fetchall()}
+    total_reports = sum(status_counts.values())
+
+    where_clause = ""
+    values = []
+    if selected_status:
+        where_clause = "WHERE report.status = ?"
+        values.append(selected_status)
 
     cursor.execute("""
         SELECT report.id, report.reason, report.details, report.status,
@@ -866,21 +892,24 @@ def admin_reports():
         FROM report
         JOIN item ON report.item_id = item.id
         JOIN user ON report.reporter_id = user.id
+        {where_clause}
         ORDER BY report.id DESC
-    """)
+    """.format(where_clause=where_clause), values)
     reports = cursor.fetchall()
     connect.close()
 
     stats = {
-        "total_reports": len(reports),
-        "pending_reports": sum(1 for report in reports if report[3] == "Pending"),
-        "reviewed_reports": sum(1 for report in reports if report[3] != "Pending")
+        "total_reports": total_reports,
+        "pending_reports": status_counts.get("Pending", 0),
+        "reviewed_reports": total_reports - status_counts.get("Pending", 0),
+        "shown_reports": len(reports)
     }
 
     return render_template("admin_reports.html",
                            reports=reports,
                            stats=stats,
-                           report_statuses=REPORT_STATUSES)
+                           report_statuses=REPORT_STATUSES,
+                           selected_report_status=selected_status)
 
 
 @app.route("/admin/reports/<int:report_id>/update", methods=['POST'])
