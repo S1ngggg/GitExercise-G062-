@@ -9,6 +9,16 @@
 </head>
 
 <body class="userprofile-body">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash" id="flash-message">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%}
+
     <div class="sidebar">
         <div class="logo"></div>
         <ul>
@@ -69,41 +79,62 @@
                 <h2>Dashboard</h2>
             </div>
         </div>
-        <div class="overview"> 
-            <h2>Overview</h2> 
-            <div class="overviewcontainer"> 
-                <div class="overviewcard"> 
-                    <i class="fas fa-bag-shopping"></i>
-                    <h3>Orders</h3> 
-                    <p>-</p>
+        <div class="statistic"> 
+            <h2>{{ username}}'s Personal Statistic</h2> 
+            <div class="statisticcontainer">
+                <div class="statisticcard">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <h2>{{ login_count }}</h2>
+                    <span>Total Logins</span>
                 </div>
-                <div class="overviewcard"> 
-                    <i class="fa-regular fa-heart"></i> 
-                    <h3>Wishlist</h3> 
-                    <p>-</p> 
+                <div class="statisticcard">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <h2>{{register_time}}</h2>
+                    <span>Member Since</span>
+                </div>
+                <div class="statisticcard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <h2>{{ percentage }}%</h2>
+                    <span>Profile Completion</span> 
                 </div> 
             </div> 
         </div>
 
         <div class="recentactivity">
-            <h3>Recent Activity</h3>
+            <h2>Recent Activity</h2>
+            <div class="activity">
+                {%for activity in recent_activity%}
+                    <div class="activitycontent">
+                        <p><strong>✔ {{ activity[2]}}</strong></p>
+                        <p>{{ activity[3] }}</p>
+                    </div>
+                {%endfor%}
+            </div>
         </div>
     </div>
+
 <script>
 document.getElementById('profile_image').addEventListener('change',function(event){
-    const file = event.target.files[0];
-    if (file) {
-        const preview = document.getElementById('preview-image');
-        const icon = document.getElementById('default-icon');
+    const file = event.target.files[0];//get the selected file from inpt
+    if (file) {//check if user actually selected a file
+        const preview = document.getElementById('preview-image');//get image preview element
+        const icon = document.getElementById('default-icon');//get default icon
+        //create a temporary url for the selected image and preview it
         preview.src = URL.createObjectURL(file);
         preview.style.display = 'block';
     
 
-    if (icon) {
+    if (icon) {//hide default icon if image uploaded 
             icon.style.display = 'none';
         }
     }
 });
 </script>
+
+<script>
+    //setTimeout()waits for 3000milliseconds(3s) then hide the flash message
+setTimeout(() => document.getElementById('flash-message').style.display = 'none',3000);
+</script>
+
 </body>
 </html>

@@ -8,7 +8,7 @@
 
 <body class="outside">
     <header>
-        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <h1 class="title_home">MMU <span class="highlight_home">Marketplace 🧺</span></h1>
         <div class="navigation">
             <a href="{{ url_for('home_page') }}"><button>← Back to Homepage</button></a>
         </div>
@@ -25,6 +25,11 @@
             <div class="input-group">
                 <label for="title">Item</label>
                 <input type="text" id="title" name="title" placeholder="eg Samsung S26 Ultra Phone" required>
+            </div>
+
+            <div class="seller_num">
+                <label for="seller_num">Seller's Contact Number</label>
+                <input type="tel" id="seller_num" name="seller_num" placeholder="eg 0123456789" minlength="10" maxlength="11" pattern="01[0-9]{8,9}" required>
             </div>
 
             <div class="input-group" style="margin-top:12px;">

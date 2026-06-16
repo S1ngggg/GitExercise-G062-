@@ -9,6 +9,15 @@
 </head>
 
 <body class="outside">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash" id="flash-message">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%} 
 
     <div class="insidepart1">
         <div>
@@ -102,6 +111,10 @@
         </div>
     </div>
 
+<script>
+    //setTimeout()waits for 3000milliseconds(3s) then hide the flash message
+setTimeout(() => document.getElementById('flash-message').style.display = 'none',3000);
+</script>
 </body>
 
 <footer>
