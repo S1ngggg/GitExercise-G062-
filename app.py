@@ -635,6 +635,38 @@ def profile():
     return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', profile_image=user["profile_image"if user else None])
 
 
+@app.route("/my_reports")
+def my_reports():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT report.id, item.id, item.title, report.reason, report.details,
+               report.status, report.admin_note, report.created_at, report.updated_at
+        FROM report
+        JOIN item ON report.item_id = item.id
+        WHERE report.reporter_id = ?
+        ORDER BY report.id DESC
+    """, (user_id,))
+    reports = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_reports": len(reports),
+        "pending_reports": sum(1 for report in reports if report[5] == "Pending"),
+        "reviewed_reports": sum(1 for report in reports if report[5] != "Pending")
+    }
+
+    return render_template("my_reports.html",
+                           reports=reports,
+                           stats=stats,
+                           username=session.get('username', 'Your'))
+
+
 @app.route("/upload_profile", methods=['POST'])
 def upload_profile():
 
