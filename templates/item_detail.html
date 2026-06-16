@@ -55,8 +55,10 @@
 
                 <hr class="detail_divider">
 
-                <div class="detail_actions">
-                    <button class="detail_button_primary">Contact Seller</button>
+                <div class="detail_actions"> <!-- _blank open link in a new tab, onclick =html event attribute run when user click-->
+                    <button class="detail_button_primary" onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')"> <!--text set whatsapp message %20represent space in url encoding-->
+                        Contact Seller
+                    </button>
                 </div>
 
                 {% if session.get('user_id') %}

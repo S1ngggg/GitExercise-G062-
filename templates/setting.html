@@ -9,6 +9,15 @@
 </head>
 
 <body class="userprofile-body">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash" id="flash-message">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%} 
     <div class="sidebar">
         <div class="logo"></div>
         <ul>
@@ -82,7 +91,7 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label for="phone_num">Phone Number 📞:</label>
-                        <input type="text" id="phone_num" name="phone_num" value="{{ phone_num }}" pattern="^\d{10}$" minlength="10" title="Please enter a valid 10-digit phone number">
+                        <input type="text" id="phone_num" name="phone_num" value="{{ phone_num }}" pattern="^\d{10,11}$" minlength="10" title="Please enter a valid 10-digit phone number">
                     </div>
                     <div class="input-group">
                         <label for="address">Address 🏠:</label>
@@ -102,6 +111,7 @@
                         <select name="role">
                             <option value="buyer" {% if role == 'buyer' %}selected{% endif %}>Buyer</option>
                             <option value="seller" {% if role == 'seller' %}selected{% endif %}>Seller</option>
+                            <option value="both" {% if role == 'both' %}selected{% endif %}>Both</option>
                         </select><br><br>
                     </div>
                 </div>
@@ -129,17 +139,6 @@
                             <div class="input-grp">
                                 <label>Confirm New Password</label>
                                 <input type="password" name="confirm_password" placeholder="Please Confirm Your New Password." required>
-                                {% if error %}
-                                    <div class="error">
-                                        {{ error}}
-                                    </div>
-                                {% endif %}
-
-                                {% if success %}
-                                    <div class="success">
-                                        {{ success }}
-                                    </div>
-                                {% endif%}
                             </div>
                         </div>
                         <button type="submit" class="changebutton">Update Password</button>
@@ -150,7 +149,11 @@
             <div class="deleteacc">
                 <h2>Danger Zone</h2>
                 <p>Once you delete your account, everythings will be deleted.</p>
-                <button type="submit" class="deletebutton">🗑️ Delete Account </button>
+                <form action="{{ url_for('delete_account')}}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.')">
+                    <!--onsubmit runs a javascript code when the button is clicked, confirm()display confirmation box with ok and cancel-->
+                    <!--confirmation box, user click ok form submit-->
+                    <button type="submit" class="deletebutton">🗑️ Delete Account </button>
+                </form>
             </div>
         </div>
 
@@ -170,6 +173,10 @@ document.getElementById('profile_image').addEventListener('change',function(even
         }
     }
 });
+</script>
+<script>
+    //setTimeout()waits for 3000milliseconds(3s) then hide the flash message
+setTimeout(() => document.getElementById('flash-message').style.display = 'none',3000);
 </script>
 </body>
 </html>

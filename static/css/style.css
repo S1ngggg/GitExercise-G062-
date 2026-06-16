@@ -518,6 +518,11 @@
     flex-wrap: wrap;
 }
 
+.detail_actions a{
+    display: block;
+    width: 100%;
+}
+
 .detail_button_primary {
     background-color: #2f5d9f;
     color: white;

@@ -9,6 +9,16 @@
 </head>
 
 <body class="userprofile-body">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash" id="flash-message">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%}
+
     <div class="sidebar">
         <div class="logo"></div>
         <ul>
@@ -114,5 +124,11 @@ document.getElementById('profile_image').addEventListener('change',function(even
     }
 });
 </script>
+
+<script>
+    //setTimeout()waits for 3000milliseconds(3s) then hide the flash message
+setTimeout(() => document.getElementById('flash-message').style.display = 'none',3000);
+</script>
+
 </body>
 </html>

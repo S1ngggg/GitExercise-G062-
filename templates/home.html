@@ -15,7 +15,7 @@
         <div class="home_nav_right">
             <a href="{{ url_for('item_form') }}"><button class="nav_button nav_button_primary">Sell Item</button></a>
             <a href="{{ url_for('profile') }}"><button class="nav_button">Dashboard</button></a>
-            <a href="#"><button class="nav_button">Settings</button></a>
+            <a href="{{ url_for('setting')}}"><button class="nav_button">Settings</button></a>
             <a href="{{ url_for('logout') }}"><button class="nav_button nav_button_logout">Logout</button></a>
         </div>
     </nav>

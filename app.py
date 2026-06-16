@@ -107,7 +107,6 @@ def create_database():
                    FOREIGN KEY(condition_id) REFERENCES item_condition(id)
                    )
                    """)
-
     # Adding default categories
 
     cursor.execute(
@@ -151,6 +150,8 @@ def create_database():
     if "image" not in item_columns:
         cursor.execute("ALTER TABLE item ADD COLUMN image TEXT")
 
+    if "seller_num" not in item_columns:
+        cursor.execute("ALTER TABLE item ADD COLUMN seller_num TEXT")
     # create user table if does not exist yet
     cursor.execute("""
 
@@ -634,7 +635,7 @@ def profile():
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     column = user
-    filled = sum(1 for f in column if f and str(f).strip()) #count how many column r fill inside user table
+    filled = sum(1 for f in column if f and str(f).strip()!="" and str(f).strip().lower() !="none") #count how many column r fill inside user table
     total = len(column)
     percentage = int((filled/total)*100) #
     cursor.execute(
@@ -672,6 +673,7 @@ def upload_profile():
         connect.commit()
         connect.close()
 
+    flash("Profile image changed successfully!")
     return redirect(url_for('profile'))
 
 @app.route("/setting")
@@ -719,6 +721,7 @@ def upload_setting():
         connect.commit()
         connect.close()
 
+    flash("Profile image changed successfully")
     return redirect(url_for('setting'))
 
 @app.route("/update_info", methods=['POST'])
@@ -744,31 +747,15 @@ def update_info():
     session['role'] = role
     session['gender'] = gender
 
+    flash("Profile updated successfully!")
     return redirect(url_for('setting'))
 
-def get_user_data(user_id):
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row #enable the row factory
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM user WHERE id=?",(user_id,))
-    user=cursor.fetchone()
-    conn.close()
-
-    if not user:
-        return None
-    
-    return{"username":user["username"],
-           "email":user["email"],
-           "address":user["address"],
-           "gender":user["gender"],
-           "role":user["role"],
-           "phone_num":user["phone_num"],
-           "profile_image":user["profile_image"]}
     
 @app.route("/setting_password", methods=["POST"])
 def setting_password():
     user_id=session.get("user_id")
     if not user_id:
+        flash("Please Login!")
         return redirect(url_for("login"))
     
     old_password = request.form.get("old_password")
@@ -780,15 +767,17 @@ def setting_password():
     cursor.execute("SELECT password FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     if not user:
-        return render_template('setting.html',error=" User not found ")
+        flash("User not found!")
+        return redirect(url_for('setting'))
     
     store_password=user[0]
-    data = get_user_data(user_id)
     if not check_password_hash(store_password,old_password):
-        return render_template('setting.html',error=" Incorrect current password ",**data)
+        flash("Incorrect current password! Please try again!")
+        return redirect(url_for('setting'))
     
     if password_new != confirm_password:
-        return render_template('setting.html',error=" Password do not match ",**data) #send the data that function get from user table and sen saperate so data will not lost
+        flash("Password do not match!")
+        return redirect(url_for('setting')) #send the data that function get from user table and sen saperate so data will not lost
     
     hashed_password = generate_password_hash(password_new)
     cursor.execute("UPDATE user SET password=? WHERE id =?",(hashed_password,user_id))
@@ -797,8 +786,26 @@ def setting_password():
     conn.commit()
     conn.close()
 
-    return render_template('setting.html',success=" Password updated successfully ",**data)
+    flash("Password updated successfully!")
+    return redirect(url_for('setting'))
 
+@app.route("/delete_account", methods=["POST"])
+def delete_account():
+    user_id = session.get("user_id")
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(user)")
+    print(cursor.fetchall())
+
+    cursor.execute(
+        "DELETE FROM user WHERE id = ?",(user_id,))
+    conn.commit()
+    conn.close()
+
+    session.clear() #logout
+
+    flash("Account deleted successfully")
+    return redirect(url_for('home'))
 
 @app.route("/logout")
 def logout():
@@ -1096,6 +1103,9 @@ def item_form():
         category = request.form['category']
         status = request.form['status']
         condition = request.form['condition']
+        seller_num = request.form['seller_num']
+
+        seller_num = "60" + seller_num
 
         # Handle image upload
         image_filename = None
@@ -1107,9 +1117,9 @@ def item_form():
                     app.config['UPLOAD_FOLDER'], image_filename))
 
         cursor.execute("""
-                       INSERT INTO item(title, description, category_id, status_id, condition_id, price, image)
-                       VALUES(?,?,?,?,?,?,?)
-                       """, (title, description, category, status, condition, price, image_filename))
+                       INSERT INTO item(title, description, category_id, status_id, condition_id, price, image, seller_num)
+                       VALUES(?,?,?,?,?,?,?,?)
+                       """, (title, description, category, status, condition, price, image_filename, seller_num))
         user_id = session.get("user_id")
         if user_id:
             addactivity(cursor, user_id, "Added item")
@@ -1140,7 +1150,7 @@ def item_detail(item_id):
     cursor.execute("""
         SELECT item.id, item.title, item.description, item.price,
                category.name, status.condition,
-               item_condition.name, item.image
+               item_condition.name, item.image, item.seller_num
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
@@ -1204,7 +1214,7 @@ def edit_item(item_id):
         return redirect(url_for('item_detail', item_id=item_id))
 
     cursor.execute("""
-        SELECT id, title, description, price, category_id, status_id, condition_id, image
+        SELECT id, title, description, price, category_id, status_id, condition_id, image, seller_num
         FROM item WHERE id = ?
     """, (item_id,))
     item = cursor.fetchone()
