@@ -22,14 +22,9 @@
                 <a href="{{ url_for('admin_items') }}">Listings</a>
                 <a class="active" href="{{ url_for('admin_categories') }}">Categories</a>
                 <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
-                <span class="disabled">Reports</span>
+                <a href="{{ url_for('admin_reports') }}">Reports</a>
                 <a href="{{ url_for('home') }}">View website</a>
             </nav>
-
-            <section class="preview-note">
-                <p class="preview-label">Category Management</p>
-                <p>Add, rename, and remove marketplace categories safely.</p>
-            </section>
         </aside>
 
         <main class="admin-main">

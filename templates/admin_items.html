@@ -22,14 +22,9 @@
                 <a class="active" href="{{ url_for('admin_items') }}">Listings</a>
                 <a href="{{ url_for('admin_categories') }}">Categories</a>
                 <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
-                <span class="disabled">Reports</span>
+                <a href="{{ url_for('admin_reports') }}">Reports</a>
                 <a href="{{ url_for('home') }}">View website</a>
             </nav>
-
-            <section class="preview-note">
-                <p class="preview-label">Listing Management</p>
-                <p>Edit item price, category, condition, and availability status.</p>
-            </section>
         </aside>
 
         <main class="admin-main">

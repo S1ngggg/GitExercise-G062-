@@ -17,6 +17,15 @@ app = Flask(__name__, template_folder='templates',
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 CATEGORY_NAME_MAX_LENGTH = 50
+REPORT_REASONS = [
+    "Misleading listing",
+    "Inappropriate content",
+    "Suspicious seller",
+    "Duplicate listing",
+    "Other"
+]
+REPORT_STATUSES = ["Pending", "Reviewed", "Resolved", "Dismissed"]
+REPORT_DETAIL_MAX_LENGTH = 500
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -181,6 +190,21 @@ def create_database():
         cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
     cursor.execute("""
+                CREATE TABLE IF NOT EXISTS report(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_id INTEGER NOT NULL,
+                reporter_id INTEGER NOT NULL,
+                reason TEXT NOT NULL,
+                details TEXT,
+                status TEXT NOT NULL DEFAULT 'Pending',
+                admin_note TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY(item_id) REFERENCES item(id),
+                FOREIGN KEY(reporter_id) REFERENCES user(id)
+                )
+                """)
+
                 CREATE TABLE IF NOT EXISTS activity(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
@@ -647,6 +671,38 @@ def profile():
     return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', login_count=user["login_count"] if user else'0', profile_image=user["profile_image"]if user else None,percentage=percentage, register_time = user["register_time"]if user and user["register_time"] else 'Not Recorded',recent_activity=recent_activity)
 
 
+@app.route("/my_reports")
+def my_reports():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT report.id, item.id, item.title, report.reason, report.details,
+               report.status, report.admin_note, report.created_at, report.updated_at
+        FROM report
+        JOIN item ON report.item_id = item.id
+        WHERE report.reporter_id = ?
+        ORDER BY report.id DESC
+    """, (user_id,))
+    reports = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_reports": len(reports),
+        "pending_reports": sum(1 for report in reports if report[5] == "Pending"),
+        "reviewed_reports": sum(1 for report in reports if report[5] != "Pending")
+    }
+
+    return render_template("my_reports.html",
+                           reports=reports,
+                           stats=stats,
+                           username=session.get('username', 'Your'))
+
+
 @app.route("/upload_profile", methods=['POST'])
 def upload_profile():
 
@@ -838,6 +894,12 @@ def admin_dashboard():
     """)
     available_listings = cursor.fetchone()[0]
 
+    cursor.execute("SELECT COUNT(*) FROM report")
+    total_reports = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM report WHERE status = 'Pending'")
+    pending_reports = cursor.fetchone()[0]
+
     cursor.execute("""
         SELECT item.id, item.title, item.price, category.name, status.condition
         FROM item
@@ -879,7 +941,9 @@ def admin_dashboard():
     stats = {
         "total_users": total_users,
         "total_listings": total_listings,
-        "available_listings": available_listings
+        "available_listings": available_listings,
+        "total_reports": total_reports,
+        "pending_reports": pending_reports
     }
 
     return render_template("admin.html",
@@ -931,6 +995,87 @@ def admin_items():
                            statuses=statuses,
                            conditions=conditions,
                            stats=stats)
+
+
+@app.route("/admin/reports")
+def admin_reports():
+    selected_status = request.args.get("status", "").strip()
+    if selected_status not in REPORT_STATUSES:
+        selected_status = ""
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT status, COUNT(*)
+        FROM report
+        GROUP BY status
+    """)
+    status_counts = {row[0]: row[1] for row in cursor.fetchall()}
+    total_reports = sum(status_counts.values())
+
+    where_clause = ""
+    values = []
+    if selected_status:
+        where_clause = "WHERE report.status = ?"
+        values.append(selected_status)
+
+    cursor.execute("""
+        SELECT report.id, report.reason, report.details, report.status,
+               report.admin_note, report.created_at, item.id, item.title,
+               user.username, user.email
+        FROM report
+        JOIN item ON report.item_id = item.id
+        JOIN user ON report.reporter_id = user.id
+        {where_clause}
+        ORDER BY report.id DESC
+    """.format(where_clause=where_clause), values)
+    reports = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_reports": total_reports,
+        "pending_reports": status_counts.get("Pending", 0),
+        "reviewed_reports": total_reports - status_counts.get("Pending", 0),
+        "shown_reports": len(reports)
+    }
+
+    return render_template("admin_reports.html",
+                           reports=reports,
+                           stats=stats,
+                           report_statuses=REPORT_STATUSES,
+                           selected_report_status=selected_status)
+
+
+@app.route("/admin/reports/<int:report_id>/update", methods=['POST'])
+def update_admin_report(report_id):
+    status = request.form.get('status', '').strip()
+    admin_note = request.form.get('admin_note', '').strip()
+
+    if status not in REPORT_STATUSES:
+        flash("Selected report status does not exist.")
+        return redirect(url_for('admin_reports'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM report WHERE id = ?", (report_id,))
+    if cursor.fetchone() is None:
+        flash("Report not found.")
+        connect.close()
+        return redirect(url_for('admin_reports'))
+
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        UPDATE report
+        SET status = ?, admin_note = ?, updated_at = ?
+        WHERE id = ?
+    """, (status, admin_note, now, report_id))
+    connect.commit()
+    connect.close()
+
+    flash("Report updated successfully.")
+    return redirect(url_for('admin_reports'))
 
 
 @app.route("/admin/items/<int:item_id>/update", methods=['POST'])
@@ -1164,7 +1309,50 @@ def item_detail(item_id):
     if item is None:
         return "Item not found", 404
 
-    return render_template("item_detail.html", item=item)
+    return render_template("item_detail.html",
+                           item=item,
+                           report_reasons=REPORT_REASONS,
+                           report_detail_max_length=REPORT_DETAIL_MAX_LENGTH)
+
+
+@app.route("/item/<int:item_id>/report", methods=['POST'])
+def report_item(item_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please login before reporting a listing.")
+        return redirect(url_for('login'))
+
+    reason = request.form.get("reason", "").strip()
+    details = request.form.get("details", "").strip()
+
+    if not reason:
+        flash("Please choose a reason for the report.")
+        return redirect(url_for('item_detail', item_id=item_id))
+    if reason not in REPORT_REASONS:
+        flash("Please choose a valid report reason.")
+        return redirect(url_for('item_detail', item_id=item_id))
+    if len(details) > REPORT_DETAIL_MAX_LENGTH:
+        flash("Report details must be 500 characters or fewer.")
+        return redirect(url_for('item_detail', item_id=item_id))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT id FROM item WHERE id = ?", (item_id,))
+    if cursor.fetchone() is None:
+        connect.close()
+        return "Item not found", 404
+
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        INSERT INTO report (item_id, reporter_id, reason, details, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (item_id, user_id, reason, details, "Pending", now, now))
+    connect.commit()
+    connect.close()
+
+    flash("Report submitted. An admin will review it soon.")
+    return redirect(url_for('item_detail', item_id=item_id))
 
 
 @app.route("/item_saved")

@@ -566,6 +566,53 @@
     margin: 14px 0 0 0;
 }
 
+.detail_flash_messages {
+    background: #eef4fc;
+    border: 1px solid rgba(47, 93, 159, 0.18);
+    border-radius: 12px;
+    color: #2f5d9f;
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+}
+
+.detail_flash_messages p {
+    margin: 0;
+}
+
+.report_panel {
+    margin-top: 18px;
+}
+
+.report_form {
+    display: grid;
+    gap: 10px;
+}
+
+.report_form label {
+    color: #415a77;
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.report_form select,
+.report_form textarea {
+    border: 1.5px solid #d7e5f4;
+    border-radius: 12px;
+    color: #24364b;
+    font-family: "Fredoka", sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.report_form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
 .buynow_link {
     display: block;
     text-decoration: none;

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Management | MMU Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">M</span>
+                <span>
+                    <strong>MMU</strong>
+                    <small>Marketplace Admin</small>
+                </span>
+            </a>
+
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+                <a href="{{ url_for('admin_items') }}">Listings</a>
+                <a href="{{ url_for('admin_categories') }}">Categories</a>
+                <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
+                <a class="active" href="{{ url_for('admin_reports') }}">Reports</a>
+                <a href="{{ url_for('home') }}">View website</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ADMIN PANEL</p>
+                    <h1>Report management</h1>
+                    <p class="dashboard-subtitle">View reports submitted by marketplace users.</p>
+                </div>
+                <a class="button" href="{{ url_for('admin_dashboard') }}">Back to overview</a>
+            </header>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="admin-flashes">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="stat-grid" aria-label="Report statistics">
+                <article class="stat-card">
+                    <p>Total reports</p>
+                    <strong>{{ stats.total_reports }}</strong>
+                    <small>Reports submitted by users</small>
+                </article>
+                <article class="stat-card">
+                    <p>Pending</p>
+                    <strong>{{ stats.pending_reports }}</strong>
+                    <small>Waiting for admin review</small>
+                </article>
+                <article class="stat-card">
+                    <p>Reviewed</p>
+                    <strong>{{ stats.reviewed_reports }}</strong>
+                    <small>Already checked by admin</small>
+                </article>
+            </section>
+
+            <section class="listings-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Submitted reports</h2>
+                        <p>Showing {{ stats.shown_reports }} of {{ stats.total_reports }} report{% if stats.total_reports != 1 %}s{% endif %}.</p>
+                    </div>
+                    <a href="{{ url_for('home_page') }}">View marketplace</a>
+                </div>
+
+                <form class="report-filter-form" method="GET" action="{{ url_for('admin_reports') }}">
+                    <label for="report-status-filter">Filter by status</label>
+                    <select id="report-status-filter" name="status">
+                        <option value="">All reports</option>
+                        {% for status_option in report_statuses %}
+                        <option value="{{ status_option }}" {% if selected_report_status == status_option %}selected{% endif %}>{{ status_option }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Apply Filter</button>
+                    <a href="{{ url_for('admin_reports') }}">Reset</a>
+                </form>
+
+                <div class="table-wrap">
+                    <table class="listing-table reports-table">
+                        <thead>
+                            <tr>
+                                <th>Reported item</th>
+                                <th>Reporter</th>
+                                <th>Reason</th>
+                                <th>Admin review</th>
+                                <th>Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report_id, reason, details, status, admin_note, created_at, item_id, item_title, reporter_name, reporter_email in reports %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item_title }}</strong>
+                                    <small>#{{ item_id }} - Report #{{ report_id }}</small>
+                                    <a class="table-action-link" href="{{ url_for('item_detail', item_id=item_id) }}">View item</a>
+                                </td>
+                                <td>
+                                    <strong>{{ reporter_name }}</strong>
+                                    <small>{{ reporter_email }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ reason }}</strong>
+                                    {% if details %}
+                                    <p class="report-details">{{ details }}</p>
+                                    {% else %}
+                                    <p class="report-details muted">No extra details provided.</p>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="report-status status-{{ status | lower }}">{{ status }}</span>
+                                    <form class="report-review-form" method="POST" action="{{ url_for('update_admin_report', report_id=report_id) }}">
+                                        <label>
+                                            <span>Status</span>
+                                            <select name="status" required>
+                                                {% for status_option in report_statuses %}
+                                                <option value="{{ status_option }}" {% if status_option == status %}selected{% endif %}>{{ status_option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                        <label>
+                                            <span>Admin note</span>
+                                            <textarea name="admin_note" maxlength="500" placeholder="Add a short review note.">{{ admin_note or '' }}</textarea>
+                                        </label>
+                                        <button type="submit">Save Review</button>
+                                    </form>
+                                </td>
+                                <td>{{ created_at }}</td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="5">No reports submitted yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

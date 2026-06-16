@@ -22,14 +22,9 @@
                 <a href="{{ url_for('admin_items') }}">Listings</a>
                 <a href="{{ url_for('admin_categories') }}">Categories</a>
                 <a href="#recent-users">Users</a>
-                <span class="disabled">Reports</span>
+                <a href="{{ url_for('admin_reports') }}">Reports</a>
                 <a href="{{ url_for('home') }}">View website</a>
             </nav>
-
-            <section class="preview-note">
-                <p class="preview-label">Version 5</p>
-                <p>Complete dashboard preview with member activity.</p>
-            </section>
         </aside>
 
         <main class="admin-main">
@@ -57,6 +52,16 @@
                     <p>Available now</p>
                     <strong>{{ stats.available_listings }}</strong>
                     <small>Ready to purchase</small>
+                </article>
+                <article class="stat-card">
+                    <p>Total reports</p>
+                    <strong>{{ stats.total_reports }}</strong>
+                    <small>Reports submitted by users</small>
+                </article>
+                <article class="stat-card">
+                    <p>Pending reports</p>
+                    <strong>{{ stats.pending_reports }}</strong>
+                    <small>Waiting for admin review</small>
                 </article>
             </section>
 
