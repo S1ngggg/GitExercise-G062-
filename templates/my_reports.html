@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>My Reports</title>
+</head>
+<body class="userprofile-body">
+    <div class="sidebar">
+        <div class="logo"></div>
+        <ul>
+            <li>
+                <a href="{{ url_for('profile') }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('home_page') }}">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('my_reports') }}">
+                    <i class="fas fa-flag"></i>
+                    <span>My Reports</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('setting') }}">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <main class="maincontent report-history-main">
+        <section class="report-history-header">
+            <div>
+                <span>{{ username }}'s</span>
+                <h1>Report History</h1>
+                <p>Track the reports you submitted and check admin review notes.</p>
+            </div>
+            <a href="{{ url_for('home_page') }}">Back to Marketplace</a>
+        </section>
+
+        <section class="report-history-stats">
+            <article>
+                <p>Total reports</p>
+                <strong>{{ stats.total_reports }}</strong>
+            </article>
+            <article>
+                <p>Pending</p>
+                <strong>{{ stats.pending_reports }}</strong>
+            </article>
+            <article>
+                <p>Reviewed</p>
+                <strong>{{ stats.reviewed_reports }}</strong>
+            </article>
+        </section>
+
+        <section class="report-history-panel">
+            <div class="report-history-title">
+                <h2>Your submitted reports</h2>
+                <p>Only reports submitted from your account appear here.</p>
+            </div>
+
+            {% if reports %}
+            <div class="report-history-list">
+                {% for report_id, item_id, item_title, reason, details, status, admin_note, created_at, updated_at in reports %}
+                <article class="report-history-card">
+                    <div class="report-history-card-top">
+                        <div>
+                            <h3>{{ item_title }}</h3>
+                            <p>Report #{{ report_id }} - Submitted {{ created_at }}</p>
+                        </div>
+                        <span class="my-report-status status-{{ status | lower }}">{{ status }}</span>
+                    </div>
+
+                    <dl class="report-history-details">
+                        <div>
+                            <dt>Reason</dt>
+                            <dd>{{ reason }}</dd>
+                        </div>
+                        <div>
+                            <dt>Your details</dt>
+                            <dd>{{ details if details else 'No extra details provided.' }}</dd>
+                        </div>
+                        <div>
+                            <dt>Admin note</dt>
+                            <dd>{{ admin_note if admin_note else 'Admin has not added a note yet.' }}</dd>
+                        </div>
+                    </dl>
+
+                    <a class="report-history-link" href="{{ url_for('item_detail', item_id=item_id) }}">View reported item</a>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="report-history-empty">
+                <strong>No reports submitted yet</strong>
+                <p>When you report a listing, its status will appear here.</p>
+                <a href="{{ url_for('home_page') }}">Browse marketplace</a>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

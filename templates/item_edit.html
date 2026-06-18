@@ -26,6 +26,11 @@
                 <input type="text" id="title" name="title" value="{{ item[1] }}" required>
             </div>
 
+            <div class="seller_num">
+                <label for="seller_num">Seller's Contact Number</label>
+                <input type="tel" id="seller_num" name="seller_num" value="{{ item[8] }}" readonly>
+            </div>
+
             <div class="input-group" style="margin-top:12px;">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" class="description_textarea">{{ item[2] }}</textarea>
