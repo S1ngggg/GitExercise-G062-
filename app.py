@@ -12,8 +12,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import base64
 import requests as req
-from dotenv import load_dotenv
-load_dotenv()
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -1404,7 +1402,7 @@ def search_by_image():
         response = req.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}"},
+                "Authorization": "Bearer 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"},
             json={
                 "model": "openrouter/free",
                 "messages": [{
