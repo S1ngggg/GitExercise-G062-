@@ -1402,9 +1402,9 @@ def search_by_image():
         response = req.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": "Bearer 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"},
+                "Authorization": "Bearer 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"},
             json={
-                "model": "openrouter/free",
+                "model": "google/gemma-3-4b-it: free",
                 "messages": [{
                     "role": "user",
                     "content": [
@@ -1420,7 +1420,17 @@ def search_by_image():
         print("STATUS:", response.status_code)
         print("RESPONSE:", response.json())
 
-        raw = response.json()["choices"][0]["message"]["content"].strip()
+        resp_json = response.json()
+        print("RESPONSE:", resp_json)
+
+        # SAFETY CHECK: If OpenRouter returns an error, catch it gracefully
+        if "choices" not in resp_json:
+            error_msg = resp_json.get("error", {}).get(
+                "message", "Unknown API error")
+            flash(f"AI Service Error: {error_msg}")
+            return redirect(url_for('home_page'))
+
+        raw = resp_json["choices"][0]["message"]["content"].strip()
 
         start = raw.find("{")
         end = raw.rfind("}") + 1
