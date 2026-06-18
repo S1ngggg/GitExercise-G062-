@@ -1404,7 +1404,7 @@ def search_by_image():
         response = req.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}", }
+                "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}"},
             json={
                 "model": "openrouter/free",
                 "messages": [{
