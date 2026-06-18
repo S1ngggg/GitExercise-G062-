@@ -128,6 +128,10 @@ def create_database():
         "INSERT OR IGNORE INTO category (name) VALUES ('Furniture')")
     cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Second-hand')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Stationary')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Others')")
    # Adding default and possibly permanent status conditions
 
     cursor.execute("INSERT OR IGNORE INTO status(condition) VALUES ('Sold')")
@@ -1406,7 +1410,7 @@ def search_by_image():
                         {"type": "image_url", "image_url": {
                             "url": f"data:{file_type};base64,{b64_image}"}},
                         {"type": "text",
-                         "text": "Identify the item in this image. Reply only with a JSON object:\n{\"keywords\": [\"most important single search word for this item\", \"second search word\", \"third search word\"], \"label\": \"short name of the item\"}\nFor a graphics card, keywords should be like [\"graphics\", \"GPU\", \"card\"] not [\"AMD\", \"RX\", \"gaming\"]."}
+                         "text": 'Identify the item in this image. Reply only with a JSON object:\n{"keywords": ["keyword1", "keyword2", "keyword3"], "label": "short name of the item"}\nPick generic searchable words. For a desk use ["table", "furniture", "desk"]. For a graphics card use ["graphics", "GPU", "card"]. Always include the general category type as one keyword.'}
                     ]
                 }]
             }
@@ -1436,8 +1440,21 @@ def search_by_image():
         flash("Could not identify the item.")
         return redirect(url_for('home_page'))
 
-    search_query = keywords[0]
-    return redirect(url_for('home_page', search=search_query, ai_label=ai_label))
+    # try each keyword separately, use the first one that finds items
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    best_keyword = keywords[0]
+    for kw in keywords:
+        cursor.execute(
+            "SELECT COUNT(*) FROM item WHERE title LIKE ? OR description LIKE ?",
+            (f"%{kw}%", f"%{kw}%")
+        )
+        if cursor.fetchone()[0] > 0:
+            best_keyword = kw
+            break
+    connect.close()
+
+    return redirect(url_for('home_page', search=best_keyword, ai_label=ai_label))
 
 
 @app.route("/item_saved")
