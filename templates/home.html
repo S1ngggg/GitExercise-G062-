@@ -7,7 +7,15 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 <body class="home_body">
-    
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="flash_error">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
     <nav class="home_nav">
         <div class="home_nav_left">
             <h1 class="title_home">MMU <span class="highlight_home">Marketplace 🧺</span></h1>
@@ -35,9 +43,26 @@
 
     <div class="home_main">
 
+        {% if ai_label %}
+        <div class="ai_search_banner">
+            <span>Showing results for: <strong>{{ ai_label }}</strong></span>
+            <a href="{{ url_for('home_page') }}" class="ai_search_clear">Clear</a>
+        </div>
+        {% endif %}
+
         <div class="home_section_header">
             <h2 class="home_section_title">Items for Sale</h2>
             <a href="{{ url_for('item_form') }}" class="home_list_link"> List an item</a>
+        </div>
+
+        <div class="img_search_box">
+            <p class="img_search_label">Search by photo</p>
+            <form method="POST" action="{{ url_for('search_by_image') }}" enctype="multipart/form-data"
+                class="img_search_form">
+                <input type="file" name="search_image" accept="image/*" capture="environment" class="img_search_input"
+                    required>
+                <button type="submit" class="img_search_submit">Find Similar Items</button>
+            </form>
         </div>
 
         <form class="marketplace-filter" method="GET" action="{{ url_for('home_page') }}">

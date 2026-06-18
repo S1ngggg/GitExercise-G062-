@@ -6,12 +6,11 @@ import random
 from datetime import datetime, timedelta
 import sqlite3
 import os
-import io
 import json
-import google.generativeai as genai
-from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+import base64
+import requests as req
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -156,8 +155,6 @@ def home():
 app.secret_key = "my_secret_key......"
 
 
-genai.configure(
-    api_key="AQ.Ab8RN6JyE3N-SQH64-pqCnyVGN8a7pEOYRnMWlE43Wd03CLocw")
 # required for session + flash
 # accept displaying form and processing form
 
@@ -748,23 +745,40 @@ def search_by_image():
 
     try:
         image_bytes = file.read()
-        img = Image.open(io.BytesIO(image_bytes))
+        file_type = file.content_type or "image/jpeg"
+        b64_image = base64.b64encode(image_bytes).decode("utf-8")
 
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content([
-            "Identify the item in this image. "
-            "Reply ONLY with a JSON object, no other text:\n"
-            '{"keywords": ["word1", "word2", "word3"], "label": "short plain-English name of the item"}',
-            img
-        ])
+        response = req.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": "Bearer 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"},
+            json={
+                "model": "openrouter/free",
+                "messages": [{
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:{file_type};base64,{b64_image}"}},
+                        {"type": "text",
+                         "text": "Identify the item in this image. Reply only with a JSON object:\n{\"keywords\": [\"most important single search word for this item\", \"second search word\", \"third search word\"], \"label\": \"short name of the item\"}\nFor a graphics card, keywords should be like [\"graphics\", \"GPU\", \"card\"] not [\"AMD\", \"RX\", \"gaming\"]."}
+                    ]
+                }]
+            }
+        )
 
-        raw = response.text.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
+        print("STATUS:", response.status_code)
+        print("RESPONSE:", response.json())
 
-        result = json.loads(raw.strip())
+        raw = response.json()["choices"][0]["message"]["content"].strip()
+
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start == -1 or end == 0:
+            flash("Could not identify the item. Please try again.")
+            return redirect(url_for('home_page'))
+
+        raw = raw[start:end]
+        result = json.loads(raw)
         keywords = result.get("keywords", [])
         ai_label = result.get("label", "")
 
@@ -773,7 +787,7 @@ def search_by_image():
         return redirect(url_for('home_page'))
 
     if not keywords:
-        flash("Could not identify the item")
+        flash("Could not identify the item.")
         return redirect(url_for('home_page'))
 
     search_query = keywords[0]
