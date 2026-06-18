@@ -12,6 +12,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import base64
 import requests as req
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -990,7 +992,8 @@ def admin_items():
         SELECT item.id, item.title, item.price,
                item.category_id, category.name,
                item.status_id, status.condition,
-               item.condition_id, COALESCE(item_condition.name, 'Not specified')
+               item.condition_id, COALESCE(
+                   item_condition.name, 'Not specified')
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
@@ -1401,7 +1404,7 @@ def search_by_image():
         response = req.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": "Bearer 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"},
+                "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}", }
             json={
                 "model": "openrouter/free",
                 "messages": [{
