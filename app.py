@@ -12,8 +12,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import base64
 import requests as req
-from dotenv import load_dotenv
-load_dotenv()
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -1404,9 +1402,9 @@ def search_by_image():
         response = req.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}"},
+                "Authorization": "Bearer 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"},
             json={
-                "model": "openrouter/free",
+                "model": "google/gemma-3-4b-it: free",
                 "messages": [{
                     "role": "user",
                     "content": [
@@ -1422,7 +1420,17 @@ def search_by_image():
         print("STATUS:", response.status_code)
         print("RESPONSE:", response.json())
 
-        raw = response.json()["choices"][0]["message"]["content"].strip()
+        resp_json = response.json()
+        print("RESPONSE:", resp_json)
+
+        # SAFETY CHECK: If OpenRouter returns an error, catch it gracefully
+        if "choices" not in resp_json:
+            error_msg = resp_json.get("error", {}).get(
+                "message", "Unknown API error")
+            flash(f"AI Service Error: {error_msg}")
+            return redirect(url_for('home_page'))
+
+        raw = resp_json["choices"][0]["message"]["content"].strip()
 
         start = raw.find("{")
         end = raw.rfind("}") + 1
