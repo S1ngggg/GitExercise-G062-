@@ -7,8 +7,11 @@ from datetime import datetime, timedelta
 import sqlite3
 import os
 import uuid
+import json
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+import base64
+import requests as req
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -125,6 +128,10 @@ def create_database():
         "INSERT OR IGNORE INTO category (name) VALUES ('Furniture')")
     cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Second-hand')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Stationary')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Others')")
    # Adding default and possibly permanent status conditions
 
     cursor.execute("INSERT OR IGNORE INTO status(condition) VALUES ('Sold')")
@@ -174,7 +181,7 @@ def create_database():
                 )
 
                 """)
-    
+
     cursor.execute("PRAGMA table_info(user)")
     user_column = [column[1] for column in cursor.fetchall()]
     if "profile_image" not in user_column:
@@ -184,8 +191,9 @@ def create_database():
     if "address" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN address TEXT")
     if "login_count" not in user_column:
-        cursor.execute("ALTER TABLE user ADD COLUMN login_count INTEGER DEFAULT 0")
-    #count how many time user has login
+        cursor.execute(
+            "ALTER TABLE user ADD COLUMN login_count INTEGER DEFAULT 0")
+    # count how many time user has login
     if "register_time" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
@@ -213,7 +221,7 @@ def create_database():
                 activity_time TEXT
                 )
                 """)
-    
+
     connect.commit()
     connect.close()
 
@@ -224,14 +232,17 @@ def home():
 
 
 app.secret_key = "my_secret_key......"
+
+
 # required for session + flash
 # accept displaying form and processing form
 
 def addactivity(cursor, user_id, activity):
     time = datetime.now().strftime("%d %b %Y, %I:%M %p")
     cursor.execute(
-            """INSERT INTO activity(user_id, activity,activity_time) VALUES(?, ?, ?)""", (user_id, activity, time))
-    
+        """INSERT INTO activity(user_id, activity, activity_time) VALUES(?, ?, ?)""", (user_id, activity, time))
+
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':  # if user submit form
@@ -266,7 +277,7 @@ def register():
         cursor.execute("""
             INSERT INTO user (email, username, password, gender, role, register_time)
             VALUES(?, ?, ?, ?, ?,?)
-            """, (email, username, hashed_password, gender, role,register_time))  # insert user data using ?
+            """, (email, username, hashed_password, gender, role, register_time))  # insert user data using ?
         conn.commit()  # save change to the database
         conn.close()
 
@@ -275,7 +286,7 @@ def register():
         return redirect(url_for('login'))
 
     return render_template("register.html")
-    
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -441,8 +452,8 @@ def reset_password(email):
             "SELECT id, username FROM user WHERE email =?", (email,))
         user = cursor.fetchone()
         if user:
-            user_id,username = user
-            addactivity(cursor,user_id, "Reset account password")
+            user_id, username = user
+            addactivity(cursor, user_id, "Reset account password")
         conn.commit()
         conn.close()
 
@@ -646,7 +657,8 @@ def get_marketplace_context(endpoint):
 @app.route("/home")
 def home_page():
     context = get_marketplace_context("home_page")
-    return render_template("home.html", **context)
+    ai_label = request.args.get("ai_label", "")
+    return render_template("home.html", **context, ai_label=ai_label)
 
 
 @app.route("/user_profile")
@@ -655,21 +667,23 @@ def profile():
     if not user_id:
         return redirect(url_for('login'))
     connect = sqlite3.connect("database.db")
-    connect.row_factory = sqlite3.Row #access column by name
+    connect.row_factory = sqlite3.Row  # access column by name
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     column = user
-    filled = sum(1 for f in column if f and str(f).strip()!="" and str(f).strip().lower() !="none") #count how many column r fill inside user table
+    filled = sum(1 for f in column if f and str(f).strip() != "" and str(
+        # count how many column r fill inside user table
+        f).strip().lower() != "none")
     total = len(column)
-    percentage = int((filled/total)*100) #
+    percentage = int((filled/total)*100)
     cursor.execute(
-        """SELECT * FROM activity WHERE user_id =? ORDER BY activity_time DESC LIMIT 5""",(user_id,)) #DESC = descending (newest first) only get the 7 latest activity
-    #fetch all result from the query (list of activity)
+        """SELECT * FROM activity WHERE user_id =? ORDER BY activity_time DESC LIMIT 5""", (user_id,))  # DESC = descending (newest first) only get the 7 latest activity
+    # fetch all result from the query (list of activity)
     recent_activity = cursor.fetchall()
     connect.close()
 
-    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', login_count=user["login_count"] if user else'0', profile_image=user["profile_image"]if user else None,percentage=percentage, register_time = user["register_time"]if user and user["register_time"] else 'Not Recorded',recent_activity=recent_activity)
+    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', login_count=user["login_count"] if user else '0', profile_image=user["profile_image"]if user else None, percentage=percentage, register_time=user["register_time"]if user and user["register_time"] else 'Not Recorded', recent_activity=recent_activity)
 
 
 @app.route("/my_reports")
@@ -707,31 +721,34 @@ def my_reports():
 @app.route("/upload_profile", methods=['POST'])
 def upload_profile():
 
-    #get the uploaded file from the form
-    file=request.files.get('profile_image')
-    #check if a file is uploaded and has a filename
-    if file and file.filename != '': 
-        #generate a random filename using uuid for prevent overwrting
+    # get the uploaded file from the form
+    file = request.files.get('profile_image')
+    # check if a file is uploaded and has a filename
+    if file and file.filename != '':
+        # generate a random filename using uuid for prevent overwrting
         extension = os.path.splitext(file.filename)[1]
         filename = str(uuid.uuid4()) + extension
-        #create the upload folder if it doesnt exist yet
+        # create the upload folder if it doesnt exist yet
         upload_folder = os.path.join(app.static_folder, 'uploads')
-        
+
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
-        file.save(os.path.join(upload_folder, filename)) #save to upload folder
+        # save to upload folder
+        file.save(os.path.join(upload_folder, filename))
 
-        #update the user profile image in
+        # update the user profile image in
         user_id = session['user_id']
         connect = sqlite3.connect("database.db")
         cursor = connect.cursor()
-        cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        cursor.execute(
+            "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
         addactivity(cursor, user_id, "Changed profile picture.")
         connect.commit()
         connect.close()
 
     flash("Profile image changed successfully!")
     return redirect(url_for('profile'))
+
 
 @app.route("/setting")
 def setting():
@@ -740,13 +757,13 @@ def setting():
 
     if not user_id:
         return redirect(url_for('login'))
-    
+
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     connect.close()
-    #store the image filename if it exists
+    # store the image filename if it exists
     profile_image = user[6] if user else None
 
     return render_template("setting.html", username=user[2] if user else '', email=user[1] if user else '', phone_num=user[7] if user else '', role=user[5] if user else '', gender=user[4] if user else '', address=user[8] if user else '', profile_image=profile_image)
@@ -755,31 +772,34 @@ def setting():
 @app.route("/upload_setting", methods=['POST'])
 def upload_setting():
 
-    #get the uploaded file from the form
-    file=request.files.get('profile_image')
-    #check if a file is uploaded and has a filename
-    if file and file.filename != '': 
-        #generate a random filename using uuid for prevent overwrting
+    # get the uploaded file from the form
+    file = request.files.get('profile_image')
+    # check if a file is uploaded and has a filename
+    if file and file.filename != '':
+        # generate a random filename using uuid for prevent overwrting
         extension = os.path.splitext(file.filename)[1]
         filename = str(uuid.uuid4()) + extension
-        #create the upload folder if it doesnt exist yet
+        # create the upload folder if it doesnt exist yet
         upload_folder = os.path.join(app.static_folder, 'uploads')
-        
+
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
-        file.save(os.path.join(upload_folder, filename)) #save to upload folder
+        # save to upload folder
+        file.save(os.path.join(upload_folder, filename))
 
-        #update the user profile image in
+        # update the user profile image in
         user_id = session['user_id']
         connect = sqlite3.connect("database.db")
         cursor = connect.cursor()
-        cursor.execute("UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
-        addactivity(cursor,user_id, "Changed profile picture.")
+        cursor.execute(
+            "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
+        addactivity(cursor, user_id, "Changed profile picture.")
         connect.commit()
         connect.close()
 
     flash("Profile image changed successfully")
     return redirect(url_for('setting'))
+
 
 @app.route("/update_info", methods=['POST'])
 def update_info():
@@ -794,7 +814,8 @@ def update_info():
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?", (username, email, phone_num, role, gender, address, user_id))
+    cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?",
+                   (username, email, phone_num, role, gender, address, user_id))
     addactivity(cursor, user_id, "Updated profile info.")
     conn.commit()
     conn.close()
@@ -807,14 +828,14 @@ def update_info():
     flash("Profile updated successfully!")
     return redirect(url_for('setting'))
 
-    
+
 @app.route("/setting_password", methods=["POST"])
 def setting_password():
-    user_id=session.get("user_id")
+    user_id = session.get("user_id")
     if not user_id:
         flash("Please Login!")
         return redirect(url_for("login"))
-    
+
     old_password = request.form.get("old_password")
     password_new = request.form.get("password_new")
     confirm_password = request.form.get("confirm_password")
@@ -826,25 +847,28 @@ def setting_password():
     if not user:
         flash("User not found!")
         return redirect(url_for('setting'))
-    
-    store_password=user[0]
-    if not check_password_hash(store_password,old_password):
+
+    store_password = user[0]
+    if not check_password_hash(store_password, old_password):
         flash("Incorrect current password! Please try again!")
         return redirect(url_for('setting'))
-    
+
     if password_new != confirm_password:
         flash("Password do not match!")
-        return redirect(url_for('setting')) #send the data that function get from user table and sen saperate so data will not lost
-    
+        # send the data that function get from user table and sen saperate so data will not lost
+        return redirect(url_for('setting'))
+
     hashed_password = generate_password_hash(password_new)
-    cursor.execute("UPDATE user SET password=? WHERE id =?",(hashed_password,user_id))
-    addactivity(cursor,user_id, "Updated new password")
+    cursor.execute("UPDATE user SET password=? WHERE id =?",
+                   (hashed_password, user_id))
+    addactivity(cursor, user_id, "Updated new password")
 
     conn.commit()
     conn.close()
 
     flash("Password updated successfully!")
     return redirect(url_for('setting'))
+
 
 @app.route("/delete_account", methods=["POST"])
 def delete_account():
@@ -855,14 +879,15 @@ def delete_account():
     print(cursor.fetchall())
 
     cursor.execute(
-        "DELETE FROM user WHERE id = ?",(user_id,))
+        "DELETE FROM user WHERE id = ?", (user_id,))
     conn.commit()
     conn.close()
 
-    session.clear() #logout
+    session.clear()  # logout
 
     flash("Account deleted successfully")
     return redirect(url_for('home'))
+
 
 @app.route("/logout")
 def logout():
@@ -874,7 +899,8 @@ def logout():
         conn.commit()
         conn.close()
     session.clear()  # clear all session data to log out the user
-    return redirect(url_for('home')) 
+    return redirect(url_for('home'))
+
 
 @app.route("/admin")
 def admin_dashboard():
@@ -964,7 +990,8 @@ def admin_items():
         SELECT item.id, item.title, item.price,
                item.category_id, category.name,
                item.status_id, status.condition,
-               item.condition_id, COALESCE(item_condition.name, 'Not specified')
+               item.condition_id, COALESCE(
+                   item_condition.name, 'Not specified')
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
@@ -1356,6 +1383,91 @@ def report_item(item_id):
     return redirect(url_for('item_detail', item_id=item_id))
 
 
+@app.route("/search_by_image", methods=['POST'])
+def search_by_image():
+    if 'search_image' not in request.files:
+        flash("No image provided.")
+        return redirect(url_for('home_page'))
+
+    file = request.files['search_image']
+    if not file or file.filename == '':
+        flash("No image selected.")
+        return redirect(url_for('home_page'))
+
+    try:
+        image_bytes = file.read()
+        file_type = file.content_type or "image/jpeg"
+        b64_image = base64.b64encode(image_bytes).decode("utf-8")
+
+        response = req.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": "Bearer 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"},
+            json={
+                "model": "google/gemma-3-4b-it: free",
+                "messages": [{
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:{file_type};base64,{b64_image}"}},
+                        {"type": "text",
+                         "text": 'Identify the item in this image. Reply only with a JSON object:\n{"keywords": ["keyword1", "keyword2", "keyword3"], "label": "short name of the item"}\nPick generic searchable words. For a desk use ["table", "furniture", "desk"]. For a graphics card use ["graphics", "GPU", "card"]. Always include the general category type as one keyword.'}
+                    ]
+                }]
+            }
+        )
+
+        print("STATUS:", response.status_code)
+        print("RESPONSE:", response.json())
+
+        resp_json = response.json()
+        print("RESPONSE:", resp_json)
+
+        # SAFETY CHECK: If OpenRouter returns an error, catch it gracefully
+        if "choices" not in resp_json:
+            error_msg = resp_json.get("error", {}).get(
+                "message", "Unknown API error")
+            flash(f"AI Service Error: {error_msg}")
+            return redirect(url_for('home_page'))
+
+        raw = resp_json["choices"][0]["message"]["content"].strip()
+
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start == -1 or end == 0:
+            flash("Could not identify the item. Please try again.")
+            return redirect(url_for('home_page'))
+
+        raw = raw[start:end]
+        result = json.loads(raw)
+        keywords = result.get("keywords", [])
+        ai_label = result.get("label", "")
+
+    except Exception as e:
+        flash(f"Image search failed: {e}")
+        return redirect(url_for('home_page'))
+
+    if not keywords:
+        flash("Could not identify the item.")
+        return redirect(url_for('home_page'))
+
+    # try each keyword separately, use the first one that finds items
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    best_keyword = keywords[0]
+    for kw in keywords:
+        cursor.execute(
+            "SELECT COUNT(*) FROM item WHERE title LIKE ? OR description LIKE ?",
+            (f"%{kw}%", f"%{kw}%")
+        )
+        if cursor.fetchone()[0] > 0:
+            best_keyword = kw
+            break
+    connect.close()
+
+    return redirect(url_for('home_page', search=best_keyword, ai_label=ai_label))
+
+
 @app.route("/item_saved")
 def item_saved():
     return render_template("item_saved.html")
@@ -1440,7 +1552,7 @@ def delete_item(item_id):
             os.remove(img_path)
 
     cursor.execute("DELETE FROM item WHERE id = ?", (item_id,))
-    user_id=session.get("user_id")
+    user_id = session.get("user_id")
     if user_id:
         addactivity(cursor, user_id, "Deleted item")
     connect.commit()
