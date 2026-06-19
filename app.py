@@ -205,6 +205,7 @@ def create_database():
                 )
                 """)
 
+    cursor.execute("""
                 CREATE TABLE IF NOT EXISTS activity(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
