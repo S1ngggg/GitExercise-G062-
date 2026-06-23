@@ -222,6 +222,17 @@ def create_database():
                 )
                 """)
 
+    cursor.execute("""
+                CREATE TABLE IF NOT EXISTS favourite(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                item_id INTEGER NOT NULL,
+                UNIQUE(user_id, item_id),
+                FOREIGN KEY(user_id) REFERENCES user(id),
+                FOREIGN KEY(item_id) REFERENCES item(id)
+                )
+                """)
+
     connect.commit()
     connect.close()
 
@@ -1332,6 +1343,15 @@ def item_detail(item_id):
     """, (item_id,))
 
     item = cursor.fetchone()
+
+    is_favourited = False
+    user_id = session.get('user_id')
+    if user_id and item:
+        cursor.execute(
+            "SELECT id FROM favourite WHERE user_id = ? AND item_id = ?",
+            (user_id, item_id))
+        is_favourited = cursor.fetchone() is not None
+
     connect.close()
 
     if item is None:
@@ -1340,7 +1360,8 @@ def item_detail(item_id):
     return render_template("item_detail.html",
                            item=item,
                            report_reasons=REPORT_REASONS,
-                           report_detail_max_length=REPORT_DETAIL_MAX_LENGTH)
+                           report_detail_max_length=REPORT_DETAIL_MAX_LENGTH,
+                           is_favourited=is_favourited)
 
 
 @app.route("/item/<int:item_id>/report", methods=['POST'])
@@ -1558,6 +1579,64 @@ def delete_item(item_id):
     connect.commit()
     connect.close()
     return redirect(url_for('home_page'))
+
+
+@app.route("/item/<int:item_id>/favourite", methods=['POST'])
+def toggle_favourite(item_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please login to bookmark items.")
+        return redirect(url_for('login'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute(
+        "SELECT id FROM favourite WHERE user_id = ? AND item_id = ?",
+        (user_id, item_id))
+    existing = cursor.fetchone()
+
+    if existing:
+        cursor.execute(
+            "DELETE FROM favourite WHERE user_id = ? AND item_id = ?",
+            (user_id, item_id))
+        flash("Removed from bookmarks.")
+    else:
+        cursor.execute(
+            "INSERT INTO favourite (user_id, item_id) VALUES (?, ?)",
+            (user_id, item_id))
+        flash("Added to bookmarks.")
+
+    connect.commit()
+    connect.close()
+    return redirect(request.referrer or url_for('item_detail', item_id=item_id))
+
+
+@app.route("/my_favourites")
+def my_favourites():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("""
+        SELECT item.id, item.title, item.description, item.price,
+               category.name, status.condition,
+               COALESCE(item_condition.name, 'Not specified'), item.image
+        FROM favourite
+        JOIN item ON favourite.item_id = item.id
+        JOIN category ON item.category_id = category.id
+        JOIN status ON item.status_id = status.id
+        LEFT JOIN item_condition ON item.condition_id = item_condition.id
+        WHERE favourite.user_id = ?
+        ORDER BY favourite.id DESC
+    """, (user_id,))
+    items = cursor.fetchall()
+    connect.close()
+
+    return render_template("my_favourites.html", items=items)
 
 
 if __name__ == "__main__":
