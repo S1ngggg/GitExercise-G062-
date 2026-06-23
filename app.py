@@ -1609,7 +1609,7 @@ def toggle_favourite(item_id):
 
     connect.commit()
     connect.close()
-    return redirect(url_for('item_detail', item_id=item_id))
+    return redirect(request.referrer or url_for('item_detail', item_id=item_id))
 
 
 @app.route("/my_favourites")
