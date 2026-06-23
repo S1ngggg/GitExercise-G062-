@@ -64,10 +64,17 @@
 
                 <hr class="detail_divider">
 
-                <div class="detail_actions"> <!-- _blank open link in a new tab, onclick =html event attribute run when user click-->
-                    <button class="detail_button_primary" onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')"> <!--text set whatsapp message %20represent space in url encoding-->
+                <div class="detail_actions">
+                    <button class="detail_button_primary" onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')">
                         Contact Seller
                     </button>
+                    {% if session.get('user_id') %}
+                    <form method="POST" action="{{ url_for('toggle_favourite', item_id=item[0]) }}">
+                        <button type="submit" class="detail_button_bookmark {% if is_favourited %}bookmarked{% endif %}">
+                            {% if is_favourited %}&#9733; Bookmarked{% else %}&#9734; Bookmark{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
                 </div>
 
                 {% if session.get('user_id') %}

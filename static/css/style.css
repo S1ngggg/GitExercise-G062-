@@ -861,7 +861,6 @@
     color: #9ca3af;
     margin: 6px 0 0 0;
 }
-<<<<<<< HEAD
 
 .img_search_box {
     background: white;
@@ -956,5 +955,40 @@
     font-size: 15px;
     text-align: center;
 }
-=======
->>>>>>> 830f6f44ecffd23856826f6ad94637dd5b073a3a
+
+/* Bookmark button */
+.detail_button_bookmark {
+    background-color: white;
+    color: #2f5d9f;
+    border: 1.5px solid #2f5d9f;
+    border-radius: 12px;
+    padding: 13px 28px;
+    font-family: "Fredoka", sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+    flex: 1;
+    width: 100%;
+}
+
+.detail_button_bookmark:hover {
+    background-color: #eef4fc;
+    transform: translateY(-2px);
+}
+
+.detail_button_bookmark.bookmarked {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #d97706;
+}
+
+.detail_button_bookmark.bookmarked:hover {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #991b1b;
+}
+
+.detail_actions form {
+    flex: 1;
+    display: flex;
+}
