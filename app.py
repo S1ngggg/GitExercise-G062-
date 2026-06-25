@@ -171,8 +171,8 @@ def create_database():
 
     # add user_id into item table
     if "user_id" not in item_columns:
-    cursor.execute(
-        "ALTER TABLE item ADD COLUMN user_id INTEGER REFERENCES user(id)")
+        cursor.execute(
+            "ALTER TABLE item ADD COLUMN user_id INTEGER REFERENCES user(id)")
 
     # create user table if does not exist yet
     cursor.execute("""
@@ -1500,6 +1500,7 @@ def edit_item(item_id):
         connect.close()
         flash("You can only edit your own listings.")
         return redirect(url_for('item_detail', item_id=item_id))
+
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -1563,8 +1564,24 @@ def edit_item(item_id):
 
 @app.route("/item/<int:item_id>/delete", methods=['POST'])
 def delete_item(item_id):
+
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in.")
+        return redirect(url_for('login'))
+
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
+
+    cursor.execute("SELECT user_id FROM item WHERE id = ?", (item_id,))
+    owner = cursor.fetchone()
+    if owner is None:
+        connect.close()
+        return "Item not found", 404
+    if owner[0] != user_id and session.get('role') != 'admin':
+        connect.close()
+        flash("You can only delete your own listings.")
+        return redirect(url_for('item_detail', item_id=item_id))
 
     cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
     row = cursor.fetchone()
