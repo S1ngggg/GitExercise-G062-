@@ -247,11 +247,8 @@ def create_database():
     connect.close()
 
 
-ADMIN_EMAILS = {'admin1@mmu.edu.my', 'admin2@mmu.edu.my', 'admin3@mmu.edu.my'}
-
-
 def check_admin():
-    if session.get('role') != 'admin' or session.get('email') not in ADMIN_EMAILS:
+    if session.get('role') != 'admin':
         flash("Access denied. Admins only.")
         return redirect(url_for('home_page'))
     return None
@@ -1314,6 +1311,73 @@ def delete_category(category_id):
 
     connect.close()
     return redirect(url_for('admin_categories'))
+
+
+@app.route("/admin/users")
+def admin_users():
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("""
+        SELECT id, email, username, role, register_time
+        FROM user ORDER BY id
+    """)
+    users = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_users": len(users),
+        "admin_count": sum(1 for u in users if u[3] == 'admin'),
+        "regular_count": sum(1 for u in users if u[3] != 'admin')
+    }
+    return render_template("admin_users.html", users=users, stats=stats)
+
+
+@app.route("/admin/users/<int:user_id>/make-admin", methods=['POST'])
+def make_admin(user_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT id, role FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        flash("User not found.")
+    elif user[1] == 'admin':
+        flash("User is already an admin.")
+    else:
+        cursor.execute("UPDATE user SET role = 'admin' WHERE id = ?", (user_id,))
+        connect.commit()
+        flash("User promoted to admin.")
+    connect.close()
+    return redirect(url_for('admin_users'))
+
+
+@app.route("/admin/users/<int:user_id>/remove-admin", methods=['POST'])
+def remove_admin(user_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    if user_id == session.get('user_id'):
+        flash("You cannot remove your own admin role.")
+        return redirect(url_for('admin_users'))
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT id, role FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        flash("User not found.")
+    elif user[1] != 'admin':
+        flash("User is not an admin.")
+    else:
+        cursor.execute("UPDATE user SET role = 'Both' WHERE id = ?", (user_id,))
+        connect.commit()
+        flash("Admin role removed.")
+    connect.close()
+    return redirect(url_for('admin_users'))
 
 
 @app.route("/marketplace", methods=['GET'])
