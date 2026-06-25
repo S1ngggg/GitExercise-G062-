@@ -35,13 +35,13 @@
 
             <div class="detail_info">
                 {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    <div class="detail_flash_messages">
-                        {% for message in messages %}
-                        <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                {% if messages %}
+                <div class="detail_flash_messages">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% endwith %}
 
                 <div class="detail_top_row">
@@ -64,13 +64,16 @@
 
                 <hr class="detail_divider">
 
-                <div class="detail_actions"> <!-- _blank open link in a new tab, onclick =html event attribute run when user click-->
-                    <button class="detail_button_primary" onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')"> <!--text set whatsapp message %20represent space in url encoding-->
+                <div class="detail_actions">
+                    <!-- _blank open link in a new tab, onclick =html event attribute run when user click-->
+                    <button class="detail_button_primary"
+                        onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')">
+                        <!--text set whatsapp message %20represent space in url encoding-->
                         Contact Seller
                     </button>
                 </div>
 
-                {% if session.get('user_id') %}
+                {% if session.get('user_id') == item[9] or session.get('role') == 'admin' %}
                 <div class="detail_crud_actions">
                     <a href="{{ url_for('edit_item', item_id=item[0]) }}">
                         <button class="detail_button_edit">Edit Item</button>
