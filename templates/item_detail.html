@@ -21,6 +21,14 @@
     <div class="detail_centering">
         <div class="detail_card">
 
+            {% if session.get('user_id') %}
+            <form method="POST" action="{{ url_for('toggle_favourite', item_id=item[0]) }}" class="detail_bookmark_form">
+                <button type="submit" class="detail_bookmark_icon {% if is_favourited %}bookmarked{% endif %}" title="{% if is_favourited %}Remove bookmark{% else %}Bookmark{% endif %}">
+                    &#128278;
+                </button>
+            </form>
+            {% endif %}
+
             <div class="detail_image">
                 {% if item[7] %}
                 <img src="{{ url_for('static', filename='uploads/' + item[7]) }}" alt="{{ item[1] }}"
@@ -65,10 +73,14 @@
                 <hr class="detail_divider">
 
                 <div class="detail_actions">
+<<<<<<< HEAD
                     <!-- _blank open link in a new tab, onclick =html event attribute run when user click-->
                     <button class="detail_button_primary"
                         onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')">
                         <!--text set whatsapp message %20represent space in url encoding-->
+=======
+                    <button class="detail_button_primary" onclick="window.open('https://wa.me/{{ item[8] }}? text=Hi%20I%20want%20to%20enquire', '_blank')">
+>>>>>>> c7a453719fe5181ce0b92ce6252332cf6736c325
                         Contact Seller
                     </button>
                 </div>

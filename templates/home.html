@@ -24,8 +24,9 @@
             <a href="{{ url_for('home') }}"><button class="nav_button">Back</button></a>
             <a href="{{ url_for('item_form') }}"><button class="nav_button nav_button_primary">Sell Item</button></a>
             <a href="{{ url_for('profile') }}"><button class="nav_button">Dashboard</button></a>
+            <a href="{{ url_for('my_favourites') }}"><button class="nav_button">My Favourites</button></a>
             <a href="{{ url_for('my_reports') }}"><button class="nav_button">My Reports</button></a>
-            <a href="#"><button class="nav_button">Settings</button></a>
+            <a href="{{ url_for('setting')}}"><button class="nav_button">Settings</button></a>
             <a href="{{ url_for('logout') }}"><button class="nav_button nav_button_logout">Logout</button></a>
         </div>
     </nav>
