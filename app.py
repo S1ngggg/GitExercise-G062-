@@ -203,6 +203,16 @@ def create_database():
     if "register_time" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
+    admin_accounts = [
+        ('admin1@mmu.edu.my', 'Admin1', generate_password_hash('Admin@001'), 'Other', 'admin'),
+        ('admin2@mmu.edu.my', 'Admin2', generate_password_hash('Admin@002'), 'Other', 'admin'),
+        ('admin3@mmu.edu.my', 'Admin3', generate_password_hash('Admin@003'), 'Other', 'admin'),
+    ]
+    for email, uname, pw, gender, role in admin_accounts:
+        cursor.execute(
+            "INSERT OR IGNORE INTO user (email, username, password, gender, role) VALUES (?,?,?,?,?)",
+            (email, uname, pw, gender, role))
+
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS report(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -243,6 +253,13 @@ def create_database():
     connect.close()
 
 
+def check_admin():
+    if session.get('role') != 'admin':
+        flash("Access denied. Admins only.")
+        return redirect(url_for('home_page'))
+    return None
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -269,6 +286,9 @@ def register():
         confirm_password = request.form['confirm_password']
         gender = request.form['gender']
         role = request.form['role']
+        if role not in ('Seller', 'Buyer', 'Both'):
+            flash("Invalid role selected.")
+            return render_template("register.html")
 
         if password != confirm_password:
             flash("Password do not match")
@@ -921,6 +941,9 @@ def logout():
 
 @app.route("/admin")
 def admin_dashboard():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1000,6 +1023,9 @@ def admin_dashboard():
 
 @app.route("/admin/items")
 def admin_items():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1044,6 +1070,9 @@ def admin_items():
 
 @app.route("/admin/reports")
 def admin_reports():
+    denied = check_admin()
+    if denied:
+        return denied
     selected_status = request.args.get("status", "").strip()
     if selected_status not in REPORT_STATUSES:
         selected_status = ""
@@ -1094,6 +1123,9 @@ def admin_reports():
 
 @app.route("/admin/reports/<int:report_id>/update", methods=['POST'])
 def update_admin_report(report_id):
+    denied = check_admin()
+    if denied:
+        return denied
     status = request.form.get('status', '').strip()
     admin_note = request.form.get('admin_note', '').strip()
 
@@ -1125,6 +1157,9 @@ def update_admin_report(report_id):
 
 @app.route("/admin/items/<int:item_id>/update", methods=['POST'])
 def update_admin_item(item_id):
+    denied = check_admin()
+    if denied:
+        return denied
     price = request.form.get('price', '').strip()
     category = request.form.get('category', '').strip()
     status = request.form.get('status', '').strip()
@@ -1174,8 +1209,41 @@ def update_admin_item(item_id):
     return redirect(url_for('admin_items'))
 
 
+@app.route("/admin/reports/<int:item_id>/remove-item", methods=['POST'])
+def admin_remove_reported_item(item_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
+    row = cursor.fetchone()
+    if not row:
+        flash("Item not found.")
+        connect.close()
+        return redirect(url_for('admin_reports'))
+
+    if row[0]:
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], row[0])
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    cursor.execute("DELETE FROM favourite WHERE item_id = ?", (item_id,))
+    cursor.execute("DELETE FROM report WHERE item_id = ?", (item_id,))
+    cursor.execute("DELETE FROM item WHERE id = ?", (item_id,))
+    connect.commit()
+    connect.close()
+
+    flash("Reported listing has been removed.")
+    return redirect(url_for('admin_reports'))
+
+
 @app.route("/admin/categories", methods=['GET', 'POST'])
 def admin_categories():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1220,6 +1288,9 @@ def admin_categories():
 
 @app.route("/admin/categories/<int:category_id>/edit", methods=['POST'])
 def edit_category(category_id):
+    denied = check_admin()
+    if denied:
+        return denied
     name = clean_category_name(request.form.get('name', ''))
 
     if not name:
@@ -1250,6 +1321,9 @@ def edit_category(category_id):
 
 @app.route("/admin/categories/<int:category_id>/delete", methods=['POST'])
 def delete_category(category_id):
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1273,6 +1347,73 @@ def delete_category(category_id):
 
     connect.close()
     return redirect(url_for('admin_categories'))
+
+
+@app.route("/admin/users")
+def admin_users():
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("""
+        SELECT id, email, username, role, register_time
+        FROM user ORDER BY id
+    """)
+    users = cursor.fetchall()
+    connect.close()
+
+    stats = {
+        "total_users": len(users),
+        "admin_count": sum(1 for u in users if u[3] == 'admin'),
+        "regular_count": sum(1 for u in users if u[3] != 'admin')
+    }
+    return render_template("admin_users.html", users=users, stats=stats)
+
+
+@app.route("/admin/users/<int:user_id>/make-admin", methods=['POST'])
+def make_admin(user_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT id, role FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        flash("User not found.")
+    elif user[1] == 'admin':
+        flash("User is already an admin.")
+    else:
+        cursor.execute("UPDATE user SET role = 'admin' WHERE id = ?", (user_id,))
+        connect.commit()
+        flash("User promoted to admin.")
+    connect.close()
+    return redirect(url_for('admin_users'))
+
+
+@app.route("/admin/users/<int:user_id>/remove-admin", methods=['POST'])
+def remove_admin(user_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    if user_id == session.get('user_id'):
+        flash("You cannot remove your own admin role.")
+        return redirect(url_for('admin_users'))
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+    cursor.execute("SELECT id, role FROM user WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        flash("User not found.")
+    elif user[1] != 'admin':
+        flash("User is not an admin.")
+    else:
+        cursor.execute("UPDATE user SET role = 'Both' WHERE id = ?", (user_id,))
+        connect.commit()
+        flash("Admin role removed.")
+    connect.close()
+    return redirect(url_for('admin_users'))
 
 
 @app.route("/marketplace", methods=['GET'])
