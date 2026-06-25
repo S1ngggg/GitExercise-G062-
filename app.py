@@ -168,6 +168,12 @@ def create_database():
 
     if "seller_num" not in item_columns:
         cursor.execute("ALTER TABLE item ADD COLUMN seller_num TEXT")
+
+    # add user_id into item table
+    if "user_id" not in item_columns:
+        cursor.execute(
+            "ALTER TABLE item ADD COLUMN user_id INTEGER REFERENCES user(id)")
+
     # create user table if does not exist yet
     cursor.execute("""
 
@@ -1441,11 +1447,12 @@ def item_form():
                 file.save(os.path.join(
                     app.config['UPLOAD_FOLDER'], image_filename))
 
-        cursor.execute("""
-                       INSERT INTO item(title, description, category_id, status_id, condition_id, price, image, seller_num)
-                       VALUES(?,?,?,?,?,?,?,?)
-                       """, (title, description, category, status, condition, price, image_filename, seller_num))
         user_id = session.get("user_id")
+
+        cursor.execute("""
+            INSERT INTO item(title, description, category_id, status_id, condition_id, price, image, seller_num, user_id)
+            VALUES(?,?,?,?,?,?,?,?,?)
+            """, (title, description, category, status, condition, price, image_filename, seller_num, user_id))
         if user_id:
             addactivity(cursor, user_id, "Added item")
         connect.commit()
@@ -1475,7 +1482,7 @@ def item_detail(item_id):
     cursor.execute("""
         SELECT item.id, item.title, item.description, item.price,
                category.name, status.condition,
-               item_condition.name, item.image, item.seller_num
+               item_condition.name, item.image, item.seller_num, item.user_id
         FROM item
         JOIN category ON item.category_id = category.id
         JOIN status ON item.status_id = status.id
@@ -1637,8 +1644,24 @@ def item_saved():
 
 @app.route("/item/<int:item_id>/edit", methods=['GET', 'POST'])
 def edit_item(item_id):
+
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in.")
+        return redirect(url_for('login'))
+
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
+
+    cursor.execute("SELECT user_id FROM item WHERE id = ?", (item_id,))
+    owner = cursor.fetchone()
+    if owner is None:
+        connect.close()
+        return "Item not found", 404
+    if owner[0] != user_id and session.get('role') != 'admin':
+        connect.close()
+        flash("You can only edit your own listings.")
+        return redirect(url_for('item_detail', item_id=item_id))
 
     if request.method == 'POST':
         title = request.form['title']
@@ -1703,8 +1726,24 @@ def edit_item(item_id):
 
 @app.route("/item/<int:item_id>/delete", methods=['POST'])
 def delete_item(item_id):
+
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in.")
+        return redirect(url_for('login'))
+
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
+
+    cursor.execute("SELECT user_id FROM item WHERE id = ?", (item_id,))
+    owner = cursor.fetchone()
+    if owner is None:
+        connect.close()
+        return "Item not found", 404
+    if owner[0] != user_id and session.get('role') != 'admin':
+        connect.close()
+        flash("You can only delete your own listings.")
+        return redirect(url_for('item_detail', item_id=item_id))
 
     cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
     row = cursor.fetchone()
