@@ -1203,6 +1203,36 @@ def update_admin_item(item_id):
     return redirect(url_for('admin_items'))
 
 
+@app.route("/admin/reports/<int:item_id>/remove-item", methods=['POST'])
+def admin_remove_reported_item(item_id):
+    denied = check_admin()
+    if denied:
+        return denied
+    connect = sqlite3.connect("database.db")
+    cursor = connect.cursor()
+
+    cursor.execute("SELECT image FROM item WHERE id = ?", (item_id,))
+    row = cursor.fetchone()
+    if not row:
+        flash("Item not found.")
+        connect.close()
+        return redirect(url_for('admin_reports'))
+
+    if row[0]:
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], row[0])
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    cursor.execute("DELETE FROM favourite WHERE item_id = ?", (item_id,))
+    cursor.execute("DELETE FROM report WHERE item_id = ?", (item_id,))
+    cursor.execute("DELETE FROM item WHERE id = ?", (item_id,))
+    connect.commit()
+    connect.close()
+
+    flash("Reported listing has been removed.")
+    return redirect(url_for('admin_reports'))
+
+
 @app.route("/admin/categories", methods=['GET', 'POST'])
 def admin_categories():
     denied = check_admin()
