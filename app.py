@@ -197,6 +197,16 @@ def create_database():
     if "register_time" not in user_column:
         cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
+    admin_accounts = [
+        ('admin1@mmu.edu.my', 'Admin1', generate_password_hash('Admin@001'), 'Other', 'admin'),
+        ('admin2@mmu.edu.my', 'Admin2', generate_password_hash('Admin@002'), 'Other', 'admin'),
+        ('admin3@mmu.edu.my', 'Admin3', generate_password_hash('Admin@003'), 'Other', 'admin'),
+    ]
+    for email, uname, pw, gender, role in admin_accounts:
+        cursor.execute(
+            "INSERT OR IGNORE INTO user (email, username, password, gender, role) VALUES (?,?,?,?,?)",
+            (email, uname, pw, gender, role))
+
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS report(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -237,6 +247,16 @@ def create_database():
     connect.close()
 
 
+ADMIN_EMAILS = {'admin1@mmu.edu.my', 'admin2@mmu.edu.my', 'admin3@mmu.edu.my'}
+
+
+def check_admin():
+    if session.get('role') != 'admin' or session.get('email') not in ADMIN_EMAILS:
+        flash("Access denied. Admins only.")
+        return redirect(url_for('home_page'))
+    return None
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -263,6 +283,9 @@ def register():
         confirm_password = request.form['confirm_password']
         gender = request.form['gender']
         role = request.form['role']
+        if role not in ('Seller', 'Buyer', 'Both'):
+            flash("Invalid role selected.")
+            return render_template("register.html")
 
         if password != confirm_password:
             flash("Password do not match")
@@ -915,6 +938,9 @@ def logout():
 
 @app.route("/admin")
 def admin_dashboard():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -994,6 +1020,9 @@ def admin_dashboard():
 
 @app.route("/admin/items")
 def admin_items():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1038,6 +1067,9 @@ def admin_items():
 
 @app.route("/admin/reports")
 def admin_reports():
+    denied = check_admin()
+    if denied:
+        return denied
     selected_status = request.args.get("status", "").strip()
     if selected_status not in REPORT_STATUSES:
         selected_status = ""
@@ -1088,6 +1120,9 @@ def admin_reports():
 
 @app.route("/admin/reports/<int:report_id>/update", methods=['POST'])
 def update_admin_report(report_id):
+    denied = check_admin()
+    if denied:
+        return denied
     status = request.form.get('status', '').strip()
     admin_note = request.form.get('admin_note', '').strip()
 
@@ -1119,6 +1154,9 @@ def update_admin_report(report_id):
 
 @app.route("/admin/items/<int:item_id>/update", methods=['POST'])
 def update_admin_item(item_id):
+    denied = check_admin()
+    if denied:
+        return denied
     price = request.form.get('price', '').strip()
     category = request.form.get('category', '').strip()
     status = request.form.get('status', '').strip()
@@ -1170,6 +1208,9 @@ def update_admin_item(item_id):
 
 @app.route("/admin/categories", methods=['GET', 'POST'])
 def admin_categories():
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
@@ -1214,6 +1255,9 @@ def admin_categories():
 
 @app.route("/admin/categories/<int:category_id>/edit", methods=['POST'])
 def edit_category(category_id):
+    denied = check_admin()
+    if denied:
+        return denied
     name = clean_category_name(request.form.get('name', ''))
 
     if not name:
@@ -1244,6 +1288,9 @@ def edit_category(category_id):
 
 @app.route("/admin/categories/<int:category_id>/delete", methods=['POST'])
 def delete_category(category_id):
+    denied = check_admin()
+    if denied:
+        return denied
     connect = sqlite3.connect("database.db")
     cursor = connect.cursor()
 
