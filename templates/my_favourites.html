@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} My Bookmarks {% endblock %}
+{% block title %} My Favourite {% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
@@ -31,7 +31,7 @@
 
     <div class="home_main">
         <div class="home_section_header">
-            <h2 class="home_section_title">My Bookmarks</h2>
+            <h2 class="home_section_title">My Favourites</h2>
         </div>
 
         {% if items %}
