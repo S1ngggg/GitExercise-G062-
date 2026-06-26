@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | MMU Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">M</span>
+                <span>
+                    <strong>MMU</strong>
+                    <small>Marketplace Admin</small>
+                </span>
+            </a>
+
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+                <a href="{{ url_for('admin_items') }}">Listings</a>
+                <a href="{{ url_for('admin_categories') }}">Categories</a>
+                <a class="active" href="{{ url_for('admin_users') }}">Users</a>
+                <a href="{{ url_for('admin_reports') }}">Reports</a>
+                <a href="{{ url_for('home') }}">View website</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">ADMIN PANEL</p>
+                    <h1>User management</h1>
+                    <p class="dashboard-subtitle">Promote users to admin or remove admin access.</p>
+                </div>
+                <a class="button" href="{{ url_for('admin_dashboard') }}">Back to overview</a>
+            </header>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="admin-flashes">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="stat-grid" aria-label="User statistics">
+                <article class="stat-card">
+                    <p>Total users</p>
+                    <strong>{{ stats.total_users }}</strong>
+                    <small>Registered accounts</small>
+                </article>
+                <article class="stat-card">
+                    <p>Admins</p>
+                    <strong>{{ stats.admin_count }}</strong>
+                    <small>Users with admin access</small>
+                </article>
+                <article class="stat-card">
+                    <p>Regular users</p>
+                    <strong>{{ stats.regular_count }}</strong>
+                    <small>Buyers and sellers</small>
+                </article>
+            </section>
+
+            <section class="listings-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>All users</h2>
+                        <p>Manage admin access for marketplace users.</p>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="listing-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Registered</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_id, email, username, role, register_time in users %}
+                            <tr>
+                                <td>
+                                    <strong>{{ username }}</strong>
+                                    <small>#{{ user_id }}</small>
+                                </td>
+                                <td>{{ email }}</td>
+                                <td>
+                                    <span class="status status-{{ 'available' if role == 'admin' else 'reserved' }}">{{ role }}</span>
+                                </td>
+                                <td>{{ register_time or 'N/A' }}</td>
+                                <td>
+                                    {% if role == 'admin' %}
+                                        {% if user_id == session.get('user_id') %}
+                                        <small>You</small>
+                                        {% else %}
+                                        <form method="POST" action="{{ url_for('remove_admin', user_id=user_id) }}" onsubmit="return confirm('Remove admin access from {{ username }}?')">
+                                            <button class="danger-button" type="submit">Remove Admin</button>
+                                        </form>
+                                        {% endif %}
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('make_admin', user_id=user_id) }}" onsubmit="return confirm('Make {{ username }} an admin?')">
+                                        <button type="submit">Make Admin</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="5">No users registered yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

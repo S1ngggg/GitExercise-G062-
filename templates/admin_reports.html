@@ -21,7 +21,7 @@
                 <a href="{{ url_for('admin_dashboard') }}">Overview</a>
                 <a href="{{ url_for('admin_items') }}">Listings</a>
                 <a href="{{ url_for('admin_categories') }}">Categories</a>
-                <a href="{{ url_for('admin_dashboard') }}#recent-users">Users</a>
+                <a href="{{ url_for('admin_users') }}">Users</a>
                 <a class="active" href="{{ url_for('admin_reports') }}">Reports</a>
                 <a href="{{ url_for('home') }}">View website</a>
             </nav>
@@ -133,6 +133,9 @@
                                             <textarea name="admin_note" maxlength="500" placeholder="Add a short review note.">{{ admin_note or '' }}</textarea>
                                         </label>
                                         <button type="submit">Save Review</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin_remove_reported_item', item_id=item_id) }}" onsubmit="return confirm('Permanently remove this listing and all its reports?')" style="margin-top: 10px;">
+                                        <button class="danger-button" type="submit" style="width: 100%;">Remove Listing</button>
                                     </form>
                                 </td>
                                 <td>{{ created_at }}</td>
