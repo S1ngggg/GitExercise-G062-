@@ -11,7 +11,8 @@ import json
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import base64
-import requests as req
+from urllib import error as urlerror
+from urllib import request as urlrequest
 
 app = Flask(__name__, template_folder='templates',
             static_folder='static', static_url_path='/')
@@ -1427,29 +1428,35 @@ def search_by_image():
         file_type = file.content_type or "image/jpeg"
         b64_image = base64.b64encode(image_bytes).decode("utf-8")
 
-        response = req.post(
+        payload = {
+            "model": "google/gemma-3-4b-it: free",
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:{file_type};base64,{b64_image}"}},
+                    {"type": "text",
+                     "text": 'Identify the item in this image. Reply only with a JSON object:\n{"keywords": ["keyword1", "keyword2", "keyword3"], "label": "short name of the item"}\nPick generic searchable words. For a desk use ["table", "furniture", "desk"]. For a graphics card use ["graphics", "GPU", "card"]. Always include the general category type as one keyword.'}
+                ]
+            }]
+        }
+
+        http_request = urlrequest.Request(
             "https://openrouter.ai/api/v1/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
             headers={
-                "Authorization": "Bearer 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"},
-            json={
-                "model": "google/gemma-3-4b-it: free",
-                "messages": [{
-                    "role": "user",
-                    "content": [
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:{file_type};base64,{b64_image}"}},
-                        {"type": "text",
-                         "text": 'Identify the item in this image. Reply only with a JSON object:\n{"keywords": ["keyword1", "keyword2", "keyword3"], "label": "short name of the item"}\nPick generic searchable words. For a desk use ["table", "furniture", "desk"]. For a graphics card use ["graphics", "GPU", "card"]. Always include the general category type as one keyword.'}
-                    ]
-                }]
-            }
+                "Authorization": "Bearer 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",
+                "Content-Type": "application/json",
+            },
+            method="POST",
         )
 
-        print("STATUS:", response.status_code)
-        print("RESPONSE:", response.json())
-
-        resp_json = response.json()
-        print("RESPONSE:", resp_json)
+        try:
+            with urlrequest.urlopen(http_request, timeout=30) as response:
+                resp_json = json.loads(response.read().decode("utf-8"))
+        except urlerror.URLError as exc:
+            flash(f"AI Service Error: {exc}")
+            return redirect(url_for('home_page'))
 
         # SAFETY CHECK: If OpenRouter returns an error, catch it gracefully
         if "choices" not in resp_json:
