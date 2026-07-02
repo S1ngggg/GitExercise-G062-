@@ -287,9 +287,6 @@ def register():
         confirm_password = request.form['confirm_password']
         gender = request.form['gender']
         role = request.form['role']
-        if role not in ('Seller', 'Buyer', 'Both'):
-            flash("Invalid role selected.")
-            return render_template("register.html")
 
         if password != confirm_password:
             flash("Password do not match")
@@ -305,25 +302,107 @@ def register():
 
         # if user exist redirect to login page
         if user:
+            conn.close()
             flash("Email or username already exists. Please Login!")
             return redirect(url_for('login'))
 
         # hash password befor storing into databse
         hashed_password = generate_password_hash(password)
-        register_time = datetime.now().strftime("%Y-%m-%d")
-        # inseert new user using hashed_password
-        cursor.execute("""
-            INSERT INTO user (email, username, password, gender, role, register_time)
-            VALUES(?, ?, ?, ?, ?,?)
-            """, (email, username, hashed_password, gender, role, register_time))  # insert user data using ?
-        conn.commit()  # save change to the database
+        session['register_user'] = {"email": email,
+                                    "username": username,
+                                    "password": hashed_password,
+                                    "gender": gender,
+                                    "role": role,
+                                    "register_time": datetime.now().strftime("%Y-%m-%d")
+                                    }
+        
+        otp = str(random.randint(100000, 999999))
+        session['otp'] = otp  # store otp in session to compare later
+        session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).strftime(
+                '%Y-%m-%d %H:%M:%S') 
+
+        msg = Message("Email Verification OTP", sender=app.config['MAIL_USERNAME'], recipients=[
+                          email])  # create email message
+            # get username from database result, index 2 is username column
+        msg.html = f"""
+<html>
+    <body>
+        <p>Dear {username},</p>
+
+        <p>🔐Your One-Time Password (OTP) is:</p>
+
+        <h3><b>{otp}</b></h3>
+
+        <p>It will expire in 10 minutes.</p>
+
+        <p>Thank you.</p>
+    </body>
+</html>
+"""
+        mail.send(msg)
+
         conn.close()
 
-        # after successful jump to login page
-        flash("Register successful! Please login.")
-        return redirect(url_for('login'))
+        flash("OTP sent to your email. Please check your inbox.")
+        return redirect(url_for('verifyemail')) 
 
     return render_template("register.html")
+
+@app.route("/verifyemail", methods=['GET', 'POST'])
+def verifyemail():
+    if request.method == 'POST':
+
+        user_otp = request.form['otp']
+        stored_otp = session.get('otp')
+        expiry_time = session.get('otp_expiry')
+
+        # session expired or no otp in session
+        if not stored_otp or not expiry_time:
+            flash("No OTP found. Please request a new OTP.")
+            return redirect(url_for('register'))
+
+        # otp expired
+        if datetime.now() > datetime.strptime(expiry_time, '%Y-%m-%d %H:%M:%S'):
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+            session.pop('register_user', None)
+            flash("OTP has expired. Please request a new OTP.")
+            return redirect(url_for('register'))
+        # otp correct
+        if user_otp == stored_otp:
+            user = session.get("register_user")
+
+            if not user:
+                flash("Registration session has expired. Please register again.")
+                return redirect(url_for("register"))
+            
+            conn = sqlite3.connect('database.db')  # connect to sqlite database
+            cursor = conn.cursor()
+            # inseert new user using hashed_password
+            cursor.execute("""
+                INSERT INTO user (email, username, password, gender, role, register_time)
+                VALUES(?, ?, ?, ?, ?,?)
+                """, (user["email"], 
+                    user["username"], 
+                    user["password"], 
+                    user["gender"], 
+                    user["role"],
+                    user["register_time"]))  # insert user data using ?
+            conn.commit()  # save change to the database
+            conn.close()
+            # clear otp after success verify
+            session.pop('otp', None)
+            session.pop('otp_expiry', None)
+            session.pop('register_user', None)
+            flash("Register successful! Please login.")
+            # redirect to reset password page and pass email to identify which user is resetting password
+            return redirect(url_for('login'))
+
+        else:
+            flash("Invalid OTP. Please try again.")
+            return redirect(url_for('verifyemail'))
+
+    return render_template("verifyemail.html")
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -709,11 +788,10 @@ def profile():
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
-    column = user
-    filled = sum(1 for f in column if f and str(f).strip() != "" and str(
-        # count how many column r fill inside user table
-        f).strip().lower() != "none")
-    total = len(column)
+    profile_column = [ user["username"], user["email"], user["phone_num"], user["role"], user["gender"], user["address"]]
+    filled = sum(1 for f in profile_column 
+                 if f and str(f).strip() != "" and str(f).strip().lower() != "none")
+    total = len(profile_column)
     percentage = int((filled/total)*100)
     cursor.execute(
         """SELECT * FROM activity WHERE user_id =? ORDER BY activity_time DESC LIMIT 5""", (user_id,))  # DESC = descending (newest first) only get the 7 latest activity
@@ -721,7 +799,7 @@ def profile():
     recent_activity = cursor.fetchall()
     connect.close()
 
-    return render_template("user_profile.html", username=user["username"] if user else '', email=user["email"] if user else '', phone_num=user["phone_num"] if user else '', role=user["role"] if user else '', gender=user["gender"] if user else '', login_count=user["login_count"] if user else '0', profile_image=user["profile_image"]if user else None, percentage=percentage, register_time=user["register_time"]if user and user["register_time"] else 'Not Recorded', recent_activity=recent_activity)
+    return render_template("user_profile.html", username=user["username"], email=user["email"], phone_num=user["phone_num"], role=user["role"], gender=user["gender"], login_count=user["login_count"] or 0, profile_image=user["profile_image"]if user else None, percentage=percentage, register_time=user["register_time"]if user and user["register_time"] else 'Not Recorded', recent_activity=recent_activity)
 
 
 @app.route("/my_reports")
@@ -780,7 +858,7 @@ def upload_profile():
         cursor = connect.cursor()
         cursor.execute(
             "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
-        addactivity(cursor, user_id, "Changed profile picture.")
+        addactivity(cursor, user_id, "Changed profile picture")
         connect.commit()
         connect.close()
 
@@ -831,7 +909,7 @@ def upload_setting():
         cursor = connect.cursor()
         cursor.execute(
             "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
-        addactivity(cursor, user_id, "Changed profile picture.")
+        addactivity(cursor, user_id, "Changed profile picture")
         connect.commit()
         connect.close()
 
@@ -854,7 +932,7 @@ def update_info():
     cursor = conn.cursor()
     cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?",
                    (username, email, phone_num, role, gender, address, user_id))
-    addactivity(cursor, user_id, "Updated profile info.")
+    addactivity(cursor, user_id, "Updated profile info")
     conn.commit()
     conn.close()
 
@@ -933,7 +1011,7 @@ def logout():
     if user_id:
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
-        addactivity(cursor, user_id, "Logged out.")
+        addactivity(cursor, user_id, "Logged out")
         conn.commit()
         conn.close()
     session.clear()  # clear all session data to log out the user
@@ -1701,7 +1779,7 @@ def edit_item(item_id):
             WHERE id=?
         """, (title, description, category, status, condition, price, image_filename, item_id))
         user_id = session.get("user_id")
-        addactivity(cursor, user_id, "Edit item details")
+        addactivity(cursor, user_id, "Edited item details")
         connect.commit()
         connect.close()
         return redirect(url_for('item_detail', item_id=item_id))
