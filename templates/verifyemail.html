@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email</title>
+    <link rel="stylesheet" href="/css/layout.css">
+</head>
+<body class="check-otp-page">
+    {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            <div class="flash" id="flash-message">
+                {%for msg in messages%}
+                    <p>{{msg}}</p>
+                {%endfor%}
+            </div>
+        {%endif%}
+    {%endwith%}
+
+    <div class="background-color"></div>
+    <div class="background-img"></div>
+    
+    <header>
+        <h1 class="title">MMU <span class="highlight">Marketplace 🧺</span></h1>
+        <div class="navigation">
+            <a href="{{url_for('home')}}">
+                <button>Back</button>
+            </a>
+        </div>
+    </header>
+
+    <div class="check-otp-container">
+        <div class="check-otp">
+            <h2>MMU Marketplace</h2>
+            <h3>Verify Email</h3>
+            <form method="POST" action="{{url_for('verifyemail')}}">
+                <div class="input-column">
+                    <div class="input-grp">
+                        <label>OTP</label>
+                        <input type="text" name="otp" placeholder="Please Enter Your OTP." minlength="6" maxlength="6" required>
+                    </div>
+
+                    <button type="submit" class="check-otp-button">Verify Email</button>
+
+                    <div class="login-link">
+                        <p>Remember your password? <a href="{{url_for('login')}}"> Login</a></p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    //setTimeout()waits for 3000milliseconds(3s) then hide the flash message
+setTimeout(() => document.getElementById('flash-message').style.display = 'none',3000);
+</script>
+
+</body>
+</html>
