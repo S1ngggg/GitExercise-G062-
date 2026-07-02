@@ -205,9 +205,12 @@ def create_database():
         cursor.execute("ALTER TABLE user ADD COLUMN register_time TEXT")
 
     admin_accounts = [
-        ('admin1@mmu.edu.my', 'Admin1', generate_password_hash('Admin@001'), 'Other', 'admin'),
-        ('admin2@mmu.edu.my', 'Admin2', generate_password_hash('Admin@002'), 'Other', 'admin'),
-        ('admin3@mmu.edu.my', 'Admin3', generate_password_hash('Admin@003'), 'Other', 'admin'),
+        ('admin1@mmu.edu.my', 'Admin1',
+         generate_password_hash('Admin@001'), 'Other', 'admin'),
+        ('admin2@mmu.edu.my', 'Admin2',
+         generate_password_hash('Admin@002'), 'Other', 'admin'),
+        ('admin3@mmu.edu.my', 'Admin3',
+         generate_password_hash('Admin@003'), 'Other', 'admin'),
     ]
     for email, uname, pw, gender, role in admin_accounts:
         cursor.execute(
@@ -315,15 +318,15 @@ def register():
                                     "role": role,
                                     "register_time": datetime.now().strftime("%Y-%m-%d")
                                     }
-        
+
         otp = str(random.randint(100000, 999999))
         session['otp'] = otp  # store otp in session to compare later
         session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).strftime(
-                '%Y-%m-%d %H:%M:%S') 
+            '%Y-%m-%d %H:%M:%S')
 
         msg = Message("Email Verification OTP", sender=app.config['MAIL_USERNAME'], recipients=[
-                          email])  # create email message
-            # get username from database result, index 2 is username column
+            email])  # create email message
+        # get username from database result, index 2 is username column
         msg.html = f"""
 <html>
     <body>
@@ -344,9 +347,10 @@ def register():
         conn.close()
 
         flash("OTP sent to your email. Please check your inbox.")
-        return redirect(url_for('verifyemail')) 
+        return redirect(url_for('verifyemail'))
 
     return render_template("register.html")
+
 
 @app.route("/verifyemail", methods=['GET', 'POST'])
 def verifyemail():
@@ -375,19 +379,19 @@ def verifyemail():
             if not user:
                 flash("Registration session has expired. Please register again.")
                 return redirect(url_for("register"))
-            
+
             conn = sqlite3.connect('database.db')  # connect to sqlite database
             cursor = conn.cursor()
             # inseert new user using hashed_password
             cursor.execute("""
                 INSERT INTO user (email, username, password, gender, role, register_time)
                 VALUES(?, ?, ?, ?, ?,?)
-                """, (user["email"], 
-                    user["username"], 
-                    user["password"], 
-                    user["gender"], 
-                    user["role"],
-                    user["register_time"]))  # insert user data using ?
+                """, (user["email"],
+                      user["username"],
+                      user["password"],
+                      user["gender"],
+                      user["role"],
+                      user["register_time"]))  # insert user data using ?
             conn.commit()  # save change to the database
             conn.close()
             # clear otp after success verify
@@ -788,8 +792,9 @@ def profile():
     cursor = connect.cursor()
     cursor.execute("SELECT * FROM user WHERE id = ?", (user_id,))
     user = cursor.fetchone()
-    profile_column = [ user["username"], user["email"], user["phone_num"], user["role"], user["gender"], user["address"]]
-    filled = sum(1 for f in profile_column 
+    profile_column = [user["username"], user["email"],
+                      user["phone_num"], user["role"], user["gender"], user["address"]]
+    filled = sum(1 for f in profile_column
                  if f and str(f).strip() != "" and str(f).strip().lower() != "none")
     total = len(profile_column)
     percentage = int((filled/total)*100)
@@ -1464,7 +1469,8 @@ def make_admin(user_id):
     elif user[1] == 'admin':
         flash("User is already an admin.")
     else:
-        cursor.execute("UPDATE user SET role = 'admin' WHERE id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE user SET role = 'admin' WHERE id = ?", (user_id,))
         connect.commit()
         flash("User promoted to admin.")
     connect.close()
@@ -1488,7 +1494,8 @@ def remove_admin(user_id):
     elif user[1] != 'admin':
         flash("User is not an admin.")
     else:
-        cursor.execute("UPDATE user SET role = 'Both' WHERE id = ?", (user_id,))
+        cursor.execute(
+            "UPDATE user SET role = 'Both' WHERE id = ?", (user_id,))
         connect.commit()
         flash("Admin role removed.")
     connect.close()
