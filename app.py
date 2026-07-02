@@ -66,9 +66,9 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 # configure mail port, 587 is commonly used for secure email submission
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True  # enable secure email encryption
-app.config['MAIL_USERNAME'] = 'valorantsing2007@gmail.com'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'valorantsing2007@gmail.com')
 # use app password for security, generate from google account setting
-app.config['MAIL_PASSWORD'] = 'idzw zprj hqak xypr'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
 
 mail = Mail(app)  # initialize flask-mail, connect to flaskapp
 
@@ -285,7 +285,7 @@ def home():
     return render_template("index.html")
 
 
-app.secret_key = "my_secret_key......"
+app.secret_key = os.environ.get('SECRET_KEY', 'my_secret_key......')
 
 
 # required for session + flash
@@ -1929,4 +1929,4 @@ def my_favourites():
 
 if __name__ == "__main__":
     create_database()
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')
