@@ -132,6 +132,22 @@ def create_database():
     cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Stationary')")
     cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Bottle')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Bag')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Apparel & Accessories')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Home & Kitchen')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Health & Beauty')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Food')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Tools & Equipment')")
+    cursor.execute(
+        "INSERT OR IGNORE INTO category (name) VALUES ('Office Supplies')")
+    cursor.execute(
         "INSERT OR IGNORE INTO category (name) VALUES ('Others')")
    # Adding default and possibly permanent status conditions
 
