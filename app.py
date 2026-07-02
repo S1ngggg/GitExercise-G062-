@@ -779,7 +779,7 @@ def upload_profile():
         cursor = connect.cursor()
         cursor.execute(
             "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
-        addactivity(cursor, user_id, "Changed profile picture.")
+        addactivity(cursor, user_id, "Changed profile picture")
         connect.commit()
         connect.close()
 
@@ -830,7 +830,7 @@ def upload_setting():
         cursor = connect.cursor()
         cursor.execute(
             "UPDATE user SET profile_image = ? WHERE id = ?", (filename, user_id))
-        addactivity(cursor, user_id, "Changed profile picture.")
+        addactivity(cursor, user_id, "Changed profile picture")
         connect.commit()
         connect.close()
 
@@ -853,7 +853,7 @@ def update_info():
     cursor = conn.cursor()
     cursor.execute("UPDATE user SET username = ?, email = ?, phone_num = ?, role = ?, gender = ?, address = ? WHERE id = ?",
                    (username, email, phone_num, role, gender, address, user_id))
-    addactivity(cursor, user_id, "Updated profile info.")
+    addactivity(cursor, user_id, "Updated profile info")
     conn.commit()
     conn.close()
 
@@ -932,7 +932,7 @@ def logout():
     if user_id:
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
-        addactivity(cursor, user_id, "Logged out.")
+        addactivity(cursor, user_id, "Logged out")
         conn.commit()
         conn.close()
     session.clear()  # clear all session data to log out the user
@@ -1694,7 +1694,7 @@ def edit_item(item_id):
             WHERE id=?
         """, (title, description, category, status, condition, price, image_filename, item_id))
         user_id = session.get("user_id")
-        addactivity(cursor, user_id, "Edit item details")
+        addactivity(cursor, user_id, "Edited item details")
         connect.commit()
         connect.close()
         return redirect(url_for('item_detail', item_id=item_id))

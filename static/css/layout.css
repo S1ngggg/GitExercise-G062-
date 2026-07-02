@@ -11,15 +11,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=DM+Serif+Text:ital@0;1&family=Fredoka:wght@300..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Slab:wght@100..900&family=Satisfy&display=swap');
 
-/* https://www.youtube.com/watch?v=HmaQwuKUYTc&t=11s */
-/* https://www.youtube.com/watch?v=JYfiaSKeYhE&t=6s */
-/* https://www.youtube.com/watch?v=wsTv9y931o8&t=265s */
-/* https://www.youtube.com/watch?v=-itttmX6HX0 */
-/* https://www.youtube.com/watch?v=rBWA_t-KnKk */
-/* https://www.youtube.com/watch?v=cWgb42tUYPA */
-/* https://youtube.com/shorts/QTYwZUlSXt8?si=fnKuS192x5TTHSSV */
-/* https://www.youtube.com/watch?v=iIqgW-stZmE */
-
 .title {
     font-family: "Satisfy", cursive;
     font-weight: 400;
@@ -1323,6 +1314,7 @@ select {
     font-weight: 400;
     font-style: normal;
     font-variation-settings:"wdth" 100;
+    margin-bottom: 15px;
 }
 
 .upload-button:hover{
